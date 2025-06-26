@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-![logo](https://yuanjin.space/imgs/loginLogo.png)
+![logo](https://github.com/Yphfeng/cargocnApp/blob/main/images/loginLogo.png)
 
 <h1>货先生</h1>
 
