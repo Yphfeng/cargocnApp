@@ -18,16 +18,20 @@
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/shipMy.jpg" alt="货主我的" width="100px" height="250px" />
 </div>
 
-## ✨ 实现功能
+## ✨ 主要功能
 
 - 🌈 司机找货、物流运输、车辆加油
 - 📦 货主找车、发布货源、接单提醒
 - 🛡 油气交易、车辆服务、卡友互助
 - ⚙️ 短导运输、运力采购、路况天气
 
-## ✨ 使用技术栈
-- [unni-app](https://uniapp.dcloud.net.cn/)
-- 高德地图(https://lbs.amap.com/api/javascript-api-v2/summary)
-
-
+## ✨ 使用技术
+- unni-app+vuex+vue-router
+- [高德定位和地图](https://lbs.amap.com/api/javascript-api-v2/summary)
+- 一键登录
+- 微信分享
+- 二维码扫码
+- 微信支付
+- 消息推送
+- 微信H5跳转App
 
