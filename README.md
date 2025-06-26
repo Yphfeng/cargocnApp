@@ -6,12 +6,11 @@
 
 连接千万物流人的数字化运力App
 
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="250px" height="100px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg" alt="首页" width="100px" height="250px" />
 
 
