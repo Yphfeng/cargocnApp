@@ -14,6 +14,7 @@
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/shipFleet.jpg" alt="货主车队" width="100px" height="250px" />
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/my.jpg" alt="我的" width="100px" height="250px" />
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/shipMy.jpg" alt="货主我的" width="100px" height="250px" />
+</div>
 
 ## ✨ 实现功能
 
