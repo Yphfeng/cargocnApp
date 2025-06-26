@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-![logo](https://yuanjin.space/imgs/loginLogo.png){width=180px height=180px}
+![logo](https://yuanjin.space/imgs/loginLogo.png)
 
 <h1>货先生</h1>
 
