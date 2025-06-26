@@ -1,0 +1,19 @@
+{
+    "name": "KsModule",
+    "id": "KsModule",
+    "version": "1.0.0",
+    "description": "快手sdk",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "KsModule",
+                    "class": "com.cargochina.ksmodule.KsModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}

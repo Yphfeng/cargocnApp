@@ -1,0 +1,304 @@
+Page {
+    background: #F7F7F7;
+}
+
+
+/* 未选中的 背景样式 */
+
+radio .wx-radio-input {
+    border-radius: 50%;
+    border: none;
+}
+
+
+/* 选中后的 背景样式 */
+
+
+/* radio .wx-radio-input.wx-radio-input-checked {
+    border: none;
+    background: #fff;
+}
+
+radio .wx-radio-input.wx-radio-input-checked::before {
+
+    font-size: 36rpx;
+    color: #00ad4f;
+} */
+
+.textContainer {
+    font-size: 28rpx;
+    margin: 30rpx;
+}
+
+.lineView1 {
+    height: 20rpx;
+    width: 100vw;
+    background: transparent;
+}
+
+.listItemView {
+    height: 196rpx;
+    display: flex;
+    flex-direction: column;
+    margin: 20rpx;
+    /*  background: url("https://cargocn.oss-cn-beijing.aliyuncs.com/6f576887869949f4a993ddc070044a2a.png"); */
+    /*background-image: url("https://cargocn.oss-cn-beijing.aliyuncs.com/6f576887869949f4a993ddc070044a2a.png");*/
+    background-size: 100% 196rpx;
+}
+
+.listItemViewLine1 {
+    display: flex;
+    height: 196rpx;
+    flex-direction: row;
+}
+
+.listItemViewLine1Left {
+    display: flex;
+    flex-direction: column;
+    height: 196rpx;
+    width: 181rpx;
+    align-items: center;
+    justify-content: center;
+    /*  padding: 20rpx; */
+}
+
+.listItemViewLine1Left text {
+    font-size: 24rpx;
+    color: white;
+    font-family: Adobe Heiti Std;
+    font-weight: bold;
+}
+
+.listItemViewLine1Left label {
+    font-size: 50rpx;
+    color: white;
+    font-family: Adobe Heiti Std;
+    font-weight: bold;
+    display: flex;
+}
+
+.sell {
+    width: 16rpx;
+    height: 20rpx;
+    line-height: 20rpx;
+    margin-right: 8rpx;
+    margin-top: 26rpx;
+}
+
+.unit {
+    width: 32rpx;
+    height: 49rpx;
+    font-size: 26rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 37rpx;
+}
+
+.listItemViewLine1Right {
+    display: flex;
+    flex-direction: column;
+    height: 196rpx;
+    margin-left: 54rpx;
+    flex: 1;
+    align-items: start;
+    justify-content: center;
+    position: relative;
+}
+
+.listItemViewLine1Right text {
+    font-size: 24rpx;
+    color: #312F2F;
+    font-family: PingFang SC;
+    font-weight: 500;
+}
+
+.listItemViewLine1Right_Head {
+    display: flex;
+    width: 445rpx;
+    align-items: center;
+    position: relative;
+}
+
+.listItemViewLine1Right .listItemViewLine1Right_Name {
+    height: 46rpx;
+    font-size: 33rpx;
+    font-family: PingFang SC;
+    font-weight: 500;
+    line-height: 46rpx;
+    color: #312F2F;
+    width: 180rpx;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+
+.listItemViewLine1Right .typeName {
+    display: block;
+    min-width: 40rpx;
+    padding: 0 17rpx;
+    height: 29rpx;
+    background: #6D9AED;
+    border-radius: 18rpx;
+    text-align: center;
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 29rpx;
+    color: #F3F3F3;
+    margin-left: 11rpx;
+}
+
+.listItemViewLine1Right .couponDetails {
+    width: 290rpx;
+    min-height: 28rpx;
+    margin-top: 9rpx;
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 28rpx;
+    color: #666666;
+    /* text-overflow: ellipsis;
+    display: -webkit-box; */
+    word-break: break-all;
+    /* -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden; */
+}
+
+.listItemViewLine2 {
+    display: flex;
+    height: 70rpx;
+    flex-direction: row;
+    font-size: 24rpx;
+    color: white;
+    font-family: Adobe Heiti Std;
+    font-weight: bold;
+    align-items: flex-end;
+    margin-bottom: 10rpx;
+    margin-right: 50rpx;
+    margin-left: 20rpx;
+    justify-content: space-between;
+}
+
+.listItemViewLine2>text {
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: italic;
+}
+
+.listItemViewLine1Right2 {
+    position: absolute;
+    height: 196rpx;
+    line-height: 196rpx;
+    right: 100rpx;
+	display: flex;
+	align-items: center;
+}
+
+.amountView {
+    margin-top: 8rpx;
+	display: flex;
+	align-items: center;
+}
+
+.amountView view {
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap;
+    justify-content: space-between;
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 28rpx;
+    color: #6D9AED;
+}
+
+.typeNameContainer {
+    position: relative;
+    transform: rotate(51deg);
+    font-family: Adobe Heiti Std;
+    font-weight: bold;
+    color: #CC3C3C;
+    font-size: 24rpx;
+    margin-right: 70rpx;
+    margin-top: 40rpx;
+}
+
+.listItemViewLeft {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    font-size: 26rpx;
+    padding: 20rpx;
+    width: 30%;
+}
+
+.listItemViewMid {
+    display: flex;
+    flex: 2;
+    flex-direction: column;
+    color: #333;
+    font-size: 25rpx;
+    align-items: start;
+    justify-content: space-around;
+    padding-left: 20rpx;
+}
+
+.center {
+    display: flex;
+    align-items: flex-end;
+    margin-left: 20rpx;
+    margin-bottom: 20rpx
+}
+
+.listItemViewRight {
+    justify-content: center;
+    display: flex;
+    padding-left: 15rpx;
+    padding-right: 15rpx;
+    height: 35rpx;
+    align-items: center;
+    color: red;
+    background: #F9F8F5;
+    opacity: 0.81;
+    border-radius: 28rpx;
+    font-size: 20rpx;
+}
+
+.lineView {
+    margin-left: 40rpx;
+    height: 1rpx;
+    border-bottom: 1rpx solid #DDDDDD;
+}
+
+.bottomSave {
+    height: 70rpx;
+    background: #6D9AED;
+    font-size: 27rpx;
+    color: #F7F7F7;
+    border: none;
+    border-radius: 45rpx;
+    display: flex;
+    align-items: center;
+    margin: 0 50rpx;
+    justify-content: center;
+    position: fixed;
+    width: 85%;
+    bottom: 12px;
+}
+
+.child-num{
+	flex-direction: column; 
+	display: flex; 
+	height: 100%; 
+	justify-content: center; 
+	align-items: center;
+}
+.stand-type{
+	margin-right: 16rpx;
+	font-weight: 600;
+	font-size: 20rpx;
+}

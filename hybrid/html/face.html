@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>认证</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			.successIcon {
+				width: 44px;
+				height: 44px;
+				display: block;
+				margin: 0 auto;
+			}
+			.identifyHint {
+				margin-top:28px;
+				font-size: 20px;
+				font-weight: 500;
+				color: #333333;
+				line-height: 28px;
+				text-align: center;
+			}
+			.comfirmBtn {
+				position: fixed;
+				bottom:20px;
+				left: 25px;
+				right: 25px;
+				height: 50px;
+				line-height: 50px;
+				border-radius: 22px;
+				box-shadow: 0px 2px 4px 0px rgba(38, 158, 255, 0.5);
+				background-color: #4AA2F3;
+				font-size: 18px;
+				font-weight: 500;
+				color: #FFFFFF;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<script>
+		// jump();
+		// function jump() {
+		// 	alert('tiaozhuan');
+		// 	// location.href = "hbuilder://"
+		// }
+	</script>
+	<body>
+		<div id="app" style="padding-top: 80px;">
+			<img class="successIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/identifySuccess.png" />
+			<div class="identifyHint">识别完成</div>
+			<div class="comfirmBtn" @click="jumpw">确定</div>
+			<a href="cargocnJy://abc">A跳转<a>
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+					}
+				},
+				created() {
+				},
+				mounted() {
+				},
+				methods: {
+					jumpw() {
+						// alert('tiaozhuan');
+						window.location.href = "cargocnJy://abc"
+					},
+					jumph() {
+						location.href = "cargocnJy://abc"
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

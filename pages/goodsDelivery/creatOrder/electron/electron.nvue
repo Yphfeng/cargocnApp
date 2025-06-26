@@ -1,0 +1,708 @@
+<template>
+	<view class="webview">
+		
+		<!-- <web-view :src="webViewUrl" @message="getMessage"></web-view> -->
+		<map class="map" :style="{height: mapHeight + 'px'}" :longitude="longitude" :latitude="latitude" :markers="markers" :circles="circles" :scale="scale" id="map1" ref="map1" @tap="tapMap">
+		</map>
+		<view class="locationCenter" @click="toLocationCenter">
+			<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/locationCenter.png" class="centerImg"></image>
+		</view>
+		<image :src="bgSrc" class="bgTab" v-if="electronIndex == 0"></image>
+		<image :src="bgSrc1" class="bgTab" v-if="electronIndex == 1"></image>
+		<view class="tabs">
+			<view class="tabs-item" @click="switchTab(0)"><text class="tabs-item-text" :class="{'tabs-item-text-active': electronIndex == 0}">装货电子围栏</text></view>
+			<view class="tabs-item" @click="switchTab(1)"><text class="tabs-item-text" :class="{'tabs-item-text-active': electronIndex == 1}">卸货电子围栏</text></view>
+		</view>
+		
+		
+		<view class="opt">
+			<view class="search-btn" @click="chooseLocation"><text class="search-btn-text">搜索地点</text></view>
+			<view class="title"><text class="title-text">{{electronIndex ? '卸货中心点' : '装货中心点'}}</text></view>
+			<view class="content"><text class="content-text">{{electronIndex ? eleReceiveInputVal : eleInputVal}}</text></view>
+			<view class="line"></view>
+			<view class="select">
+				<text>电子围栏半径</text>
+				<picker @change="bindPickerChange" :value="pickIndex" range-key="name" :range="radioArr">
+					<view class="select-row">
+						<text class="select-row-text">{{electronIndex ? eleReceiveRadioName : eleRadioName}}</text>
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/selected_down.png" class="selected_down"></image>
+					</view>
+				</picker>
+			</view>
+		</view>
+		<uni-popup ref="backPopup1" type="center">
+			<view class="backPopup">
+				<view class="cont"><text class="cont-text">您已经修改了电子围栏，是否保存</text></view>
+				<view class="optbtn">
+					<view class="cancel1 opt1" @click="cancelBack1"><text class="cancel1-text">取消</text></view>
+					<view class="confirm1 opt1" @click="confirmBack1"><text class="confirm1-text">保存</text></view>
+				</view>
+			</view>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import { MAP_URL } from "@/utils/baseUrl.js" 
+	import * as ship from "@/utils/ship.js"
+	export default {
+		data() {
+			return {
+				
+				electecIndex: 0,
+				mapHeight: 0,
+				scale: 16,
+				markers: [],
+				circles: [],
+				longitude: '',
+				latitude: '',
+				selfLongitude: '',
+				selfLatitude: '',
+				zhuangLocation: "",
+				xieLocation: "",
+				electronIndex: 0,
+				bgSrc: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-1.png',
+				bgSrc1: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-2.png',
+				senderRadio: '',
+				pickIndex: 0,
+				eleRadio: "",
+				eleRadioName: '不设置电子围栏',
+				eleReceiveRadio: "",
+				eleReceiveRadioName: '不设置电子围栏',
+				eleInputVal: "",
+				eleReceiveInputVal: '',
+				radioArr: [
+					{name: '不设置电子围栏', value: 0},
+					{name: '500米', value: '500'},
+					{name: '1公里', value: '1000'},
+					{name: '5公里', value: '5000'},
+					{name: '10公里', value: '10000'},
+					{name: '20公里', value: '20000'},
+					{name: '50公里', value: '50000'},
+					
+				],
+				
+			}
+		},
+		onLoad(options) {
+			console.log(options, "options");
+			var electronInfo = JSON.parse(options.electronInfo);
+			var senderOption = electronInfo.zhuang;
+			var receiveOption = electronInfo.xie;
+			this.senderOption = senderOption;
+			this.receiveOption = receiveOption;
+			this.source = options.source;
+			if (options.source == "edit") {
+				this.originElectronInfo = JSON.parse(options.electronInfo);
+				this.shipperSid = options.shipperSid;
+			}
+			console.log(senderOption, receiveOption, "首次加载的地址");
+			this.getMyLocation(senderOption, receiveOption);
+			
+		},
+		onReady() {
+			var system = uni.getSystemInfoSync();
+			this.mapHeight = system.windowHeight - 298
+			this.mapContext = uni.createMapContext("map1");
+		},
+		computed: {
+			webViewUrl() {
+				return 'https://hyjy-test.hyzgapp.com:8600/electronapp.html'
+			}
+		},
+		onBackPress(e) {
+			var source = this.source;
+			if (e.from == 'backbutton') {
+				if (source == "edit") {
+					//判断登录人和货源发货人是否是同一人，非同一人无法操作电子围栏
+					var userInfo = uni.getStorageSync("userInfo");
+					if (JSON.parse(userInfo).userId != this.shipperSid) {
+						return false;
+					}
+					var originElectronInfo = this.originElectronInfo;
+					var electronInfo = this.electronInfo;
+					var zhuang = originElectronInfo.zhuang || {};
+					var xie = originElectronInfo.xie || {};
+					var zhuang1 = electronInfo.zhuang || {};
+					var xie1 = electronInfo.xie || {};
+					console.log(zhuang, zhuang1, xie, xie1, "电子围栏信息1212");
+					if (zhuang.longitude != zhuang1.longitude || zhuang.latitude != zhuang1.latitude || zhuang.fenceRadius != zhuang1.fenceRadius || xie.latitude != xie1.latitude || xie.longitude != xie1.longitude || xie.fenceRadius != xie1.fenceRadius) {
+						this.$refs.backPopup1.open();
+						return true
+					}
+				}
+				
+			}
+		},
+		methods: {
+			cancelBack1() {
+				this.$refs.backPopup1.close();
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			confirmBack1() {
+				this.$refs.backPopup1.close();
+				var electronInfo = this.electronInfo;
+				uni.$emit("electronSet", JSON.stringify(electronInfo));
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			initSenderElectron(senderOption) {
+				let that = this;
+				var radioArr = that.radioArr;
+				console.log(senderOption, "senderOption", radioArr);
+				var address = senderOption.addressCenter;
+				var lnglat = [senderOption.longitude, senderOption.latitude];
+				that.renderMarkers();
+				var fenceRadius = senderOption.fenceRadius;
+				var findIndex = radioArr.findIndex(atem => {
+					return atem.value == fenceRadius
+				})
+				if (findIndex > -1) {
+					that.eleRadio = senderOption.fenceRadius;
+					that.eleRadioName = radioArr[findIndex].name
+				}
+				
+				
+				if (address && senderOption.longitude) {
+					that.longitude = senderOption.longitude;
+					that.latitude = senderOption.latitude;
+					
+					that.zhuangLocation = senderOption.longitude + ',' + senderOption.latitude
+					that.eleInputVal = address;
+					console.log(that.eleInputVal, "eleInputValeleInputValeleInputValeleInputVal")
+					that.renderCircle();
+				} else if (senderOption.longitude) {
+					this.lnglatToAddr(lnglat);
+				} else {
+					//取当前定位地址
+					var longitude = that.selfLongitude;
+					var latitude = that.selfLatitude;
+					var lnglat = [longitude, latitude];
+					that.lnglatToAddr(lnglat);
+				}
+			},
+			initReceiveElectron(receiveOption) {
+				let that = this;
+				var radioArr = that.radioArr;
+				var address = receiveOption.addressCenter;
+				if (address && receiveOption.longitude) {
+					var lnglat = [receiveOption.longitude, receiveOption.latitude];
+								
+					this.eleReceiveInputVal = address;
+					that.xieLocation = receiveOption.longitude + ',' + receiveOption.latitude;
+					var fenceRadius = receiveOption.fenceRadius;
+					var findIndex = radioArr.findIndex(atem => {
+						return atem.value == fenceRadius
+					})
+					if (findIndex > -1) {
+						that.eleReceiveRadio = receiveOption.fenceRadius;
+						that.eleReceiveRadioName = radioArr[findIndex].name
+					}
+					console.log("receiveOption",receiveOption, findIndex);
+				} else if (receiveOption.longitude) {
+					var lnglat = [receiveOption.longitude, receiveOption.latitude];
+					that.lnglatToAddr1(lnglat, 1);
+				}
+				
+							
+			},
+			bindPickerChange(e) {
+				console.log(e)
+				var electronIndex = this.electronIndex;
+				var radioArr = this.radioArr;
+				var val = e.detail.value;
+				this.pickIndex = e.detail.value;
+				if (electronIndex == 0) {
+					this.eleRadioName = radioArr[val].name;
+					this.eleRadio = radioArr[val].value;
+				} else {
+					this.eleReceiveRadioName = radioArr[val].name;
+					this.eleReceiveRadio = radioArr[val].value;
+				}
+				this.renderCircle();
+			},
+			getMyLocation(senderOption, receiveOption) {
+				//获取当前定位
+				let that = this;
+				uni.getLocation({
+					type: 'gcj02',
+					success: function(res) {
+						console.log(res, '当前坐标')
+						var longitude = res.longitude
+						var latitude = res.latitude;
+						that.selfLatitude = latitude.toFixed(6);
+						that.selfLongitude = longitude.toFixed(6);
+						if (senderOption && Object.keys(senderOption).length > 0) {
+							that.initSenderElectron(senderOption); //初始化装货点电子围栏
+						} else {
+							var lnglat = [longitude.toFixed(6), latitude.toFixed(6)];
+							that.renderMarkers();
+							//当前位置的电子围栏
+							that.lnglatToAddr(lnglat);
+						}
+						if (receiveOption && Object.keys(receiveOption).length > 0) {
+							that.initReceiveElectron(receiveOption); //初始化卸货点电子围栏
+						}
+					},
+					fail() {
+						uni.showToast({
+							title: '请打开定位',
+							icon: 'none'
+						})
+					}
+				})
+			},
+			renderMarkers() {
+				var selfLongitude = this.selfLongitude;
+				var selfLatitude = this.selfLatitude;
+				this.markers = [
+					{
+						id: 1,
+						longitude: Number(selfLongitude),
+						latitude: Number(selfLatitude),
+						iconPath: '/static/images/center_location.png',
+						width: 25,
+						height: 25
+					}
+				]
+			},
+			toLocationCenter() {
+				let that = this;
+				that.mapContext.moveToLocation({
+					latitude: that.selfLatitude, 
+					longitude: that.selfLongitude
+				});
+			},
+			renderCircle() {
+				let that = this;
+				var electronIndex = this.electronIndex;
+				var zhuangLocation = this.zhuangLocation;
+				var xieLocation = this.xieLocation;
+				var senderOption = this.senderOption || new Object();
+				var receiveOption = this.receiveOption || new Object();
+				if (electronIndex == 0) {
+					if (zhuangLocation) {
+						var longitude = Number(zhuangLocation.split(',')[0]);
+						var latitude = Number(zhuangLocation.split(',')[1]);
+						that.circles = [
+							{
+								longitude: longitude,
+								latitude: latitude,
+								fillColor: 'rgba(82,131,255,0.5)',
+								color: 'rgba(82,131,255,0.8)',
+								radius: that.eleRadio,
+								strokeWidth: 1,
+							}
+						]
+						that.mapContext.moveToLocation({
+							latitude: latitude, 
+							longitude: longitude
+						});
+						senderOption.longitude = zhuangLocation.split(',')[0];
+						senderOption.latitude = zhuangLocation.split(',')[1];
+						senderOption.fenceRadius = that.eleRadio;
+						senderOption.addressCenter = that.eleInputVal;
+						senderOption.fenceType = 1
+					} else {
+						
+						that.circles = []
+						that.mapContext.moveToLocation({
+							latitude: that.selfLatitude, 
+							longitude: that.selfLongitude
+						});
+					}
+					
+				} else {
+					console.log("xieLocation", xieLocation);
+					if (xieLocation) { 
+						var longitude = Number(xieLocation.split(',')[0]);
+						var latitude = Number(xieLocation.split(',')[1]);
+						that.circles = [
+							{
+								longitude: longitude,
+								latitude: latitude,
+								fillColor: 'rgba(82,131,255,0.5)',
+								color: 'rgba(82,131,255,0.8)',
+								radius: that.eleReceiveRadio,
+								strokeWidth: 1,
+							}
+						]
+						that.mapContext.moveToLocation({
+							latitude: latitude, 
+							longitude: longitude
+						});
+						receiveOption.fenceRadius =  that.eleReceiveRadio;
+						receiveOption.addressCenter = that.eleReceiveInputVal;
+						receiveOption.longitude = xieLocation.split(',')[0];
+						receiveOption.latitude = xieLocation.split(',')[1];
+						receiveOption.fenceType = 2
+					} else {
+						
+						that.circles = []
+						that.mapContext.moveToLocation({
+							latitude: that.selfLatitude, 
+							longitude: that.selfLongitude
+						});
+					}
+				}
+				
+				var electronInfo = {
+					zhuang: senderOption,
+					xie: receiveOption
+				}
+				this.electronInfo = electronInfo;
+				var source = this.source;
+				if (source != "edit") {
+					uni.$emit("electronSet", JSON.stringify(electronInfo))
+				}
+				console.log("electronInfo", electronInfo);
+				that.renderScale();
+			},
+			renderScale() {
+				var electronIndex = this.electronIndex;
+				var eleRadio;
+				if (electronIndex == 0) {
+					eleRadio = this.eleRadio;
+				} else {
+					eleRadio = this.eleReceiveRadio;
+				}
+				eleRadio = Number(eleRadio);
+				switch(eleRadio) {
+					case 500:
+					this.scale = 14
+					break;
+					case 1000:
+					this.scale = 13
+					break;
+					case 5000:
+					this.scale = 11
+					break;
+					case 10000:
+					this.scale = 10
+					break;
+					case 20000:
+					this.scale = 9
+					break;
+					case 50000:
+					this.scale = 8
+					break;
+					default:
+					this.scale = 14
+					break;
+				}
+			},
+			tapMap(e) {
+				console.log(e);
+				var longitude = e.detail.longitude;
+				var latitude = e.detail.latitude;
+				//经纬度转地址
+				var lnglat = [longitude.toFixed(6), latitude.toFixed(6)];
+				
+				this.lnglatToAddr(lnglat);
+			},
+			switchTab(index) {
+				this.electronIndex = index;
+				this.renderCircle();
+			},
+			receiveMessage(e) {
+				console.log(e)
+				var data = e.detail.data;
+				this.chooseLocation(data);
+			},
+			lnglatToAddr(lnglat) {
+				//根据坐标转地址
+				var that = this;
+				var electronIndex = this.electronIndex;
+				var location = lnglat[0] + ',' + lnglat[1];
+				ship.getForjw('https://restapi.amap.com/v3/geocode/regeo', {
+					key: '6ae872d0bc86389b263ecdf64521a42a',
+					location: location
+				}).then(res => {
+					console.log(res, "坐标")
+					if (res.status == 1) {
+						var addressComponent = res.regeocode.addressComponent;
+						var streetNumber = addressComponent.streetNumber;
+						var location = addressComponent.streetNumber.location;
+						var address = res.regeocode.formatted_address;
+						that.longitude = lnglat[0];
+						that.latitude = lnglat[1];
+						if (electronIndex == 0) {
+							that.zhuangLocation = lnglat.join(',')
+							that.eleInputVal = address;
+						} else {
+							that.xieLocation = lnglat.join(',');
+							that.eleReceiveInputVal = address;
+						}
+						that.renderCircle();
+					}
+				})
+			},
+			lnglatToAddr1(lnglat, index) {
+				var that = this;
+				
+				var location = lnglat[0] + ',' + lnglat[1];
+				ship.getForjw('https://restapi.amap.com/v3/geocode/regeo', {
+					key: '6ae872d0bc86389b263ecdf64521a42a',
+					location: location
+				}).then(res => {
+					console.log(res, "坐标")
+					if (res.status == 1) {
+						var addressComponent = res.regeocode.addressComponent;
+						var streetNumber = addressComponent.streetNumber;
+						var location = addressComponent.streetNumber.location;
+						var address = res.regeocode.formatted_address;
+						that.longitude = lnglat[0];
+						that.latitude = lnglat[1];
+						if (index == 0) {
+							that.zhuangLocation = lnglat.join(',')
+							that.eleInputVal = address;
+						} else {
+							that.xieLocation = lnglat.join(',');
+							that.eleReceiveInputVal = address;
+						}
+					}
+				})
+			},
+			renderSearchLocation(res) {
+				console.log(res, "地址戏")
+				let that = this;
+				var electronIndex = that.electronIndex;
+				
+				var address = res.addrDetails;
+				var longitude = res.longitude;
+				var latitude = res.latitude;
+				that.longitude = longitude;
+				that.latitude = latitude;
+				if (electronIndex == 0) {
+					that.zhuangLocation = longitude + ',' + latitude
+					that.eleInputVal = address
+				} else {
+					that.xieLocation = longitude + ',' + latitude
+					that.eleReceiveInputVal = address
+				}
+				that.renderCircle();
+			},
+			chooseLocation(data) { //地图选点
+				//搜索
+				let that = this;
+				var electronIndex = that.electronIndex;
+				uni.navigateTo({
+					url: "./choose-location",
+					animationType:"slide-in-bottom",
+				})
+				// uni.chooseLocation({
+				// 	latitude: data.latitude,
+				// 	longitude: data.longitude,
+				// 	success: function(res) {
+				// 		console.log('地图选择的地址1', JSON.stringify(res))
+				// 		var address = res.address;
+				// 		var longitude = (res.longitude).toFixed(6);
+				// 		var latitude = (res.latitude).toFixed(6);
+				// 		that.longitude = longitude;
+				// 		that.latitude = latitude;
+				// 		if (electronIndex == 0) {
+				// 			that.zhuangLocation = longitude + ',' + latitude
+				// 			that.eleInputVal = address
+				// 		} else {
+				// 			that.xieLocation = longitude + ',' + latitude
+				// 			that.eleReceiveInputVal = address
+				// 		}
+				// 		that.renderCircle();
+					
+				// 	},
+				// });
+				
+			},
+		}
+	}
+</script>
+
+<style scoped>
+	.map {
+		width: 750rpx;
+	}
+	.bgTab {
+		position: fixed;
+		top: 12px;
+		left: 18px;
+		width: 339px;
+		height: 45px;
+	}
+	.tabs {
+		position: fixed;
+		top: 12px;
+		left: 18px;
+		width: 339px;
+		height: 45px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}	
+	.tabs-item {
+		flex: 1;
+		height: 45px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.tabs-item-text {
+		color: #333333;
+		font-size: 14px;
+	}
+	.tabs-item-text-active {
+		color: #fff;
+		font-weight: 500;
+	}
+	.locationCenter {
+		position: fixed;
+		bottom: 310px;
+		right: 10px;
+		background-color: #ffffff;
+		border-radius: 6px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 40px;
+		height: 40px;
+	}
+	.centerImg {
+		width: 20px;
+		height: 20px;
+	}
+	.opt {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		height: 596rpx;
+		background-color: #ffffff;
+		box-shadow: 0 -6rpx 18rpx 0 rgba(0,0,0,0.17);
+		width: 750rpx;
+		z-index: 9999;
+		border-radius: 12rpx 12rpx 0 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}	
+	.search-btn {
+		width: 678rpx;
+		height: 68rpx;
+		background-color: #EDEDED;
+		border-radius: 8rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 36rpx;
+	}	
+	.search-btn-text {
+		color: #999999;
+		font-size: 32rpx;
+	}
+	
+	.title {
+		font-size: 32rpx;
+		color: #333333;
+		text-align: left;
+		margin-top: 48rpx;
+		margin-bottom: 24rpx;
+		width: 678rpx;
+	}
+	.content {
+		text-align: left;
+		font-weight: 500;
+		color: #666666;
+		font-size: 32rpx;
+		margin-bottom: 34rpx;
+		width: 678rpx;
+		
+	}
+	.line {
+		height: 2rpx;
+		background-color: #EDEDED;
+		width: 678rpx;
+	}
+	.select {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		color: #333333;
+		font-size: 32rpx;
+		width: 678rpx;
+		margin-top: 32rpx;
+	}	
+	.select-row {
+		height: 34px;
+		width: 166px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		border: 1rpx solid #ACACAC;
+	}
+	.select-row-text {
+		flex: 1;
+		color: #333333;
+		font-size: 16px;
+		text-align: center;
+	}
+		
+	.selected_down {
+		width: 32rpx;
+		height: 32rpx;
+		margin-left: 28rpx;
+		margin-right: 12px;
+	}
+	.backPopup {
+		width: 480rpx;
+		height: 282rpx;
+		display: flex;
+		flex-direction: column;
+		background-color: #FFFFFF;
+		border-radius: 24rpx;
+	}
+	.cont {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		
+		padding: 0 40rpx;
+
+	}
+	.cont-text {
+		font-size: 28rpx;
+		font-weight: 500;
+	}
+
+	.optbtn {
+		border-top: 1px solid #F1F1F1;
+		display: flex;
+		flex-direction: row;
+		height: 90rpx;
+	}
+	.opt1 {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.confirm1-text {
+		color: #B2B2B2;
+		font-size: 28rpx;
+	}
+	.cancel1 {
+		border-right: 1px solid #F1F1F1;
+	}
+	.cancel1-text {
+		font-size: 28rpx;
+		color: #4EADF1;
+		
+	}
+	
+	
+
+</style>

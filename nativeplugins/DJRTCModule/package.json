@@ -1,0 +1,25 @@
+{
+    "name": "对讲机原生插件",
+    "id": "DJRTCModule",
+    "version": "1.0.2",
+    "description": "...",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+    "ios": {
+		"plugins": [
+			{
+				"type": "module",
+				"name": "DJRTCOpusModule",
+				"class": "DJUniRTCOpusModule"
+			}
+		],
+		"integrateType": "framework",
+		"deploymentTarget": "9.0",
+		"resources": [],
+		"frameworks": [
+			"DJRTCOpusModule.framework",
+			"opus.framework"
+		]
+	}
+	}
+}

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>webview</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0 !important;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none; 
+				/* overflow: hidden; */
+			}
+			.label-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.road-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.label-box::-webkit-scrollbar {
+                display: none;
+            }
+			.label-child{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.label-text{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.label-text1{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			.road-text{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.road-text1{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			[v-cloak]{
+			    display: none;
+			}
+			.status-box{
+				position: absolute;
+				top: 70px; 
+				right: 10px; 
+				z-index: 99;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.status-img{
+				width: 48px;
+				height: 26px;
+			}
+			.amap-marker-label {
+				background-color: transparent;
+				border: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container" style="width: 100vw; height: 100vh; position: relative;">
+		</div>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<script type="text/javascript">
+		        window._AMapSecurityConfig = {
+		            securityJsCode:'f96a62d7be2cbe38d4e56b4407f1c14c',
+		        }
+		</script>
+		<script type="text/javascript"
+			src="https://webapi.amap.com/maps?v=1.4.15&key=1fcf56c15627205127953252e20666e0&plugin=AMap.Marker,AMap.Scale">
+		</script>
+		<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+		<script type="text/javascript">
+			function getQuery(name) {
+				// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+				let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				let r = window.location.search.substr(1).match(reg);
+				if (r != null) {
+					// 对参数值进行解码
+					return decodeURIComponent(r[2]);
+				}
+				return null;
+			};
+			var massMarks;
+			var style;
+			var bigImg;
+			var clearPoint = 0;
+			var selectData = {};
+			
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+						isClicking: false,
+						isCommonHelp: false,
+						dataContent: '111111',
+						maps: [],
+						mapkeys: ''
+					}
+				},
+				created() {
+
+				},
+				mounted() {
+					var that = this;
+					var addressObj;
+					if(getQuery('longitude')){
+						addressObj = {
+							lon: Number(getQuery('longitude')),
+							lat: Number(getQuery('latitude'))
+						}
+					}
+					that.getList()
+				},
+				methods: {
+					getList() {
+						var that = this;
+						var apiUrl = '/ld/ldebarcode/findScanRecord';
+						var newObj = {
+							commonFunctionName: apiUrl,
+							commonHtmlTitle: '零担地图',
+						};
+						var dataReq = {
+							ext1: getQuery('ldeId')
+						};
+						var newDataReq = JSON.parse(JSON.stringify(dataReq));
+						if(massMarks){
+							massMarks.clear();
+							console.log(massMarks)
+						}
+						var newData = Object.assign(dataReq, newObj);
+						newData.commonRequestParams = JSON.stringify(newDataReq);
+						console.log(dataReq);
+			
+						// that.dataContent = dataReq;
+						$.ajax({
+							url: getQuery('ApiRootUrl') + apiUrl,
+							data: JSON.stringify(newData),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', getQuery('Authorization'));
+							},
+							success: function(res) {
+								console.log('data', res)
+								that.isClicking = false;
+								if(res.retCode == "0000000"){
+									that.maps = res.rspBody.items;
+									that.setMap();
+								} else{
+									console.log('llllll')
+									that.maps = [];
+									if(massMarks){
+										massMarks.clear();
+										console.log(massMarks)
+									}
+								}
+							},
+							fail: function(err) {
+								that.isClicking = false;
+								console.log('err', err)
+							}
+						})
+					},
+					setMap() {
+						var that = this;
+						style = [{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/fleet.png',
+							anchor: new AMap.Pixel(6, 6),
+							size: new AMap.Size(40, 42.8),
+						}];
+				
+						var markersArr = [];
+						var maps = that.maps;
+						if (maps.length < 1) {
+							var webData = {
+								type: 'successMap'
+								
+							}
+							uni.postMessage({
+								data: webData,
+							});
+							return;
+						};
+						var path = [];
+						var reverseMaps = maps.reverse();
+						reverseMaps.forEach(function(marker, index) {
+							var content= "";
+							path.push(new AMap.LngLat(marker.reqLtde,marker.reqLgde));
+							if (index == 0) {
+								//装车
+								content = [
+								    "<div style=\"background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan-bg-1.png);background-size:cover;display:flex;flex-direction: row;justify-content:center;align-items:center;width:120px;height:45px;border-radius:30px\">",
+								    "<div style=\"width: 25px;height:25px;display:flex;justify-content:center;align-items:center;color:#ffffff;font-size:12px;margin-left:7px\"><b>装</b></div><div style=\"flex:1;font-size:16px;color:#333333;display:flex;justify-content:center;align-items:center;\">"+ marker.province + "</div></div>"
+								    
+								];
+								var markers = new AMap.Marker({
+								    position: new AMap.LngLat(marker.reqLtde, marker.reqLgde),
+								    offset: new AMap.Pixel(-5, -7),
+									icon: new AMap.Icon({
+										size: new AMap.Size(12, 12),
+										image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan_icon_start.png',
+										imageSize: new AMap.Size(12, 12),
+									}),
+									label: {
+										direction: 'top',
+										content: content,
+										offset: new AMap.Pixel(0, 0),
+									},
+									 zoom: 99999
+								});
+								mapkeys.add(markers);
+							}  else {
+								if (marker.status == 7) {
+									//卸车
+									content = [
+									    "<div style=\"background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan_bg_2.png);background-size:cover;display:flex;flex-direction: row;justify-content:center;align-items:center;width:120px;height:45px;border-radius:30px\">",
+									    "<div style=\"width: 25px;height:25px;display:flex;justify-content:center;align-items:center;color:#ffffff;font-size:12px;margin-left:7px\"><b>卸</b></div><div style=\"flex:1;font-size:16px;color:#333333;display:flex;justify-content:center;align-items:center;\">" + marker.province + "</div></div>"
+									    
+									];
+									var markers = new AMap.Marker({
+									    position: new AMap.LngLat(marker.reqLtde, marker.reqLgde),
+									    offset: new AMap.Pixel(-5, -7),
+										icon: new AMap.Icon({
+											size: new AMap.Size(12, 12),
+											image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan_icon_end.png',
+											imageSize: new AMap.Size(12, 12),
+			
+										}),
+										label: {
+											direction: 'top',
+											content: content,
+											offset: new AMap.Pixel(0, 0),
+										},
+										 zoom: 9999
+									});
+									mapkeys.add(markers);
+								}
+							}
+							var polyline = new AMap.Polyline({
+							    path: path,  
+							    borderWeight: 2, // 线条宽度，默认为 1
+							    strokeColor: '#FE0F0F', // 线条颜色
+							    lineJoin: 'round' // 折线拐点连接处样式
+							});
+							
+							// 将折线添加至地图实例
+							mapkeys.add(polyline);
+							
+							//适配视野
+							mapkeys.setFitView();
+							
+						});
+						
+						var webData = {
+							type: 'successMap'
+							
+						}
+						uni.postMessage({
+							data: webData,
+						});
+						
+					
+					},
+					createInfoWindow(content){
+					    // 内容拼接 ...
+					    return content;
+					},
+					setInfo() {
+						let that = this;
+						var maps = that.maps;
+						var firstInfo = maps[0];
+						
+						var content = [
+						    "<div style=\"background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan-bg-1.png);background-size:cover;display:flex;flex-direction: row;justify-content:center;align-items:center;width:120px;height:45px;border-radius:30px\">",
+						    "<div style=\"width: 25px;height:25px;display:flex;justify-content:center;align-items:center;color:#ffffff;font-size:12px;margin-left:10px\"><b>装</b></div><div style=\"flex:1;font-size:16px;color:#333333;display:flex;justify-content:center;align-items:center;\">北京市</div></div>",
+						    
+						];
+						
+						var infoWindow = new AMap.InfoWindow({
+						   isCustom: true,  //使用自定义窗体
+						   content: that.createInfoWindow(content.join("<br>")),  //传入 dom 对象，或者 html 字符串
+						   offset: new AMap.Pixel(15, 0)
+						});
+						
+						infoWindow.open(mapkeys,[firstInfo.reqLtde, firstInfo.reqLgde]);
+						if (maps.length > 1) {
+							var lastInfo = maps[maps.length - 1]
+							var content1 = [
+							    "<div style=\"background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/lingdan-bg-1.png);background-size:cover;display:flex;flex-direction: row;justify-content:center;align-items:center;width:120px;height:45px;border-radius:30px\">",
+							    "<div style=\"width: 25px;height:25px;display:flex;justify-content:center;align-items:center;color:#ffffff;font-size:12px;margin-left:10px\"><b>卸</b></div><div style=\"flex:1;font-size:16px;color:#333333;display:flex;justify-content:center;align-items:center;\">上海市</div></div>",
+							    
+							];
+							
+							var infoWindow1 = new AMap.InfoWindow({
+							   isCustom: true,  //使用自定义窗体
+							   content: that.createInfoWindow(content1.join("<br>")),  //传入 dom 对象，或者 html 字符串
+							   offset: new AMap.Pixel(15, 0)
+							});
+							
+							infoWindow1.open(mapkeys,[lastInfo.reqLtde, lastInfo.reqLgde]);
+						}
+						
+						
+					},
+				}
+			})
+			var centerLon = getQuery('longitude') || 116.407526;
+			var centerLat = getQuery('latitude') || 39.904030;
+			var centerNum = [centerLon, centerLat];
+			// var centerNum = [121.318163, 31.202984];
+			
+			vm.dataContent = window.location;
+			console.log(window.location);
+			var zoomLevel = 14;
+			var mapkeys = new AMap.Map("container", {
+				resizeEnable: false,
+				rejectMapMask: true,
+				viewMode: '2D',
+				center: centerNum,
+				zoom: zoomLevel,
+				animateEnable: false,
+				isHotspot: false,
+				jogEnable: false,
+				showBuildingBlock: false,
+				buildingAnimation: false,
+				showIndoorMap: false,
+			});
+			// 禁用双击放大
+			var lastTouchEnd = 0;
+			document.documentElement.addEventListener('touchend', function (event) {
+			    var now = Date.now();
+			    if (now - lastTouchEnd <= 300) {
+			        event.preventDefault();
+			    }
+			    lastTouchEnd = now;
+			}, {
+			    passive: false
+			});
+		</script>
+	</body>
+</html>

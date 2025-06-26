@@ -1,0 +1,1124 @@
+<template>
+	<view class="mutual">
+		<view class="searchHead">
+			<view style="width: 64rpx; flex-direction: row; align-items: center;" @click="backToFromPage">
+				<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/back.png" style="width: 22rpx;" mode="widthFix"></image>
+			</view>
+			<!-- <i class="uni-btn-icon" style="color: rgb(0, 0, 0); font-size: 27px;"></i> -->
+			<view class="searchBox" @click="jumpToSearch()">
+				<image src="../../../static/images/search.png" class="search-img" ></image>
+				<text class="searchMsg">{{searchData.searchVal ? searchData.searchVal : '搜索地址'}}</text>
+			</view>
+			<view class="addServiceBtn" @click="goReport">
+				<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/addW.png" class="add-img" ></image>
+				<text class="addServiceBtnMsg">上报</text>
+			</view>
+		</view>
+		
+		<web-view
+		 :webview-styles="webviewStyles"
+			id="myMap"
+		  :src="srcUrl"
+		  style="position: fixed; top: 80; left: 0; right: 0; bottom: 50;"
+		  :style="webViewHeight"
+		  class="mapView"
+		  @message="reciveMessage"
+		  @onPostMessage="recivePostMessage"
+		>
+		</web-view>
+		
+		<web-view v-if="showMapLoading" class="mapLoadingBox" src="../../../static/demo/data.html"></web-view>
+		<view class="contentList" v-if="!showMapLoading" :class="contentShow ? 'isShow' : 'notShow'">
+			<view class="contentListBtn" @click="showContentList()">
+				<view class="contentStyleIcon"></view>
+			</view>
+			<view @click="showContentList()">
+				<text class="contentStyleIconMsg">点击查看{{contentShow ? '地图' : '列表'}}</text>
+			</view>
+			<view class="listBox" v-if="contentShow">
+				<list class="commentslist" loadmoreoffset="50" @loadmore="loadMore" ref="commentsRef">
+				
+					<!-- <refresh @refresh="onrefresh"  :display="refreshing ? 'show' : 'hide'"> -->
+					<!-- @click="reFresh" -->
+						<refresh 
+							:display="refreshing ? 'show' : 'hide'" 
+							@refresh="onrefresh" 
+							@pullingdown="onpullingdown"
+							>
+							<view class="loading-more">
+								<!-- <loading-indicator style="margin-right:15px;"></loading-indicator> -->
+								<image class="loadingImg" src="../../../static/images/listLoading.png"></image>
+								<text class="loading-more-text">{{refreshText}}</text>
+							</view>
+						</refresh>
+						<cell class="dataList" v-for="(item, index) in commentsOption" :key="index" :ref="'cell' + index" :class="item.id == mapSelectId ? 'showDataBorder' : 'showNoBorder'">
+							<view class="dataFlexBox">
+								<image v-if="item.facadeImgs" class="userAvatar" :src="item.newFacadeImgs[0]" @click="previewImage(item)" mode="aspectFill"></image>
+								<image v-else class="userAvatar" :src="showDefaultImg(item.typeId)" @click="previewImage(item)" mode="aspectFill"></image>
+								<view class="commentsContentBox">
+									<view class="commentsHead">
+										<view class="commentsHeadNameBox" @click="goDetails(item)">
+											<!-- <text class="commentsHeadName">水电费水电费是发顺丰史蒂夫史蒂夫史蒂夫史蒂夫收到发送到发</text> -->
+											<text class="commentsHeadName">{{item.providerName}}</text>
+											<view class="commentsStatusSyb" :style="item.solveFlag == 1 ? 'background-color:rgba(0, 119, 255, 0.2)' : 'background-color:rgba(224, 32, 32, 0.2);'" v-if="item.solveFlag">
+												<text class="commentsStatusSybMsg" :style="showStatus(item.solveFlag, 'color')">{{showStatus(item.solveFlag, 'msg')}}</text>
+											</view>
+										</view>
+										<view class="commentsDistance" @click="openLocation(item)">
+											<text class="disTanceNum">{{getDistance(item.latitude, item.longitude).toFixed(1)}}km</text>
+											<text class="disTanceSyb">｜</text>
+											<image class="newnavigationIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/newnavigationIcon.png"></image>
+											<text class="disTanceMsg">去这里</text>
+										</view>
+									</view>
+									<!-- <view class="commentsBody" @click="goDetail(item)">
+										<text class="commentsMsg">{{item.description}}</text>
+									</view> -->
+									<view class="newLabelBox" @click="goDetails(item)">
+										<text class="newLabel">{{showLableMsg(item)}}</text>
+									</view>
+									<!-- <view class="label-all">
+										<text class="content-text" v-for="(child, index) in item.labelVOS" :key="index" v-if="index < 3">{{child.labelName}}</text>
+									</view> -->
+									<view class="impressionList" @click="goDetails(item)">
+										<view class="impressionListLabel" v-for="(comment, commentKey) in item.commentEvaluationDetailList" :key="commentKey"  v-if="commentKey < 4">
+											<text class="impressionListLabelMsg">{{comment.evaluationName}}</text>
+										</view>
+									</view>
+								</view>
+							</view>
+							<view class="commentsAddress" @click="goDetails(item)">
+								<image class="addressIcon" src="/static/images/newlocationIcon.png"></image>
+								<text class="addressMsg">{{item.address}}</text>
+							</view>
+							<view class="commentsLine" v-if="item.id != mapSelectId"></view>
+						</cell>
+						<cell v-if="isLoad">
+							<view class="loading-more">
+								<loading-indicator style="margin-right:15px;"></loading-indicator>
+								<text class="loading-more-text">加载中...</text>
+							</view>
+						</cell>
+						<cell v-if="noData">
+							<view class="loading-more">
+								<text class="loading-more-text">没有更多数据了</text>
+							</view>
+						</cell>
+					<!-- </refresh> -->
+				</list>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/service.js";
+	var app = getApp();
+	var commonHtmlTitle = '服务站地图';
+	export default {
+		data() {
+			return {
+                webviewStyles: {
+                    progress: false
+                },
+				latitude: '',
+				longitude: '',
+				srcUrl: utils.webUrl,
+				webViewHeight: '',
+				contentShow: false,
+				mapHeight: 0,
+				newLabelId: 20,
+				total: 0,
+				refreshing: true,
+				commentsOption: [],
+				isLoad: false,
+				noData: false,
+                refreshText:'',
+                loading:false,
+                refreshing:false,
+				loadErr: false,
+				idList: [],
+				mapGetIdList: [],
+				pageSize: 10,
+				pageNum: 1,
+				mapSelectId: '',
+				searchData: {},
+				repeatLoad: true,
+				showMapLoading: true,
+				userRole:'',
+			}
+		},
+		onLoad(option){
+			// var that = this;
+			// this.longitude = app.globalData.longitude;
+			// this.latitude = app.globalData.latitude;
+			console.log('kkkkkk')
+			this.userRole = uni.getStorageSync('userRole');
+			if(this.repeatLoad) {
+				this.getLocationData();
+			}
+			uni.$on('refreshData_road', (data) => {
+				this.contentShow = false;
+				this.showMapLoading = true;
+				this.getLocationData();
+			})
+			// if(this.repeatLoad) {
+			// 	if(!option.latitude && !option.longitude) {
+			// 		console.log('无搜索的参数重新定位');
+			// 		this.getLocationData();
+			// 	}else {
+			// 		this.latitude = option.latitude;
+			// 		this.longitude = option.longitude;
+			// 		console.log('搜索的参数', this.latitude, this.longitude);
+			// 		this.srcUrl = 'https://www.hyzgapp.com/webView.html';
+			// 		let query = '&type=' + 'service'
+			// 		this.srcUrl = this.srcUrl + '?longitude=' + this.longitude + '&latitude=' + this.latitude + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+			// 		this.repeatLoad = false;
+			// 	}
+			// }
+		},
+		onShow() {
+			// if(!this.repeatLoad) {
+			// 	this.getLocationData();
+			// }
+			// let that = this;
+			// setTimeout(function () {
+			// 	var query = uni.createSelectorQuery().in(this);
+			// 	query.select('#myMap').boundingClientRect(data => {
+			// 		that.mapHeight = data.height * 2;
+			// 	}).exec();
+			// 	console.log('map高度', that.mapHeight)
+			// }, 1000);
+		},
+		methods: {
+			goDetails(item){
+				uni.navigateTo({
+					url:'/pages/index/serviceDetails/newServiceDetails?id=' + item.id
+				})
+			},
+			previewImage(res){
+				var images = [];
+				if(res.facadeImgs){
+					images = res.newFacadeImgs;
+				} else{
+					images.push(this.showDefaultImg(res.typeId));
+				}
+				uni.previewImage({
+					urls: images,
+					longPressActions: {
+						itemList: ['发送给朋友', '保存图片', '收藏'],
+						success: function(data) {
+							console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
+						},
+						fail: function(err) {
+							console.log(err.errMsg);
+						}
+					}
+				});
+			},
+			backToFromPage() {
+				uni.navigateBack({
+					
+				})
+			},
+			getLocationData() {
+				// uni.showLoading({
+				// 	mask: true,
+				// 	title: '拼命加载地图数据。。。'
+				// });
+				// getApp().globalData.serviceSearch.latitude = '';
+				// getApp().globalData.serviceSearch.longitude = '';
+				// getApp().globalData.serviceSearch.searchVal = '';
+				this.searchData = getApp().globalData.serviceSearch;
+				console.log('接收到的搜索参数');
+				var searchVal = getApp().globalData.serviceSearch.searchVal;
+				var userInfo = uni.getStorageSync("userInfo");
+				var pages = getCurrentPages();
+				var prevPage = pages[pages.length - 1]; 
+				var buriedPoint = {
+					commonUserName: userInfo?JSON.parse(userInfo).userName:'',
+					commonUserId: userInfo?JSON.parse(userInfo).userId:'',
+					commonPhoneModel: getApp().globalData.commonPhoneModel,
+					commonNowVersion: getApp().globalData.appVersion,
+					commonSystemVersion: getApp().globalData.commonSystemVersion,
+					commonFrontPath: prevPage.route
+				}
+				let query = '&type=' + 'service&time=' + new Date().getTime() + '&buriedPoint=' + JSON.stringify(buriedPoint);;
+				this.srcUrl = utils.webUrl;
+				if(this.searchData.longitude && this.searchData.latitude) {
+					if(!this.longitude && !this.latitude) {
+						console.log('无定位经纬度');
+						let that = this;
+						uni.getLocation({
+							type: 'gcj02',
+							geocode: true,
+							success: function(res) {
+								that.latitude = res.latitude;
+								that.longitude = res.longitude;
+								that.srcUrl = that.srcUrl + '?longitude=' + that.longitude + '&latitude=' + that.latitude + '&newLongitude=' + that.searchData.longitude + '&newLatitude=' + that.searchData.latitude + '&userRole=' + that.userRole + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+								console.log(that.srcUrl);
+								that.$forceUpdate();
+							},
+							fail: function() {
+								that.latitude = 39.909;
+								that.longitude = 116.39742;
+								that.srcUrl = that.srcUrl + '?longitude=' + that.longitude + '&latitude=' + that.latitude + '&newLongitude=' + that.searchData.longitude + '&newLatitude=' + that.searchData.latitude + '&userRole=' + that.userRole + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+								uni.showToast({
+									title: "请打开定位"
+								})
+							},
+							complete:function(){
+								// console.log('获取到的搜索信息', that.srcUrl);
+							}
+						})
+					}else {
+						this.srcUrl = this.srcUrl + '?longitude=' + this.longitude + '&latitude=' + this.latitude + '&newLongitude=' + this.searchData.longitude + '&newLatitude=' + this.searchData.latitude + '&userRole=' + that.userRole + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+					}
+					this.repeatLoad = false;
+					// console.log('获取到的搜索信息', this.srcUrl);
+				}else {
+					let that = this;
+					
+					// let query = '&type=' + 'service'
+					// that.srcUrl = 'https://www.hyzgapp.com/webView.html';
+					uni.getLocation({
+						type: 'gcj02',
+						geocode: true,
+						success: function(res) {
+							that.latitude = res.latitude;
+							that.longitude = res.longitude;
+							that.srcUrl = that.srcUrl + '?longitude=' + that.longitude + '&latitude=' + that.latitude + '&providerName=' + searchVal + '&userRole=' + that.userRole + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+							console.log(that.srcUrl, '地图信息1111')
+							that.$forceUpdate();
+						},
+						fail: function() {
+							that.latitude = 39.909;
+							that.longitude = 116.39742;
+							that.srcUrl = that.srcUrl + '?longitude=' + that.longitude + '&latitude=' + that.latitude + '&providerName=' + searchVal + '&userRole=' + that.userRole + '&ApiRootUrl=' + utils.ApiRootUrl + query;
+							uni.showToast({
+								title: "请打开定位"
+							})
+						},
+						complete:function(){
+							that.repeatLoad = false;
+						}
+					})
+				}
+			},
+			openLocation(res){
+				uni.openLocation({
+					latitude: res.latitude,	//维度
+					longitude: res.longitude, //经度
+					name: res.address,	//目的地定位名称
+					scale: 15,	//缩放比例
+					address: res.address	//导航详细地址
+				})
+			},
+			reciveMessage(e){
+				console.log(e)
+			},
+			recivePostMessage(e){ // 地图传递参数
+				// uni.showLoading({
+				// 	mask: true,
+				// 	title: '拼命加载地图数据。。。'
+				// });
+				
+				console.log('地图传递参数', e);
+				let obj = e.detail.data[0];
+				
+				
+				if (obj.subType == "跳转互助页面") {
+					uni.navigateTo({
+						url: '/pages/mutual/index/newIndex'
+					})
+					return;
+				}
+				if (obj.subType == "跳转路况页面") {
+					uni.navigateTo({
+						url: '/pages/roadCondition/index/newIndex'
+					})
+					return;
+				}
+				// this.latitude = Number(obj.latitude);
+				// this.longitude = Number(obj.longitude);
+				if(obj.clearPoint == 1) {
+					getApp().globalData.serviceSearch.latitude = '';
+					getApp().globalData.serviceSearch.longitude = '';
+					getApp().globalData.serviceSearch.searchVal = '';
+				}
+				this.mapGetIdList = obj.idList;
+				// this.mapSelectId = '';
+				console.log('原始id数组', this.mapGetIdList, obj.selectId, this.mapSelectId);
+				if(!obj.selectId) {
+					this.mapSelectId = '';
+				}else {
+					if(obj.selectId != this.mapSelectId) {
+						this.mapSelectId = obj.selectId;
+						for(let i in this.mapGetIdList) {
+							if(this.mapGetIdList[i] == this.mapSelectId) {
+								 this.mapGetIdList.splice(i, 1);
+								 this.mapGetIdList.unshift(this.mapSelectId);
+								 this.showContentList(true);
+								 break;
+							}
+						}
+					}else if(obj.selectId == this.mapSelectId) {
+						this.mapSelectId = obj.selectId;
+						for(let l in this.mapGetIdList) {
+							if(this.mapGetIdList[l] == this.mapSelectId) {
+								 this.mapGetIdList.splice(l, 1);
+								 this.mapGetIdList.unshift(this.mapSelectId);
+								 break;
+							}
+						}
+					}
+				}
+				this.showMapLoading = false;
+				console.log('选中后的id数组', this.mapSelectId, this.mapGetIdList);
+				this.idList = [];
+				this.changeIdList();
+			},
+			changeIdList(flag) { // 去重后进行分页
+				// let ary = this.mapGetIdList
+				let ary = [];
+				for(let k in this.mapGetIdList) {
+					ary.push(this.mapGetIdList[k])
+				}
+				if(this.idList && this.idList.length > 0) {
+					for(let a in ary) {
+						for(let b in this.idList) {
+							if(ary[a] == this.idList[b]) {
+								ary.splice(a, 1);
+							}
+						}
+					}
+					console.log('待分页数据', ary);
+				}
+				let onloadAry = [];
+				for(let i in ary) {
+					if(Number(i) / this.pageSize < 1) {
+						this.idList.push(ary[i])
+						onloadAry.push(ary[i]);
+					}
+				}
+				if(flag == 'onLoad') {
+					return onloadAry;
+				}else {
+					this.commentsOption = [];
+					this.getListData();
+				}
+				console.log('手动分页', this.idList);
+			},
+			
+			getListData() {
+				var that = this;
+				var searchCondition = getApp().globalData.serviceSearch.searchCondition;
+				var title =  getApp().globalData.serviceSearch.searchVal;
+				console.log('开始获取首页数据', searchCondition);
+				var userRole = uni.getStorageSync("userRole");
+				if (userRole == 1) {
+					var data = {
+						idList: that.idList,
+						longitude: that.longitude,
+						latitude: that.latitude,
+					};
+				} else {
+					var data = {
+						idList: that.idList,
+						longitude: that.longitude,
+						latitude: that.latitude,
+						typeIds:[15,16],
+					};
+				}
+				
+				console.log('首页列表查询参数', data);
+				utils.postRequest('/mu/provider/mapList', data)
+				.then(function (res) {
+					console.log('获取首页数据', res);
+					if(res.retCode == "0000000"){
+						res.rspBody.items.map(val=>{
+							if(val.facadeImgs){
+								val.newFacadeImgs = val.facadeImgs.split(",");
+							}
+						})
+						that.commentsOption = res.rspBody.items;
+						if(that.mapSelectId) {
+							for(let i in that.commentsOption) {
+								if(that.commentsOption[i].id == that.mapSelectId) {
+									var checkedObj = that.commentsOption[i];
+									that.commentsOption.splice(i, 1);
+									that.commentsOption.unshift(checkedObj);
+								}
+							}
+						}
+						that.changeListImage();
+						that.resetLoadMore();
+						that.$forceUpdate();
+						// that.noData = Number(that.commentsOption.length) < Number(that.pageSize);
+						if(that.idList && that.idList.length < that.pageSize) {
+							that.noData = true;
+						}
+						console.log(that.noData)
+						// that.total = res.rspBody.total;
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+				})
+				uni.hideLoading();
+			},
+			goReport() {
+				if(this.userRole == 1) {
+					var userInfo = uni.getStorageSync("userInfo");
+					if (!userInfo) {
+						uni.showModal({
+							title: '请登录后操作',
+							confirmText: '去登录',
+							success: function(res) {
+								if (res.confirm) {
+									utils.loginSelf()
+								}
+							}
+						})
+						return false;
+					}
+					var isDriveAC = JSON.parse(userInfo).attrs.driverVerify;
+					if (!isDriveAC) {
+						uni.showModal({
+							title: '请认证驾驶证',
+							content: '货运中国社区只允许真实卡友发布信息，您必须认证驾驶证和行驶证后，才能使用上报功能。',
+							confirmText: '去认证',
+							cancelText: '再看看',
+							success: function(res) {
+								if (res.confirm) {
+									uni.navigateTo({
+										url: '../../my/driverVerify/newDriverVerify'
+									})
+								}
+							}
+						})
+						return false;
+					} 
+					var vehicleVerify = JSON.parse(userInfo).attrs.vehicleVerify;
+					if (!vehicleVerify) {
+						uni.showModal({
+							title: '请认证行驶证',
+							content: '货运中国社区只允许真实卡友发布信息，您必须认证驾驶证和行驶证后，才能使用上报功能。',
+							confirmText: '去认证',
+							cancelText: '再看看',
+							success: function(res) {
+								if (res.confirm) {
+									uni.navigateTo({
+										url: '../../my/carVerify/newCarVerify'
+									})
+								}
+							}
+						})
+						return false;
+					}
+					uni.navigateTo({
+						url:'/pages/index/report/report'
+					})
+				}else {
+					uni.navigateTo({
+						url:'/pages/index/report/report'
+					})
+				}
+				
+			},
+			jumpToSearch() {
+				let query = '?type=' + 'service&searchVal=' + this.searchData.searchVal;
+				console.log(query, 'asaa');
+				uni.navigateTo({
+					url:'/pages/search/searchService' + query
+				})
+			},
+			
+			getDistance(lat, lng){
+				return utils.getDistance(lat, lng, this.latitude, this.longitude)
+			},
+			showContentList(flag) {
+				let that = this;
+				// if( that.mapHeight == 0) {
+				// 	var query = uni.createSelectorQuery().in(that);
+				// 	query.select('#myMap').boundingClientRect(data => {
+				// 		console.log(data.height)
+				// 		that.mapHeight = data.height * 2 - 90;
+				// 	}).exec();
+				// }
+				that.contentShow = flag ? flag : !that.contentShow;
+				// console.log(that.contentShow);
+				// if(that.contentShow) {
+				// 	// that.webViewHeight = 'height:450rpx';
+				// }else {
+				// 	that.webViewHeight = 'height:' + that.mapHeight + 'rpx';
+				// }
+				// console.log('map高度', that.mapHeight)
+			},
+			//开始下拉时
+			onpullingdown(e){
+				//当正在刷新的时候直接返回
+				if(this.refreshing){
+					return;
+				}
+				if (Math.abs(e.pullingDistance) > Math.abs(e.viewHeight)) {
+					//当下拉的距离大于fresh组件的高度
+					this.refreshText = "释放立即刷新";
+				} else {
+					this.refreshText = "下拉可以刷新";
+				}
+			},
+			onrefresh(){
+				if(this.loading){
+					//当正在调用接口获取数据时，此时的下拉不做任何操作
+					return;
+				}
+				this.refreshText="正在刷新...";
+				//刷新数据
+				//模拟接口延迟
+				this.loading = true;
+				this.refreshing = true;
+				this.pageNum = 1;
+				//刷新成功
+				setTimeout(()=>{
+					this.idList = [];
+					console.log('下啦刷新id清空', this.idList);
+					this.changeIdList();
+					this.noData = false;
+					this.loading = false;
+					this.refreshing = false;
+					this.loadErr = false;
+				},1000);
+				//模拟刷新失败
+				// setTimeout(()=>{
+				//     this.loading = false;
+				//     this.refreshText = '刷新失败，点击重试';
+				//     this.loadErr = true;
+				// },300);
+				
+			},
+			// reFresh(){
+			// 	if(!this.loadErr){
+			// 		return;
+			// 	}
+			// 	this.refreshText="正在刷新...";
+			// 	setTimeout(()=>{
+			// 		this.commentsOption = 6;
+			// 		this.loading = false;
+			// 		this.refreshing = false;
+			// 		this.loadErr = false;
+			// 	},1000);
+			// },
+			resetLoadMore() {
+				console.log('上拉加载复位');
+			    this.$refs["commentsRef"].resetLoadmore();
+				this.$forceUpdate()
+			},
+			
+			loadMore(e){
+				if(!this.noData && !this.isLoad) {
+					var that = this;
+					that.isLoad = true;
+					var idList = this.changeIdList('onLoad');
+					console.log('上拉加载的ID', idList);
+					if(idList && idList.length == 0) {
+						that.noData = true;
+						that.isLoad = false;
+						console.log('是否无数据加载', that.noData);
+						return false;
+					}else if(idList && idList.length < that.pageSize) {
+						that.noData = true;
+					}
+					var searchCondition = getApp().globalData.serviceSearch.searchCondition;
+					var title =  getApp().globalData.serviceSearch.searchVal;
+					var data;
+					if (searchCondition == 1) {
+						//按地址搜索
+						data = {
+							longitude: that.longitude,
+							latitude: that.latitude,
+							idList: idList,
+							commonHtmlTitle: commonHtmlTitle,
+						
+						};
+					} else {
+						data = {
+							longitude: that.longitude,
+							latitude: that.latitude,
+							providerName: title,
+							commonHtmlTitle: commonHtmlTitle,
+							pageSize: that.pageSize,
+							pageNum: that.pageNum + 1,
+						};
+					}
+					
+					console.log('上拉加载查询参数', data);
+					utils.postRequest('/mu/provider/mapList', data)
+					.then(function (res) {
+						console.log('上拉加载数据', res);
+						if(res.retCode == "0000000"){
+							let ary = res.rspBody.items;
+							// if(ary && ary.length < that.pageSize) {
+							// 	that.noData = true;
+							// }
+							if(ary && ary.length > 0) {
+								for(let i in ary) {
+									ary[i].newFacadeImgs = ary[i].facadeImgs ? ary[i].facadeImgs.split(",") : [];
+									that.commentsOption.push(ary[i])
+								}
+							}
+							that.pageNum = that.pageNum + 1;
+							// that.changeListImage();
+							// that.total = res.rspBody.total;
+						} else{
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+						that.isLoad = false;
+					})
+					.catch(err=>{
+						that.isLoad = false;
+					})
+				}
+				
+			    //模拟接口返回时间延迟
+			  //   setTimeout(()=>{
+					// this.isLoad = false;
+					// this.commentsOption = this.commentsOption + 2;
+			  //   },1500);
+			    
+			},
+			changeListImage() {
+				for(let i in this.commentsOption) {
+					if(this.commentsOption[i].facadeImage) {
+						this.commentsOption[i].facadeImageAry = this.commentsOption[i].facadeImage ? this.commentsOption[i].facadeImage.split(',') : [];
+					}
+				}
+				console.log('图片数据', this.commentsOption);
+			},
+			// goDetail(item) { //去互助详情
+			// 	var id = item.id;
+			// 	uni.navigateTo({
+			// 		url: "../detail/detail?id=" + id + "&latitude=" + this.latitude + "&longitude=" + this.longitude,
+			// 	})
+			// },
+			showStatus(status, flag) {
+				switch(status) {
+					case 1:
+						return flag == 'color' ? 'color:#0077FF;' : '已解决';
+					case 2:
+						return  flag == 'color' ? 'color:#E02020;' : '未解决';
+				}
+			},
+			showLableMsg(item) {
+				let labelMsg = '';
+				for(let i in item.labelVOS) {
+					labelMsg = item.labelVOS[i].labelName + '/' + labelMsg;
+				}
+				return labelMsg.substring(0, labelMsg.length - 1);
+			},
+			showDefaultImg(typeId) {
+				if(typeId == 2) {
+					return '../../../static/images/defaultWX.png'
+				}else if(typeId == 3) {
+					return '../../../static/images/defaultPJ.png'
+				}else if(typeId == 4) {
+					return '../../../static/images/defaultYQZ.png'
+				}else if(typeId == 5) {
+					return '../../../static/images/defaultTCC.png'
+				}else if(typeId == 6) {
+					return '../../../static/images/defaultWLY.png'
+				}else if(typeId == 7) {
+					return '../../../static/images/defaultQM.png'
+				}else if(typeId == 8) {
+					return '../../../static/images/defaultESC.png'
+				}else if(typeId == 9) {
+					return '../../../static/images/defaultJX.png'
+				}else if(typeId == 10) {
+					return '../../../static/images/defaultSS.png'
+				}else if(typeId == 11) {
+					return '../../../static/images/defaultQT.png'
+				}else if(typeId == 12) {
+					return '../../../static/images/defaultGC.png'
+				}else if(typeId == 13) {
+					return '../../../static/images/defaultFWQ.png'
+				}else if(typeId == 14) {
+					return '../../../static/images/defaultJCZ.png'
+				}else {
+					return '../../../static/images/serviceDefault.png'
+				}
+			}
+		}
+	}
+</script>
+
+<style>
+	.mutual {
+	}
+	.searchHead {
+		padding:90rpx 40rpx 0 40rpx;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.mapLoadingBox {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index:999999;
+	}
+	.searchBox {
+		border-radius: 32rpx;
+		background: rgba(245, 246, 246, 0.9);
+		padding: 0 0 0 26rpx;
+		height: 64rpx;
+		width:432rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+	.searchMsg {
+		font-size:28rpx;
+		color: #777;
+		line-height: 64rpx;
+		font-weight:bold;
+	}
+	.search-img {
+		width: 36rpx;
+		height:36rpx;
+		margin-top: 14rpx;
+		margin-right:18rpx;
+	}
+	.addServiceBtn {
+		background: #FF7D4A;
+		height: 64rpx;
+		width:142rpx;
+		border-radius: 32rpx;
+		margin-left: 40rpx;
+		text-align: center;
+		flex-direction: row;
+		justify-content: flex-start;
+		padding: 0 20rpx;
+	}
+	.addServiceBtnMsg {
+		font-size:28rpx;
+		color: #fff;
+		line-height: 64rpx;
+	}
+	.add-img {
+		width: 30rpx;
+		height: 30rpx;
+		margin-top: 16rpx;
+		margin-right: 10rpx;
+	}
+	.mapView {
+		transition-property: height;
+        transition-duration:0.3s;
+        transition-delay:0.1s;
+        transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+	}
+	.contentList {
+		width:750rpx;
+		position: fixed;
+		bottom:0;
+		border-radius: 40rpx 40rpx 0px 0px;
+		background-color: #FFF;
+		padding: 20rpx 0;
+		transition-property: height;
+        transition-duration:0.3s;
+        transition-delay:0.1s;
+        transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+	}
+	.notShow {
+		height: 112rpx;
+	}
+	.isShow {
+		height: 1000rpx;
+	}
+	.contentListBtn {
+		flex-direction: row;
+		justify-content: center;
+	}
+	.contentStyleIcon {
+		width: 80rpx;
+		height: 10rpx;
+		background: #EEEEEE;
+		border-radius: 6rpx;
+		/* margin:0 auto; */
+	}
+	.contentStyleIconMsg {
+		text-align: center;
+		font-size:28rpx;
+		color: #FF7D4A;
+		text-align: center;
+		margin-top:20rpx;
+	}
+	.listBox {
+		height: 900rpx;
+		padding:0 20rpx;
+	}
+	.commentslist {
+		height: 900rpx;
+		width: 710rpx;
+		position: absolute;
+		top:0;
+		bottom: 0;
+		left:20rpx;
+		right: 0;
+	}
+	.dataList {
+		/* flex: 1; */
+		padding: 20rpx 10rpx 0 10rpx;
+		width:710rpx;
+		border-radius:16rpx;
+	}
+	.dataFlexBox {
+		flex-direction: row;
+		justify-content: space-between;
+		width:690rpx;
+	}
+	.userAvatar {
+		height:160rpx;
+		width:160rpx;
+		/* background-color: #333; */
+	}
+	.commentsContentBox {
+		flex: 1;
+		padding: 0 0 0 10rpx;
+	}
+	.commentsLine {
+		height: 2rpx;
+		background-color:  #E2E2E2;
+		margin-top:10rpx;
+	}
+	.commentsHead {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.commentsHeadNameBox {
+		flex: 1;
+		height: 42rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+	.commentsHeadName {
+		font-size:30rpx;
+		color:#507DAF;
+		line-height: 42rpx;
+		text-overflow: ellipsis;
+		lines: 1;
+		width:320rpx;
+		/* overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap; */
+	}
+	.commentsStatusSyb {
+		height: 42rpx;
+		padding:0 8rpx;
+		border-radius: 8rpx;
+		margin-left:8rpx;
+	}
+	.commentsStatusSybMsg {
+		line-height: 42rpx;
+		font-size:26rpx;
+	}
+	.commentsDistance {
+		flex-direction: row;
+		align-items: center;
+	}
+	.disTanceNum {
+		font-size:24rpx;
+		color:#777;
+		line-height: 42rpx;
+	}
+	.disTanceMsg {
+		font-size:24rpx;
+		color:#FF7D4A;
+		line-height: 42rpx;
+	}
+	.disTanceSyb {
+		font-size:24rpx;
+		color:#777;
+		line-height: 42rpx;
+	}
+	.newnavigationIcon {
+		width: 20rpx;
+		height: 20rpx;
+		margin-right:10rpx;
+	}
+	.commentsBody {
+		margin: 12rpx 0;
+		height: 68rpx;
+	}
+	.commentsMsg {
+		line-height: 34rpx;
+		font-size: 28rpx;
+		color:#333;
+		text-overflow: ellipsis;
+		lines: 2;
+	}
+	.commentsAddress {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		padding: 20rpx 0;
+	}
+	.addressIcon {
+		width:20rpx;
+		height:24rpx;
+		margin-right:10rpx;
+	}
+	.addressMsg {
+		line-height: 36rpx;
+		font-size:26rpx;
+		color:#777;
+		text-overflow: ellipsis;
+		lines: 1;
+		flex: 1;
+		/* overflow: hidden;
+		white-space: nowrap; */
+	}
+	.commentsImageBox {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		margin:20rpx 0 0 0;
+	}
+	.commentsImageList {
+		width:100rpx;
+		height:100rpx;
+		/* background-color: #333; */
+		margin-right: 10rpx;
+	}
+	.commentsFoot {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		margin:20rpx 0 0 0;
+	}
+	.commentsTime {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		height: 34rpx;
+	}
+	.commentsTimeIcon {
+		width:22rpx;
+		height: 22rpx;
+		margin-right:10rpx;
+	}
+	.commentsTimeMsg {
+		line-height: 34rpx;
+		font-size: 24rpx;
+		color:#aaa;
+	}
+	.commentsStatus {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		height: 34rpx;
+	}
+	.commentsStatusBox {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		height: 34rpx;
+	}
+	.commentsStatusIcon {
+		width: 24rpx;
+		height: 24rpx;
+		margin-right:10rpx;
+	}
+	.commentsStatusMsg {
+		line-height: 34rpx;
+		font-size: 24rpx;
+		color:#aaa;
+	}
+	.loading-more {
+	    align-items: center;
+	    justify-content: center;
+	    padding-top: 14px;
+	    padding-bottom: 14px;
+	    text-align: center;
+	    flex-direction: row;
+	    width:750rpx;
+	}
+	.loadingImg {
+		width:40rpx;
+		height: 40rpx;
+		margin-right:15px;
+	}
+	.loading-more-text {
+	    font-size: 28upx;
+	    color: #999;
+	}
+	.newLabelBox {
+		margin-top:10rpx;
+		font-size:28rpx;
+		color:#777;
+	}
+	
+	.impressionList {
+		width: 500rpx;
+		min-height: 36rpx;
+	    flex-direction: row;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+	.impressionListLabel {
+		margin-right:10rpx;
+	}
+	.impressionListLabel {
+		margin-top:10rpx;
+		padding: 0 10rpx;
+		height: 36rpx;
+		line-height: 36rpx;
+		font-size:24rpx;
+		color:#333;
+		background: #F6F6F6;
+		border-radius: 4rpx;
+	}
+	.impressionListLabelMsg {
+		font-size:24rpx;
+		color:#333;
+		line-height: 36rpx;
+	}
+	.newLabel {
+		font-size:28rpx;
+		color:#777;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	.label-all{
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.content-text{
+		background-color: #F6F6F6;;
+		width: 120rpx;
+		height:48rpx;
+		margin-right: 10rpx;
+		border-radius: 8rpx;
+		color: #333;
+		font-size: 26rpx;
+		text-align: center;
+		line-height: 48rpx;
+	}
+	.showDataBorder {
+		border-width: 2rpx;
+		border-style: solid;
+		border-color: #909399;
+	}
+	.showNoBorder {
+		border-width: 2rpx;
+		border-style: solid;
+		border-color: #FFF;
+	}
+</style>

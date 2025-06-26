@@ -1,0 +1,511 @@
+<template>
+	<view class="all">
+		<web-view style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;" :src="helpUrl" @onPostMessage="recivePostMessage"></web-view>
+		<!-- <view class="input-box">
+			<view class="search-box" @tap="goSearch">
+				<image class="searchIcon" src="/static/images/goodsDelivery/search.png"></image>
+				<view class="search-text">请输入搜索内容</view>
+			</view>
+		</view>
+		<view class="tab-box" v-if="userRole == 1">
+			<view class="tab-head">
+				<view class="tab-child" @click="switchTap(1)">
+					<view :class="[tabIndex==1?'tab-text':'tab-not-text']">发货</view>
+					<view :class="[tabIndex==1?'tab-select':'tab-not-select']"></view>
+				</view>
+				<view class="tab-child" @click="switchTap(2)">
+					<view :class="[tabIndex==2?'tab-text':'tab-not-text']">社区</view>
+					<view :class="[tabIndex==2?'tab-select':'tab-not-select']"></view>
+				</view>
+				<view class="tab-child" @click="switchTap(3)">
+					<view :class="[tabIndex==3?'tab-text':'tab-not-text']">加油</view>
+					<view :class="[tabIndex==3?'tab-select':'tab-not-select']"></view>
+				</view>
+			</view>
+		</view>
+		<view class="shipper-box" v-if="userRole == 2">
+			<scroll-view scroll-y="true" style="height: 100%; border-radius: 12rpx; background-color: #fff;">
+				<view class="sender-box">
+					<view class="sender-child" v-for="item in shipperArr" @click="goDetails(item)">
+						<view class="help-sender">{{item.title}}</view>
+						<image src="/static/images/icon_right.png" class="arraw_right">
+					</view>
+				</view>
+			</scroll-view>
+		</view>
+		<view class="" v-if="userRole == 1">
+			<view class="help-box-index" v-if="tabIndex==1">
+				<scroll-view scroll-y="true" style="height: 100%; border-radius: 12rpx;">
+					<view class="sender-box">
+						<view class="sender-child" v-for="item in senderArr" @click="goDetails(item)">
+							<view class="help-sender">{{item.title}}</view>
+							<image src="/static/images/icon_right.png" class="arraw_right">
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+			<view class="help-box" v-if="tabIndex==2">
+				<view :class="['help-child', index==(helpItems.length-1)?'radius-box':'']" v-for="(item, index) in helpItems">
+					<view class="child-left">
+						<image class="help-img" :src="item[0].url" mode=""></image>
+						<view class="help-text">{{item[0].title}}</view>
+					</view>
+					<view class="child-right">
+						<view v-for="(val, index) in item[0].items" :class="['help-content', index==0?'line':'']" @click="goDetails(val)">{{val.title}}</view>
+					</view>
+				</view>
+			</view>
+			<view class="help-box-index" v-if="tabIndex==3">
+				<scroll-view scroll-y="true"  style="height: 100%; border-radius: 12rpx;">
+					<view class="sender-box">
+						<view class="sender-child" v-for="item in oilGasArr" @click="goDetails(item)">
+							<view class="help-sender">{{item.title}}</view>
+							<image src="/static/images/icon_right.png" class="arraw_right">
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+		</view>
+		<view class="bottom-box">
+			<view class="bottom-btn" @tap="goOnline">在线客服</view>
+		</view> -->
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/service.js";
+	export default {
+		data() {
+			return {
+				tabIndex: 1,
+				shipperArr: [
+					{title: '发货需要满足哪些条件？', content: ['1、需要在钱包中充值最低保证金', '2、完成身份证认证和人脸识别认证']},
+					{title: '可以在平台找哪些车？', content: '可以找普货运输车辆和冷藏车辆'},
+					{title: '发货可以选择几种货物类型？', content: '只可选择一种货物名称'},
+					{title: '绿通货物是否可以选择到？', content: '货物名称明确区分了绿通、普货和大宗'},
+					{title: '货源报价方式包含哪几种？', content: ['1、询价货源，流程是，发布货源→司机报价→平台选择最优价→发货人确认用车→运输服务→线下支付运费', '2、固价货源，流程是，发布货源→司机接单（1个即可）→发货人确认用车→运输服务→线下支付运费']},
+					{title: '如何知道货源已经返回报价了？', content: '系统会在返回报价时推送短信给发货人去确认用车'},
+					{title: '确认用车有时长限制吗？', content: '平台返回报价后，10分钟内可点击确认用车，否则货源关闭'},
+					{title: '什么时候可以联系司机？', content: '在确认用车后可以电话联系司机'},
+					{title: '平台什么时候会推送报价给我？', content: '发布货源时可选择报价时长，5分钟、10分钟、30分钟、60分钟。在选择时长内返回报价，如果没有返回，则表示没有司机报价。'},
+					{title: '平台推送的报价是什么价位的价格？', content: '平台会根据司机的报价、评分值推送最优报价给您。'},
+					{title: '如果发货需求有变，需要取消货源怎么操作？', content: ['1、在货源列表，点击详情，点击取消用车', '2、在确认用车前取消都是无责取消', '3、在确认用车后取消，需要在运单模块，点击运单进行取消，这时平台会根据实际情况扣除违约金。']},
+					{title: '货源支持几装几卸？', content: '支持一装一卸、一装两卸、两装两卸、两装一卸'},
+					{title: '发货人支付给司机，运费支付怎么操作？', content: '运费为线下支付'},
+					{title: '司机支付给发货人，信息费怎么操作？', content: '信息费线上支付，当确认用车后，平台会从司机钱包扣除信息费，在司机点击卸货完成时，转入发货人的钱包。'},
+					{title: '平台提供哪些保障服务？', content: '当司机责任造成货物损失，且超过10天未向货主支付货损金额时，平台将向货主支付实际货损金额，平台收取货物声明价值0.2%的服务费'},
+					{title: '技术服务费怎么收取？', content: '确认用车后，每单收取运费*0.2%的服务费，每月150元封顶。'},
+					{title: '提现有手续费吗？', content: '根据微信的规定，提现会收取0.6%的手续费。'},
+					{title: '充值有限额吗？', content: '目前支持微信充值到账，一天最大可充值8万元。'},
+					{title: '怎么把货源存为常发货源？', content: '点击货源列表详情，点击常发即可。下次再次发布可以在常发页签中，点击再来一单，可一键复制货源信息'},
+				],
+				senderArr: [
+					{title: '报价需要满足哪些条件？', content: '需要在钱包中充值最低保证金完成身份证认证和人脸识别认证'},
+					{title: '可以在平台找哪些货源？', content: '可以找普货货源、冷藏货源'},
+					{title: '货物名称是否区分不同类型？', content: '区分了绿通、普货和大宗，每大类下包含了细分小类'},
+					{title: '货源报价方式包含哪几种？', content: ['1、询价货源，流程是，发布货源→司机报价→平台选择最优价→发货人确认用车→运输服务→线下支付运费；', '2、固价货源，流程是，发布货源→司机接单（1个即可）→发货人确认用车→运输服务→线下支付运费。']},
+					{title: '如何知道我的报价，货主确认用车了？', content: '在您的报价已经被平台选中，且被货主确认用车，平台会推送您一个短信，告知您的报价已被确认，请前往装货地'},
+					{title: '什么时候可以联系货主？', content: '在确认用车后可以电话联系货主。'},
+					{title: '在生成交易前不能电话联系怎么确认货源准确性？', content: '在货主发货前已经在平台交纳了一定金额的保证金，发生虚假货源时，可投诉至平台，平台根据实际情况进行违约金的扣款。平台要求货主在发货时填写非常详情的货源信息，司机可根据结构化的货源信息报价。'},
+					{title: '平台推送的报价是什么价位的价格？', content: '平台会根据司机的报价、评分值推送最优报价给发货人。'},
+					{title: '如果承运需求有变，需要取消报价怎么操作？', content: ['1、在货源列表，点击详情，点击取消报价；', '2、在确认用车前取消都是无责取消；', '3、在确认用车前取消都是无责取消']},
+					{title: '货源支持几装几卸？', content: '支持一装一卸、一装两卸、两装两卸、两装一卸'},
+				],
+				oilGasArr: [
+					{title: '通过“货运中国”优惠加油的条件有哪些？', content: '完成“货运中国”APP实名认证、驾驶证认证、行驶证认证的卡友，即可参与优惠加油。是否完成了认证要求，您可以在[我的]--驾驶证认证、车辆认证、实名认证中查看'},
+					{title: '怎么进入“货运中国”优惠加油界面？', content: ['共有2个入口进入优惠加油界面。', '1）点击[服务站]首页，右下角广告页；', '2）点击[我的]—[常用功能]，点击“优惠加油”即可。']},
+					{title: '怎么领取货运中国加油优惠券？', content: '进入优惠加油界面后，点击[优惠券]模块，在页面中点击隐藏在右下角的彩色按钮，调出券市场领券界面，点击优惠券右下方的“立即领取”，显示“领取成功”，即代表您已成功领取该优惠券。'},
+					{title: '为什么领取优惠券时，提示“抢券数量达到上限”？', content: '出现“抢券数量达到上限”原因是，该优惠券设置了每日最多可领取张数，且您当日该券领取张数已达上限。这种情况下，您0点后可以再次领取。'},
+					{title: '什么是全站通用券、多站通用券，而有些券直接写的油站名称？', content: ['货运中国平台中，油气优惠券共有3种，分别是：', '全站通用券：指该优惠券可以在货运中国油气网络中任意站消费；', '多站通用券：指该优惠券设置了多个油气站可用。司机只有在这些设定的油气站中进行优惠加油；', '单站优惠券：即直接显示油站名称的优惠券，司机只能在这个油站使用优惠券加油加气。', '优惠券小贴士：', '1）大家可以在[优惠券]—[未使用]列表中，点击“使用规则”，查看优惠券支持的油站清单；', '2）只有当优惠券在有效期内、优惠券所支持的油品、油站与订单完全吻合时，才能使用哦。']},
+					{title: '领券后，怎么去加油呢？', content: '您成功领取优惠券后，点击[加油]模块，在油站列表中找到并点击油站名称，在油站详情界面，点击“我要加油”，选择油品类型、油品型号、枪号后，输入加油金额或加油量，若您有多张优惠券，系统将自动选择优惠力度最大的券，点击“去支付”，在支付界面选择“微信线上支付”，此时请注意“确认支付”按钮中，显示的金额是优惠后的应支付金额，确认无误后，会自动调出微信支付页面，输入微信支付密码，完成支付。接下来您只需关注加油员是否按照对应的订单金额为您加油就行了。'},
+					{title: '为什么我看不到油站列表？', content: ['若出现看不到油站列表情况，请确认：', '1）手机定位服务是否开启，并在安装时，跳出的相关获取位置的权限，您点了“同意”；', '2）当前选择的油品是否与油站的经营范围一致。系统默认是0#柴油，若您附近的站点只有LNG，则需要在顶部区域，第2个选项中选择“LNG”。']},
+					{title: '怎么查看我的订单历史记录？', content: '您可以在[订单]模块，查看您的订单历史记录。在页面顶部，可对订单日期进行筛选。当前支持按照年/月进行筛选。'},
+					{title: '为什么我加油结算时，没有显示优惠？', content: '若结算时，“确认支付”按钮中，显示的金额并没有优惠，请确认是否成功领取了优惠券，或优惠券是否还在有效期内。正常在订单界面，输入加油金额后，就会在“优惠券”处显示该笔订单使用的优惠券和优惠的金额。'},
+					{title: '为什么有些油站不用扫码，有些油站提示要扫码？', content: '平台除自营油站外，也与行业内部分优质的平台进行了合作，这种情况下，您只需将二维码出示给加油员供对方扫码即可，其他流程不变。'},
+					{title: '加油加气时，优惠券可以自行选择吗？', content: '您正常加油加气时，系统会自动选择优惠力度最大的优惠券，若您需要手动选择优惠券，可在订单中点击“优惠券”，在[可用优惠券]中选择所需的优惠券即可。若是采用扫码加油的站点，暂不支持手动选择，但请放心，我们自动选择的绝对是优惠力度最大，对您最实惠的优惠券。'},
+					{title: '为什么我点击“优惠加油”时，提示我没有完成认证？', content: '通过货运中国优惠加油的前提是，用户需要完成实名认证、驾驶证认证和车辆认证。您只需按照要求完成认证后，即可使用优惠加油功能'},
+					{title: '为什么我在加油订单时，没看到“优惠券”栏？', content: '货运中国平台不仅支持司机个人加油，也支持企业车队加油业务。目前优惠券仅对司机个人加油开放，车队业务暂无法使用优惠券。通过“货运中国平台卡”进行加油加气的，就是个人加油业务；通过“货运中国车队卡”进行加油加气的，则是车队业务。'},
+					{title: '什么是平台卡，什么是车队卡？两者的区别是什么？', content: ['货运中国当前共有两种电子油气卡，分别解释如下：', '1）平台卡：货运中国平台为个体司机派发的电子油气卡。每个司机完成认证后，会自动派发一张货运中国平台卡。平台卡既可以加柴油，也可以加天然气；', '2）车队卡：货运中国车队合作的车队为其下的司机派发的电子油气卡。车队卡分柴油卡和天然气卡，柴油卡只能加柴油，天然气卡只能加天然气。', '两者最大的区别是：', '1）平台卡可用优惠券，车队卡暂无法使用；', '2）平台卡可加柴油、天然气；车队卡严格按照车队开卡时选择的油品进行消费；', '3）平台卡是货运中国平台自动派发；车队卡是车队为司机派发；', '4）平台卡消费只能微信（后期会支持支付宝）；车队卡可用车队分派的余额消费。']},
+					{title: '我怎么查看有哪些油卡？', content: '您可以在[油卡]模块，查看您当前所拥有的货运中国电子加油卡。每张油卡右上角都会显示卡类别，如：货运中国平台卡、车队柴油卡、车队天然气卡等。且每张卡上都会显示当前油卡余额、卡号、绑定车牌号；对于车队卡还会显示发卡的车队公司名称。'},
+					{title: '我经常加油的站点，没在货运中国加油网络中，如何申请加入网络？', content: '您若有经常加油的站点，想加入货运中国加油网络中，可直接和我们联系，我们会派工作人员将油站加入到货运中国平台中。客服电话：400-016-0606'},
+					{title: '为什么订单中有些显示“服务由团油提供”、“万金油扫码”等？', content: '货运中国油气网络目前有超过8500+油气站，除了平台自营站点外，我们与“团油”和“万金油”实现了对接。所以您能看到有些站点显示的“团油”，有些站点显示“万金油”，您在加油时，根据提示告知加油员，让其用对应平台的设备操作即可。'},
+				],
+				helpItems: [
+					[
+						{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/help_img1.png',
+							title: '下载登录',
+							items: [
+								{title: '货运中国APP是什么？', content: '“货运中国”是一个卡车司机的专属公益性社区，方便全国各地的卡友们分享路途中的服务网点，路况，互助信息；服务赞不赞，卡友说了算！'},
+								{title: '货运中国APP怎么下载？', content: '如果您用的是苹果、华为、小米、OPPO、VIVO手机，则可直接通过手机自带的应用商城下载，也可通过腾讯应用宝搜索“货运中国”点击下载安装。同时还可以通过我们的官网“www.hyzgapp.com”扫码下载安装。'},
+							]
+						}
+					],
+					[
+						{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/help_img2.png',
+							title: '登录认证',
+							items: [
+								{title: '货运中国APP支持哪些登录方式？', content: '我们支持三种登录方式，默认手机号一键登录，支持手机号及密码登录，我们还支持手机号+验证码登录。'},
+								{title: '卡友们如何完成认证？', content: '点击[我的]--[车辆认证]、[驾驶证认证]，根据界面指引，完成认证。'},
+							]
+						}
+					],	
+					[
+						{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/help_img3.png',
+							title: '发布问题',
+							items: [
+								{title: '服务站、路况、互助是什么？', content: '卡友们在飞奔往全国各地运送货物的时候，难免会遇到堵车、恶劣天气或需要服务补给的时候。卡友们可通过“货运中国”APP查询周围靠谱的服务站点，查看或发布路况信息、求助信息，让分布在全国各地海量的卡友们及时获悉，发扬人人为我，我为人人风格，让卡友圈被爱铺满，满满正能量。'},
+								{title: '如何进行发布服务站、路况、互助？', content: ['①上报服务站：已完成认证的卡友，在【服务站】页签，点击右上角【上报】按钮后，在当前页面依次输入完成信息即可上报成功；', '②查找服务站：当前定位可直接查看地图和列表，非当前定位可通过搜索地址查询；', '③发布路况：已完成认证的卡友，在【路况】页签，点击右上角【发布】按钮后，在当前页面依次输入完成信息即可上报成功；', '④查找路况：当前定位可直接查看地图和列表，非当前定位可通过搜索地址查询；', '⑤发布互助：已完成认证的卡友，在【发布】页签，点击右上角【发布】按钮后，在当前页面依次输入完成信息即可上报成功；', '⑥查找互助：当前定位可直接查看地图和列表，非当前定位可通过搜索地址查询。']}
+							]
+						}
+					],
+				],
+				userRole: 0,
+				helpUrl: '',
+			}
+		},
+		onLoad() {
+			this.userRole = uni.getStorageSync("userRole");
+			console.log(this.userRole);
+			this.helpUrl = utils.helpUrl + '?userRole=' + this.userRole;
+			console.log(this.helpUrl);
+		},
+		methods: {
+			recivePostMessage(e){
+				console.log(e.detail.data)
+				if(e.detail.data[0].type == 'isBack'){
+					uni.navigateBack({
+						
+					})
+				} else if(e.detail.data[0].type == 'isSearch'){
+					uni.navigateTo({
+						url: '/pages/my/helpService/search?map=' + JSON.stringify(e.detail.data[0].allDataArr)
+					})
+				} else if(e.detail.data[0].type == 'isDetails'){
+					this.goDetails(e.detail.data[0].map)
+				} else if(e.detail.data[0].type == 'isOnline'){
+					this.goOnline();
+				}
+			},
+			switchTap(index){
+				this.tabIndex = index;
+			},
+			goDetails(val){
+				var data = JSON.stringify(val)
+				uni.navigateTo({
+					url: "./details?map="+data+'&type=' + this.tabIndex
+				})
+			},
+			goContact() {
+				uni.navigateTo({
+					url: '../index/contactUs'
+				})
+			},
+			goOnline(){
+				var userCode =JSON.parse(uni.getStorageSync("userInfo")).attrs.userCode
+				var userRole =JSON.parse(uni.getStorageSync("userRole")) == 1 ? '司机' : '货主'
+				plus.runtime.getProperty(plus.runtime.appid,(wgtinfo)=>{
+					var appversion = wgtinfo.version
+					uni.getSystemInfo({
+						success(res) {
+							var phoneversion = res.brand + '-' + res.model
+							uni.navigateTo({
+								url: '../index/onlineService?appversion=' + appversion + '&phoneversion=' + phoneversion + '&userCode=' + userCode + '&userRole=' + userRole
+							})
+						}
+					});
+					
+				})
+				
+			},
+			goOnNews() {
+				uni.navigateTo({
+					url: '../index/onNewsService'
+				})
+			},
+			goSearch(){
+				uni.navigateTo({
+					url: '/pages/my/helpService/search'
+				})
+			}
+		}
+	}
+</script>
+<style lang="scss">
+	.all{
+		// .input-box{
+		// 	position: fixed;
+		// 	top: 0;
+		// 	left: 0;
+		// 	right: 0;
+		// 	z-index: 9;
+		// 	background-color: #4AA2F3;
+		// 	display: flex;
+		// 	align-items: center;
+		// 	justify-content: center;
+		// 	height: 130rpx;
+		// 	line-height: 130rpx;
+		// 	.search-box{
+		// 		background-color: #fff;
+		// 		width: 686rpx;
+		// 		height: 70rpx;
+		// 		line-height: 70rpx;
+		// 		border-radius: 36rpx;
+		// 		display: flex;
+		// 		align-items: center;
+		// 		.searchIcon {
+		// 			width:34rpx;
+		// 			height: 34rpx;
+		// 			margin: 0 18rpx;
+		// 		}
+		// 		.search-text{				
+		// 			color: #AAAAAA;
+		// 			font-size: 28rpx;
+		// 			padding: 16rpx 0;
+		// 		}
+		// 	}
+		// }
+		// .tab-box{
+		// 	position: fixed;
+		// 	top: 130rpx;
+		// 	left: 16rpx;
+		// 	right: 16rpx;
+		// 	height: 74rpx;
+		// 	display: flex;
+		// 	background-color: #f3f3f3;
+		// 	padding-top: 24rpx;
+		// 	z-index: 9;
+		// 	border-bottom: 2rpx solid #EEE;
+		// 	.tab-head{
+		// 		flex: 1;
+		// 		background-color: #fff;
+		// 		display: flex;
+		// 		align-items: flex-end;
+		// 		justify-content: center;
+		// 		border-top-right-radius: 12rpx;
+		// 		border-top-left-radius: 12rpx;
+		// 		.tab-child{
+		// 			flex: 1;
+		// 			display: flex;
+		// 			flex-direction: column;
+		// 			align-items: center;
+		// 			justify-content: center;
+		// 			.tab-text{
+		// 				color: #333;
+		// 				font-weight: bold;
+		// 				font-size: 30rpx;
+		// 				padding-bottom: 10rpx;
+		// 				color: #4AA2F3;
+		// 			}
+		// 			.tab-select{
+		// 				height: 6rpx;
+		// 				width: 120rpx;
+		// 				background-color: #4AA2F3;
+		// 				margin-top: 5rpx;
+		// 			}
+		// 			.tab-not-text{
+		// 				font-size: 30rpx;
+		// 				color: #777;
+		// 				padding-bottom: 10rpx;
+		// 			}
+		// 			.tab-not-select{
+		// 				height: 6rpx;
+		// 				width: 120rpx;
+		// 				background-color: #fff;
+		// 				margin-top: 5rpx;
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// .shipper-box{
+		// 	position: fixed;
+		// 	top: 154rpx;
+		// 	left: 16rpx;
+		// 	right: 16rpx;
+		// 	bottom: 144rpx;
+		// 	.sender-box{
+		// 		.sender-child{
+		// 			margin: 0 32rpx;
+		// 			display: flex;
+		// 			align-items: center;
+		// 			justify-content: space-between;
+		// 			border-bottom: 2rpx solid #EAEAEA;
+		// 			padding: 24rpx 0;
+		// 			.help-sender{
+		// 				display: flex;
+		// 				align-items: center;
+		// 				font-size: 28rpx;
+		// 				color: #333;
+		// 			}
+		// 			.arraw_right {
+		// 				width: 25rpx;
+		// 				height: 25rpx;
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// .help-box-index{
+		// 	position: fixed;
+		// 	top: 228rpx;
+		// 	left: 16rpx;
+		// 	right: 16rpx;
+		// 	bottom: 144rpx;
+		// 	border-bottom-left-radius: 12rpx;
+		// 	border-bottom-right-radius: 12rpx;
+		// 	.sender-box{
+		// 		border-bottom-left-radius: 12rpx;
+		// 		border-bottom-right-radius: 12rpx;
+		// 		background-color: #fff;
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		align-items: center;
+		// 		justify-content: center;
+		// 		.sender-child{
+		// 			background-color: #fff;
+		// 			display: flex;
+		// 			align-items: center;
+		// 			justify-content: space-between;
+		// 			border-bottom: 2rpx solid #EAEAEA;
+		// 			padding: 24rpx 0;
+		// 			width: 654rpx;
+		// 			.help-sender{
+		// 				display: flex;
+		// 				align-items: center;
+		// 				font-size: 28rpx;
+		// 				color: #333;
+		// 			}
+		// 			.arraw_right {
+		// 				width: 25rpx;
+		// 				height: 25rpx;
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// .help-box{
+		// 	padding-top: 228rpx;
+		// 	margin: 0 16rpx;
+		// 	padding-bottom: 144rpx;
+		// 	.sender-box{
+		// 		border-bottom-left-radius: 12rpx;
+		// 		border-bottom-right-radius: 12rpx;
+		// 		background-color: #fff;
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		align-items: center;
+		// 		justify-content: center;
+		// 		.sender-child{
+		// 			background-color: #fff;
+		// 			display: flex;
+		// 			align-items: center;
+		// 			justify-content: space-between;
+		// 			border-bottom: 2rpx solid #EAEAEA;
+		// 			padding: 24rpx 0;
+		// 			width: 654rpx;
+		// 			.help-sender{
+		// 				display: flex;
+		// 				align-items: center;
+		// 				font-size: 28rpx;
+		// 				color: #333;
+		// 			}
+		// 			.arraw_right {
+		// 				width: 25rpx;
+		// 				height: 25rpx;
+		// 			}
+		// 		}
+		// 	}
+		// 	.radius-box{
+		// 		border-bottom-right-radius: 12rpx;
+		// 		border-bottom-left-radius: 12rpx;
+		// 	}
+		// 	.help-child{
+		// 		background-color: #fff;
+		// 		display: flex;
+		// 		align-items: center;
+		// 		border-bottom: 2rpx solid #EAEAEA;
+		// 		.child-left{
+		// 			display: flex;
+		// 			flex-direction: column;
+		// 			align-items: center;
+		// 			justify-content: center;
+		// 			padding: 0 38rpx;
+		// 			height: 192rpx;
+		// 			border-right: 2rpx solid #EAEAEA;
+		// 			.help-img{
+		// 				width: 76rpx;
+		// 				height: 76rpx;
+		// 			}
+		// 			.help-text{
+		// 				margin-top: 20rpx;
+		// 				font-size: 28rpx;
+		// 				color: #333;
+		// 			}
+		// 		}
+		// 		.child-right{
+		// 			display: flex;
+		// 			flex-direction: column;
+		// 			justify-content: center;
+		// 			height: 192rpx;
+		// 			flex: 1;
+		// 			.help-content{
+		// 				flex: 1;
+		// 				display: flex;
+		// 				align-items: center;
+		// 				padding: 0 30rpx;
+		// 				font-size: 26rpx;
+		// 				color: #333;
+		// 			}
+		// 			.line{
+		// 				border-bottom: 2rpx solid #EAEAEA;
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// .contact-box{
+		// 	display: flex;
+		// 	align-items: center;
+		// 	.contact-child{
+		// 		padding: 40rpx;
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		justify-content: center;
+		// 		align-items: center;
+		// 		.contact-img{
+		// 			width: 60rpx;
+		// 			height: 60rpx;
+		// 		}
+		// 		.contact-img1{
+		// 			width: 51.26rpx;
+		// 			height: 60rpx;
+		// 		}
+		// 		.contact-text{
+		// 			margin-top: 20rpx;
+		// 			font-size: 32rpx;
+		// 			color: #333;
+		// 		}
+		// 	}
+		// }
+		// .bottom-box{
+		// 	position: fixed;
+		// 	left: 0;
+		// 	right: 0;
+		// 	bottom: 0;
+		// 	height: 120rpx;
+		// 	background-color: #fff;
+		// 	display: flex;
+		// 	align-items: center;
+		// 	justify-content: center;
+		// 	.bottom-btn{
+		// 		background-color: #4AA2F3;
+		// 		height: 88rpx;
+		// 		line-height: 88rpx;
+		// 		text-align: center;
+		// 		width: 700rpx;
+		// 		border-radius: 48rpx;
+		// 		font-size: 36rpx;
+		// 		color: #fff;
+		// 	}
+		// }
+	}
+</style>

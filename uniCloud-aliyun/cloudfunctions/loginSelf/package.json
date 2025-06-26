@@ -1,0 +1,7 @@
+{
+  "name": "loginSelf",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-verify": {}
+  }
+}

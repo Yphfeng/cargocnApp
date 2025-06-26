@@ -1,0 +1,191 @@
+.imageView {
+    position: absolute;
+    top: -66rpx;
+    left: 284rpx;
+    height: 124rpx;
+    width: 124rpx;
+    z-index: 1001;
+}
+
+page {
+    background: #F7F7F7;
+}
+
+.container {
+    background: #F7F7F7;
+    border-top: 2rpx solid #EDEEF0;
+}
+
+.contentView {
+    z-index: 1000;
+    margin: 100rpx 26rpx 0rpx 26rpx;
+    width: 92vw;
+    height: auto;
+    /* background: #F3F3F3; */
+    border-radius: 20rpx;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 30rpx;
+    position: relative;
+}
+
+.reslutView {
+    margin-top: 70rpx;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    height: 100rpx;
+    margin-left: 36rpx;
+    margin-right: 36rpx;
+    border-bottom: 1rpx solid #DBDBDB;
+    font-size: 30rpx;
+    color: #333333;
+}
+
+.reslutView span {
+    color: #999999;
+    font-size: 24rpx;
+}
+
+.infoView {
+    margin: 8rpx 36rpx 8rpx 36rpx;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.infoView text {
+    color: #333333;
+    font-size: 24rpx;
+}
+
+.infoView label {
+    color: #666666;
+    font-size: 24rpx;
+    text-align: right;
+}
+
+.tipsView {
+    margin: 10rpx 30rpx 0rpx 30rpx;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.tipsView image {
+    margin-top: 5rpx;
+    width: 32rpx;
+    height: 32rpx;
+}
+
+.tipsView text {
+    margin-left: 5rpx;
+    color: #999999;
+    font-size: 26rpx;
+}
+
+.backBtnView {
+    margin: 50rpx 30rpx 0rpx 30rpx;
+    width: 90vw;
+    color: white;
+    font-size: 32rpx;
+    background: #6D9AED;
+    height: 90rpx;
+    text-align: center;
+    border-radius: 45rpx;
+    line-height: 90rpx;
+}
+
+.disappear {
+    display: none;
+}
+
+/* 万金油弹框样式 */
+.black-box{
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #000;
+    opacity: 0.4;
+    z-index: 9998;
+}
+.bounced-content{
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.content-box{
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.content-img{
+    width: 550rpx;
+    height: 550rpx;
+}
+
+.content-img2 {
+    width: 550rpx;
+}
+
+.box1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payment-box {
+    width: 90vw;
+    margin-top: 15rpx;
+	margin-bottom: 15rpx;
+}
+
+.contetn-reset{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.ok-btn{
+    background-color: #6D9AED;
+    width: 300rpx;
+    color: #fff;
+    padding: 20rpx 0;
+    border-radius: 30rpx;
+    text-align: center;
+    margin-top: 50rpx;
+    font-size: 30rpx;
+}
+.ok-btn2 {
+	padding: 10rpx;
+	height: 40rpx;
+}
+
+.card-box {
+    position: fixed;
+    right: 5vw;
+    top: 10vw;
+}
+.card-img {
+    height: 90rpx;
+    width: 130rpx;
+}
+
+.card-text {
+    font-size: 22rpx;
+    text-align: center;   
+}

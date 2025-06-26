@@ -1,0 +1,353 @@
+{
+    "name" : "货先生",
+    "appid" : "__UNI__EBABD02",
+    "description" : "",
+    "versionName" : "3.4.8",
+    "versionCode" : 1005,
+    "transformPx" : false,
+    "sassImplementationName" : "node-sass",
+    /* 5+App特有相关 */
+    "app-plus" : {
+        "privacy" : {
+            "prompt" : "template",
+            "template" : {
+                "title" : "温馨提示",
+                "message" : "感谢您的信任并使用货先生！<br/>我们非常重视您的个人信息保护。特向您说明如下：<br/>1、我们会采取业界先进的安全措施保护您的信息安全，您也有权拒绝或取消授权。<br/>2、未经您同意，我们不会从第三方处获取、共享或向其提供您的信息。<br/>3、您可以查询、更正您的个人信息，我们也提供账户注销的渠道。<br/>　　点击同意即表示您已阅读并同意我们的<a href='https://m-test.hyzgapp.com/#/privacy'>《货先生隐私政策》</a>，<a href='https://m-test.hyzgapp.com/#/service'>《货先生用户服务协议》</a>和<a href='https://m-test.hyzgapp.com/#/authorization'>《货先生用户授权协议》</a>",
+                "buttonAccept" : "同意",
+                "buttonRefuse" : "拒绝"
+            }
+        },
+        "compatible" : {
+            "ignoreVersion" : true //true表示忽略版本检查提示框，HBuilderX1.9.0及以上版本支持  
+        },
+        "safearea" : {
+            "bottom" : {
+                "offset" : "none"
+            }
+        },
+        "softinputMode" : "adjustPan",
+        "usingComponents" : true,
+        "nvueCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : false,
+            "waiting" : false,
+            "autoclose" : false,
+            "delay" : 0
+        },
+        /* 模块配置 */
+        "modules" : {
+            "Geolocation" : {},
+            "Maps" : {},
+            "OAuth" : {},
+            "Share" : {},
+            "Payment" : {},
+            "Push" : {},
+            "Bluetooth" : {},
+            "Camera" : {},
+            "FaceID" : {},
+            "Barcode" : {},
+            "Statistic" : {}
+        },
+        /* 应用发布信息 */
+        "distribute" : {
+            /* android打包配置 */
+            "android" : {
+                "permissions" : [
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH_PRIVILEGED\"/>",
+                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_CONFIGURATION\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.DEVICE_POWER\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNAL_SYSTEM_WINDOW\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.KILL_BACKGROUND_PROCESSES\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_CONTACTS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.REQUEST_INSTALL_PACKAGES\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+                ],
+                "permissionExternalStorage" : {
+                    "request" : "none",
+                    "prompt" : "为了收集您的个人信息，向您推荐合适的货源，需要获取读写手机存储（系统提示为访问设备上的照片、媒体内容和文件）权限，请允许。"
+                },
+                "permissionPhoneState" : {
+                    "request" : "none",
+                    "prompt" : "为向您推荐合适的货源信息，需要获取设备识别码（部分手机提示为获取手机号码）使用权限，请允许。"
+                },
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ],
+                "targetSdkVersion" : 28,
+                "schemes" : "hyzg"
+            },
+            /* ios打包配置 */
+            "ios" : {
+                "privacyDescription" : {
+                    "NSPhotoLibraryUsageDescription" : "为证明用户所发布的路况、求助、服务站等信息的真实、可用性",
+                    "NSPhotoLibraryAddUsageDescription" : "",
+                    "NSCameraUsageDescription" : "便于用户现场拍摄照片并上传到应用中，增强发布的事件的真实性和可靠性",
+                    "NSLocationWhenInUseUsageDescription" : "用户发布求助或路况时，需带上当前位置，便于及时获得帮助",
+                    "NSLocationAlwaysUsageDescription" : "用户发布求助或路况时，需带上当前位置，便于及时获得帮助",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "用户发布求助或路况时，需带上当前位置，便于及时获得帮助"
+                },
+                "idfa" : false,
+                "capabilities" : {
+                    "entitlements" : {
+                        "com.apple.developer.associated-domains" : [ "applinks:www.hyzgapp.com" ]
+                    }
+                },
+                "urlschemewhitelist" : [ "weixin" ],
+                "dSYMs" : false,
+                "urltypes" : [
+                    {
+                        "urlschemes" : [ "hyzg" ]
+                    }
+                ]
+            },
+            /* SDK配置 */
+            "sdkConfigs" : {
+                "geolocation" : {
+                    "amap" : {
+                        "__platform__" : [ "ios", "android" ],
+                        "appkey_ios" : "b14a02f3ede40ef39d6b8d303bd48b0b",
+                        "appkey_android" : "5ca47004816fefa1f3ef676cbc60ebe0",
+                        "name" : "amap_13755256126AK1nLooYi"
+                    }
+                },
+                "maps" : {
+                    "amap" : {
+                        "appkey_ios" : "b14a02f3ede40ef39d6b8d303bd48b0b",
+                        "appkey_android" : "5ca47004816fefa1f3ef676cbc60ebe0",
+                        "name" : "amap_13755256126AK1nLooYi"
+                    }
+                },
+                "oauth" : {
+                    "univerify" : {},
+                    "weixin" : {
+                        "appid" : "wxff21ca63335c4c42",
+                        "appsecret" : "667997155e7abfa9e6f269f280491593",
+                        "UniversalLinks" : "https://www.hyzgapp.com/ulinks/"
+                    },
+                    "apple" : {}
+                },
+                "statics" : {
+                    "umeng" : {
+                        "appkey_ios" : "6098dca153b6726499f59e4a",
+                        "channelid_ios" : "cargoChina",
+                        "appkey_android" : "607da1965844f15425ddf306",
+                        "channelid_android" : "cargoChina"
+                    }
+                },
+                "ad" : {},
+                "share" : {
+                    "weixin" : {
+                        "appid" : "wxff21ca63335c4c42",
+                        "UniversalLinks" : "https://www.hyzgapp.com/ulinks/"
+                    }
+                },
+                "payment" : {
+                    "weixin" : {
+                        "__platform__" : [ "ios", "android" ],
+                        "appid" : "wxff21ca63335c4c42",
+                        "UniversalLinks" : "https://www.hyzgapp.com/ulinks/"
+                    }
+                },
+                "push" : {
+                    "unipush" : {}
+                }
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            },
+            "splashscreen" : {
+                "autoclose" : false,
+                "androidStyle" : "default",
+                "android" : {
+                    "xxhdpi" : "static/images/loginBackground.png",
+                    "xhdpi" : "static/images/loginBackground.png",
+                    "hdpi" : "static/images/loginBackground.png"
+                },
+                "useOriginalMsgbox" : true
+            }
+        },
+        "nativePlugins" : {
+            "liyahong-BDFace-v4" : {
+                "__plugin_info__" : {
+                    "name" : "【Android/IOS支持/口罩识别】百度人脸识别、活体检测、离线人脸采集",
+                    "description" : "百度人脸采集离线SDK，支持活体动作/无动作采集，支持修改文字及背景颜色，支持自定义图标及语音文件",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=3631",
+                    "android_package_name" : "uni.UNIWNQ0000",
+                    "ios_bundle_id" : "io.dcloud.hyzgapp",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "3631",
+                    "parameters" : {}
+                }
+            },
+            "KsModule" : {
+                "__plugin_info__" : {
+                    "name" : "KsModule",
+                    "description" : "快手sdk",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "TransportModule" : {
+                "__plugin_info__" : {
+                    "name" : "TransportModule",
+                    "description" : "交委sdk",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "WxScanModule" : {
+                "__plugin_info__" : {
+                    "name" : "WxScanModule",
+                    "description" : "sdk",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "PowerModule" : {
+                "__plugin_info__" : {
+                    "name" : "PowerModule",
+                    "description" : "权限判断",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "HG-Background" : {
+                "__plugin_info__" : {
+                    "name" : "HG-Background",
+                    "description" : "前台服务插件",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "AMapModule" : {
+                "__plugin_info__" : {
+                    "name" : "AMapModule",
+                    "description" : "权限判断",
+                    "platforms" : "Android",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            }
+        },
+        "uniStatistics" : {
+            "enable" : true,
+            "version" : "2"
+        }
+    },
+    /* 快应用特有相关 */
+    "quickapp" : {},
+    /* 小程序特有相关 */
+    "mp-weixin" : {
+        "appid" : "",
+        "setting" : {
+            "urlCheck" : false
+        },
+        "usingComponents" : true
+    },
+    "mp-alipay" : {
+        "usingComponents" : true
+    },
+    "mp-baidu" : {
+        "usingComponents" : true
+    },
+    "mp-toutiao" : {
+        "usingComponents" : true
+    },
+    "uniStatistics" : {
+        "enable" : false,
+        "version" : "2"
+    },
+    "networkTimeout" : {
+        "request" : 30000
+    },
+    "_spaceID" : "5ce6a157-7f30-4a38-9585-3bf59de209af"
+}
+/* 5+App特有相关 *///true表示忽略版本检查提示框，HBuilderX1.9.0及以上版本支持  
+

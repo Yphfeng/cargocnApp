@@ -1,0 +1,2040 @@
+<template>
+    <view class="uni-swiper-page">
+        <list ref="list" class="list" :loadmoreoffset="150" :offset-accuracy="5" :bounce="false" fixFreezing="true" @loadmore="loadmore">
+			<cell>
+				<view class="tips" v-if="isVerify">
+					<text class="tipsText">您的资料还未认证，快去认证吧</text>
+					<view class="btnContent">
+						<view class="btnCheck" @click="goVerify">
+							<text class="verText">去认证</text>
+						</view>
+						<image src="../../../static/images/closeBlue.png" class="close" @click="closeVerify"></image>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="searchInfo">
+					<view class="searchItem start" @click="showPopUp(1)">
+						<text class="startText">装：{{loadingArray.length > 0 ? loadingArray[0].name : '全国'}}</text>
+						<image src="../../../static/images/arrow_down.png" class="down"></image>
+					</view>
+					<view class="searchItem end" @click="showPopUp(2)">
+						<text class="startText">卸：{{unLoadingArray.length < 1 ? unLoadingAddr : unLoadingArray[0].name}}</text>
+						<image src="../../../static/images/arrow_down.png" class="down"></image>
+					</view>
+					<view class="searchItem distance" @click="sort">
+						<text class="searchText">距离排序</text>
+						<view class="colarIcon">
+							<view class="triangle"  :class="{triangleActive: isSortUp}"/>
+							<view class="rev-triangle" :class="{'rev-triangle-active': !isSortUp}" />
+						</view>
+					</view>
+					<view class="searchItem distance" @click="selectType()">
+						<text class="searchText">筛选</text>
+						<image src="../../../static/images/arrow_down.png" class="down"></image>
+					</view>
+				</view>
+			</cell>
+			<cell v-for="(item, index) in platformQuoteList" :key="item.id" :ref="'item'+index" @click="goDetail(item, 3)">
+				<view class="orderList"  :class="{'orderList-first': index == 0}">
+					<view class="orderSubList platform">
+						<view class="orderListHead">
+							<view class="orderAddress">
+								<view class="addressMsg"><text class="addressMsg-text">{{item.startAddr}}</text></view>
+								<view class="going">
+									<image class="addressStatus" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/notOngoing.png"></image>
+									<text class="km">{{item.distance}}km</text>
+								</view>
+								<view class="addressMsg"><text class="addressMsg-text">{{item.endAddr}}</text></view>
+							</view>
+							<view class="orderListHead-time">
+								
+									<text class="orderListHead-time-text" v-if="item.dateType == 1">明天</text>
+									<text class="orderListHead-time-text" v-if="item.dateType == 2">后天</text>
+									<text class="orderListHead-time-text">{{item.dateTime}}</text>
+								
+							</view>
+						</view>
+						<view class="orderBody">
+							<view class="orderContent">
+								<view class="contentMsg">
+									<view class="contentMsg-title">
+										<image src="../../../static/images/ship/box01.png" mode="widthFix" class="box08"></image>
+									</view>
+									<view class="contentMsg-msg">
+										<text class="pr-10 goods-text">{{item.zhuanghuoDt}}</text>
+										<text class="goods-text">{{item.zhuanghuoDtText}}</text> 
+										<view class="goosType"><text class="goods-text goods-type-text">{{item.goodsType}}</text></view>
+										<text class="pr-10 goods-text">{{item.goods}}</text> 
+										<text  v-if="item.weight" class="pr-10 goods-text">{{item.weight}}吨</text> 
+										<text v-if="item.volume" class="pr-10 goods-text">{{item.volume}}方</text> 
+									</view>
+								</view>
+								<view class="contentMsg">
+									<view class="contentMsg-title">
+										<image src="../../../static/images/ship/car.png" class="box02"></image>
+									</view>
+									<view class="contentMsg-msg">
+										<text class="goods-text">{{item.orderVehicleModel}} {{item.orderVehicleLength}}米</text>
+										<text class="goods-text pl-20">{{item.LoadingAndUnloadingMethods}}</text>
+									</view>
+								</view>
+								<view class="contentMsg">
+									<view class="contentMsg-title">
+										<image src="../../../static/images/ship/box02.png" class="box03"></image>
+									</view>
+									<view class="contentMsg-msg">
+										<text class="goods-text">{{item.fixPriceFlag == 1 ? '固价货源' : '询价货源'}}</text>
+										<text class="pl-20 goods-text">单车</text>
+										<text class="pl-20 goods-text" v-if="item.fixPriceFlag == 1">按{{item.quotePriceTypeName}}接单</text>
+										<text class="pl-20 goods-text" v-else>按{{item.quotePriceTypeName}}报价</text>
+									</view>
+								</view>
+								<view class="contentMsg mt-50">
+									<view class="contentMsg-title">
+										<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/positioningIcon-back.png" mode="widthFix" class="address"></image>
+									</view>
+									<view class="contentMsg-msg">
+										<text class="goods-text">距装货</text>
+										<text class="goods-text goods-distance-text">{{item.distance}}</text>
+										<text class="goods-text">km</text>
+									</view>
+								</view>
+								<view class="contentMsg contentMsg-last">
+									<view class="contentMsg-title">
+										<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/eye.png" mode="widthFix" class="eye"></image>
+									</view>
+									<view class="contentMsg-msg">
+										<text class="goods-text pr-10">4000</text>
+										<text class="goods-text">人浏览</text>
+										<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/commonts.png" class="comments-icon" mode="widthFix"></image>
+										<text class="goods-text pr-10">13</text>
+										<text class="goods-text">人报价</text>
+									</view>
+								</view>
+							</view>
+						</view>
+						<view v-if="item.platformOrderStatus == 1">
+							<view class="goOpt close-opt" @click.stop="goDetail(item, 3)">
+								<text class="close-text">{{item.platformOrderText}}</text>
+							</view>
+						</view>
+						<view v-else>
+							<view class="fixedPrice" v-if="item.fixPriceFlag == 1 && item.orderState == 1">
+								<text class="price-text">¥{{showPrice(item.fixPrice)}}/{{item.quotePriceTypeName}}</text>
+							</view>
+							<view @click.stop="goDetail(item, 3)" class="goOpt fixPrice" v-if="item.fixPriceFlag == 1 && item.orderState == 1">
+								<text class="fixPrice-text">去接单</text>
+							</view>
+							
+							<view class="goOpt" @click.stop="goDetail(item, 3)" v-if="item.fixPriceFlag != 1 && item.quoteState == 1">
+								<text class="goOpt-text">已报价</text>
+							</view>
+							<view class="goOpt" @click.stop="goDetail(item, 3)" v-if="item.fixPriceFlag == 1 && item.orderState == 2">
+								<text class="goOpt-text">已接单</text>
+							</view>
+							<view class="goOpt fixPrice" @click.stop="goDetail(item, 3)" v-if="item.fixPriceFlag != 1 && item.quoteState != 1">
+								<text class="fixPrice-text">去报价</text>
+							</view>
+						</view>
+						
+					</view>	
+				</view>
+			</cell>
+			<cell>
+				<uni-morebox :isMore="isNoMore02" :containerStyle="{'margin-top': '24rpx'}"></uni-morebox>
+			</cell>
+
+         
+            <yy-load-more :loading-text="loadingText" @loadMore="loadMore" ref="loadMoreStatus"></yy-load-more>
+        </list>
+		<uni-popup ref="startPopup" type="bottom">
+			<view class="bottomPopupBox">
+				<view class="popupHead">
+					<text class="title">选择地区</text>
+					<view class="cancelIconBox" @tap="closePopup()">
+						<image class="cancelIcon" src="../../../static/images/goodsDelivery/newCancel.png"></image>
+					</view>
+				</view>
+				<view class="listWhole">
+					<picker-view   :value="goodsVal" @change="bindGoodsChange" class="picker-view">
+						<picker-view-column>
+							<view class="picker-view-item" v-for="(item,index) in provinceArr" :key="index">
+								<text class="picker-view-item-text">{{item.name}}</text>
+							</view>
+						</picker-view-column>
+						<picker-view-column>
+							<view class="picker-view-item" v-for="(item,index) in cityArr" :key="index">
+								<text class="picker-view-item-text">{{item.name}}</text>
+							</view>
+						</picker-view-column>
+					</picker-view>
+					
+				</view>
+				<view class="popupBtnGroup">
+					<view class="comfirmBtn" @tap="selectArea()"><text class="confirmText">确认</text></view>
+				</view>
+			</view>
+		</uni-popup>
+		<view class="scroller" :class="{scrollerActive: isAlert}" :style="{height: windowHeight*2 + 'rpx'}">
+			<view class="bgScroll" @click="closeAlert"/>
+			<view class="contentLeft">
+				<list  class="alertScroller">
+					<cell v-for="(item, index) in typeArr" :key="index" :id="item.label" ref="scrollerDom">
+						<view class="scroll_item scroll_1">
+							<view class="scroll_title">
+								<text class="scroll_title-text">{{item.title}}</text>
+							</view>
+							<view class="scroll_item-list">
+								<view class="scroll_item-item" v-for="(atem, i) in item.data" @click="setChoose(index, i)" :class="{'scroll_item-item-active': atem.isSelected}">
+									<text class="scroll_item-item-text" :class="{'scroll_item-item-text-active': atem.isSelected}">{{atem.typeName}}</text>
+								</view>
+							</view>
+							
+						</view>
+					</cell>
+				</list>
+				
+			</view>
+			<view class="contentRight">
+				<view class="contentRight-top" :style="{height: (144 + isRightIndex*100 + 'rpx')}"></view>
+				<view class="contentRight-bottom" :style="{height: (totalHeight*2 - 144 - (isRightIndex + 1)*100 + 'rpx')}"></view>
+				<view class="rightList">
+					<view class="listItem" v-for="(item, index) in listTilArr" @click="changeScrollView(item, index)" :class="{'listItem-active': item.isSelect}">
+						<view class="listItem-text"><text class="listItem-text-sub">{{item.title}}</text></view>
+						<view class="listItem-dot" v-if="isRightIndex !== index && isRightIndex - 1 !== index"></view>
+						<view class="listItem-line" v-if="item.isSelect" />
+					</view>
+				</view>
+			
+			</view>
+			<view class="fix-scroll-bottom">
+				<view class="fix-scroll-bottom-cancel fix-scroll-bottom-btn" @click="reset">
+					<text class="cancel-text">重置</text>
+				</view>
+				<view class="fix-scroll-bottom-confirm fix-scroll-bottom-btn" @click="search_plateForm">
+					<text class="confirm-text">确定</text>
+				</view>
+			</view>
+		</view>
+    </view>
+</template>
+
+<script>
+	const modal = weex.requireModule('modal');
+	 const dom = uni.requireNativePlugin('dom')
+	import * as ship from "@/utils/ship";
+	import * as publicData from "@/utils/publicData";
+	import uniMoreBox from "@/components/uni-morebox.vue";
+	import yyLoadMore from '@/components/yy-load-more.nvue';
+    export default {
+		components: {
+			uniMoreBox,
+			yyLoadMore,
+		},
+        props: {
+            pid: {
+                type: [Number, String],
+                default: ''
+            },
+            parentId: {
+                type: String,
+                default: ''
+            }
+        },
+        data() {
+            return {
+                scrollable: true,
+                dataList: [],
+				isVerify: true,
+				loadingArray: [],
+				unLoadingArray: [],
+				isSortUp: false,
+				unLoadingAddr: '全国',
+				provinceArr: [],
+				goodsVal: [0, 0],
+				goodsStartVal: [0, 0],
+				goodsEndVal: [0, 0],
+				isAlert: false,
+				windowHeight: 0,
+				listTilArr: [
+					{
+						label: 'A',
+						title: '报价方式',
+					},
+					{
+						label: 'B',
+						title: '装货时间',
+					},
+					{
+						label: 'C',
+						title: '重量范围'
+					},
+					{
+						label: 'D',
+						title: '车长',
+					},
+					{
+						label: 'E',
+						title: '车型',
+					},
+					{
+						label: 'F',
+						title: '货物类型',
+					}],
+				typeArr: [
+					{
+						label: 'A',
+						title: '报价方式',
+						data: [
+							{typeName: '不限'},
+							{typeName: '询价货源', fixPriceFlag: 0},
+							{typeName: '固定货源', fixPriceFlag: 1}
+						],
+					},
+					{
+						label: 'B',
+						title: '装货时间',
+						data: [
+							{typeName: '不限'},
+							{typeName: '今天'},
+							{typeName: '明天'},
+							{typeName: '后天'},
+						],
+					},
+					{
+						label: 'C',
+						title: '重量范围',
+						subTitle: '吨，可多选',
+						data: [
+							{typeName: '不限'},
+							{typeName: '0-5', startVal: 0, endVal: 5},
+							{typeName: '5-10', startVal: 5, endVal: 10},
+							{typeName: '10-15', startVal: 10, endVal: 15},{typeName: '15-20', startVal: 15, endVal: 20},
+							{typeName: '20-25', startVal: 20, endVal: 25}
+						],
+					},
+					{
+						label: 'D',
+						title: '车长',
+						data: [],
+					},
+					{
+						label: 'E',
+						title: '车型',
+						data: [],
+					},
+					{
+						label: 'F',
+						title: '货物类型',
+						data: [],
+					},
+					
+				],
+				dataParams02: {
+					pageSize: 10,
+					pageNum: 1,
+					serial: 1,
+				},
+				platformQuoteList: [],
+				isNoMore02: false,
+            }
+        },
+        created() {
+			this.windowHeight = uni.getSystemInfoSync().windowHeight;
+			var statusBarHeight = uni.getSystemInfoSync().statusBarHeight;
+			var windowHeight = uni.getSystemInfoSync().windowHeight;
+			this.totalHeight = windowHeight + statusBarHeight;
+			//判断身份是否已经认证
+			
+			//获取城市信息
+			this.getAllSettings();
+			this.getPlatFormList("refresh");
+        },
+        methods: {
+            setScrollRef(height) {
+                if (this.$refs['list'].setSpecialEffects) {
+                    this.$refs['list'].setSpecialEffects({
+                        id: this.parentId,
+                        headerHeight: height
+                    });
+                }
+            },
+			sort() {
+				var isSortUp = this.isSortUp;
+				this.isSortUp = !isSortUp;
+				this.dataParams02.serial = this.isSortUp ? 2 : 1;
+				uni.showLoading({
+					title: '加载中'
+				})
+				this.getPlatFormList('refresh');
+			},
+			selectType() {
+				//删选
+				this.isAlert = true
+				var system = uni.getSystemInfoSync();
+				console.log(system, 'ass');
+				if (system.brand !== "OPPO") {
+					plus.navigator.setFullscreen(true);
+				}
+				
+				
+			},
+			showPopUp(index) {
+				this.addrType = index;
+				this.$refs.startPopup.open();
+				var provinceArr = this.provinceArr;
+				if (index == 1) {
+					var goodsStartVal = this.goodsStartVal;
+					if (goodsStartVal.length < 1) {
+						this.goodsVal = [0, 0];
+					} else {
+						var cityArr = provinceArr[goodsStartVal[0]].cities;
+						this.cityArr = cityArr;
+						this.goodsVal = this.goodsStartVal;
+					}
+				} else {
+					var goodsEndVal = this.goodsEndVal;
+					if (goodsEndVal.length < 1) {
+						this.goodsVal = [0, 0];
+					} else {
+						var cityArr = provinceArr[goodsEndVal[0]].cities;
+						this.cityArr = cityArr;
+						this.goodsVal = this.goodsEndVal;
+					}
+				}
+			},
+            loadData() {
+                // 首次激活时被调用
+				this.getPlatFormList("refresh");
+            },
+			loadmore() {
+				//平台货源
+				var isNoMore02 = this.isNoMore02;
+				if  (isNoMore02 == "noMore" || this.isNoData03 || isNoMore02 == 'loading') {
+					return
+				}
+				this.isNoMore02 = "loading";
+				this.getPlatFormList('more');
+			},
+            clear() {
+                // 释放数据时被调用，参考 swiper-list 缓存配置
+                this.dataList.length = 0;
+            },
+			async getAllSettings() {
+				//获取删选条件配置信息
+				//初始化装货点数据
+				var that = this;
+				try{
+					var result = await ship.postRequest("/ts/nationDict/getBasicData");
+					var carLenRes = await ship.postRequest("/ts/vehicle/length/get"); //车长
+					var carTypeRes = await ship.postRequest("/ts/vehicle/type/get"); //车型
+					var carLen = carLenRes.rspBody.items;
+					var carType = carTypeRes.rspBody.items; 
+					var provinceArr = result.rspBody;
+					console.log(result, carLenRes, carTypeRes, '请求121212')
+					var initProvince = {
+						name: '全国',
+						cities: [{
+							name: '全国'
+						}]
+					}
+					provinceArr.unshift(initProvince);
+					provinceArr.forEach((item, index, arr) => {
+						var provinceName = item.name;
+						var cities = item.cities;
+						provinceName = provinceName.split('省')[0];
+						 if (provinceName.indexOf("内蒙古自治区") > -1) {
+							 provinceName = "内蒙古"
+						 } else if (provinceName.indexOf("自治区") > -1) {
+							 provinceName = provinceName.substring(0 ,2);
+						 } else if (provinceName.indexOf("特别行政区") > -1) {
+							 provinceName = provinceName.substring(0 ,2);
+						 }
+						 arr[index].provinceName = provinceName
+						 //处理市
+						 cities.forEach(atem => {
+							 var cityName = atem.name;
+							 if (cityName.indexOf("回族自治州") > -1) {
+								 cityName = cityName.split('回族自治州')[0];
+							 } else if (cityName.indexOf("蒙古自治州") > -1) {
+								 cityName = cityName.split('蒙古自治州')[0];
+							 } else if (cityName.indexOf("自治州") > -1) {
+								 cityName = cityName.split('自治州')[0];
+							 } else if (cityName.indexOf("地区") > -1) {
+								 cityName = cityName.split('地区')[0];
+							 } else if (cityName.indexOf("土家族苗族") > -1) {
+								 cityName = cityName.split('土家族苗族')[0];
+							 } else if (cityName.indexOf("市") > -1) {
+								 cityName = cityName.split('市')[0];
+							 }
+							 
+							 atem.cityName = cityName;
+						 })
+					})
+					// console.log(provinceArr[0], '省')
+					var firstArr = [{typeName: '不限'},]
+					that.carLen = carLen;
+					that.carType = carType;
+					var typeArr = this.typeArr;
+					typeArr[3].data = firstArr.concat(carLen);
+					typeArr[4].data = firstArr.concat(carType);
+					that.provinceArr = provinceArr;
+					that.cityArr = provinceArr[0].cities;
+					that.unLoadingArray = [];
+					that.loadingArray = [];
+					that.getAllGoodsInfo();
+				}catch(e){
+					//TODO handle the exception
+					console.log(e)
+				}
+				
+				
+			},
+			//货物类型
+			getAllGoodsInfo() {
+				let params = {
+				 typeLevel: undefined,
+				 parentSid: undefined,
+				 typeName: undefined,
+				}
+				console.log('物品列表请求参数', params);
+				ship.postRequest('/ts/goods/type/get', params)
+				.then(res=>{
+					if(res.retCode == '0000000') {
+					var allGoodsData = res.rspBody.items;
+					var goodsArr = [];
+					allGoodsData.forEach(item => {
+						goodsArr.push({
+							sid: item.sid,
+							typeName: item.typeName,
+						})
+					})
+					
+					var typeArr = this.typeArr;
+					var firstArr = [{typeName: '不限'},]
+					var totalGoodsArr = firstArr.concat(goodsArr);
+					typeArr[5].data = totalGoodsArr;
+					this.$forceUpdate();
+				 }else{
+				  uni.showToast({
+				   title: res.retDesc,
+				   icon: 'none',
+				   duration: 3000
+				  })
+				 }
+				 uni.hideLoading();
+				})
+				.catch(err=>{
+				 console.log(err);
+				 uni.hideLoading();
+				})
+		   },
+			closeAlert() {
+				plus.navigator.setFullscreen(false);
+				this.isAlert = false
+			},
+			bindGoodsChange(e) {
+				console.log(e)
+				var provinceArr = this.provinceArr;
+				var goodsVal = this.goodsVal;
+				var val = e.detail.value;
+				var proIndex = val[0];
+				var cityIndex = val[1];
+				if (goodsVal[0] !== proIndex) {
+					this.cityArr = provinceArr[proIndex].cities;
+					var proName = provinceArr[proIndex].name;
+					console.log(this.cityArr[0].name, '时撒上');
+					if (this.cityArr[0].name !== "全省" && this.cityArr[0].name !== "全国" && this.cityArr[0].name !== "全市" ) {
+						if(proName.indexOf("市") > -1) {
+							this.cityArr.unshift({
+								name: '全市'
+							})
+						} else if (proName.indexOf('全国') > -1) {
+							this.cityArr.unshift({
+								name: '全国'
+							})
+						} else {
+							this.cityArr.unshift({
+								name: '全省'
+							})
+						}
+						
+					}
+					this.goodsVal = [proIndex, 0]
+				} else if (goodsVal[1] !== cityIndex) {
+					this.goodsVal = [proIndex, cityIndex]
+				} else {
+					this.goodsVal = [proIndex, cityIndex]
+				}
+			},
+			selectArea() {
+				//删选地区
+				var index = this.addrType;
+				this.closePopup();
+				if (index == 1) {
+					//装货
+					var goodsVal = this.goodsVal;
+					this.goodsStartVal = goodsVal;
+					var provinceArr = this.provinceArr;
+					var cityArr = this.cityArr;
+					if (cityArr[goodsVal[1]].name == "全省" || cityArr[goodsVal[1]].name == "全市") {
+						this.loadingArray = [{
+							name: provinceArr[goodsVal[0]].name,
+							code: provinceArr[goodsVal[0]].code,
+							provinceName: provinceArr[goodsVal[0]].name,
+							provinceCode: provinceArr[goodsVal[0]].code
+						}]
+					} else if (cityArr[goodsVal[1]].name == "全国" ) {
+						this.loadingArray = []
+					} else {
+						this.loadingArray = [{
+							name: cityArr[goodsVal[1]].name,
+							code: cityArr[goodsVal[1]].code,
+							provinceName: provinceArr[goodsVal[0]].name,
+							provinceCode: provinceArr[goodsVal[0]].code,
+							cityName: cityArr[goodsVal[1]].name,
+							cityCode: cityArr[goodsVal[1]].code,
+						}]
+					}
+					
+				} else if (index == 2) {
+					//表示是卸货
+					var goodsVal = this.goodsVal;
+					this.goodsEndVal = goodsVal;
+					var provinceArr = this.provinceArr;
+					var cityArr = this.cityArr;
+					if (cityArr[goodsVal[1]].name == "全省" || cityArr[goodsVal[1]].name == "全市") {
+						this.unLoadingArray = [{
+							name: provinceArr[goodsVal[0]].name,
+							code: provinceArr[goodsVal[0]].code,
+							provinceName: provinceArr[goodsVal[0]].name,
+							provinceCode: provinceArr[goodsVal[0]].code
+						}]
+					} else if (cityArr[goodsVal[1]].name == "全国") {
+						this.unLoadingArray = []
+					} else {
+						this.unLoadingArray = [{
+							name: cityArr[goodsVal[1]].name,
+							code: cityArr[goodsVal[1]].code,
+							provinceName: provinceArr[goodsVal[0]].name,
+							provinceCode: provinceArr[goodsVal[0]].code,
+							cityName: cityArr[goodsVal[1]].name,
+							cityCode: cityArr[goodsVal[1]].code,
+							
+						}]
+					}
+				}
+				this.getPlatFormList("refresh");
+			},
+			closePopup() {
+				
+				this.$refs.startPopup.close();
+				
+			},
+			//获取平台货源的数据
+			async getPlatFormList(type) {
+				var dataParams02 = this.dataParams02;
+				dataParams02.pageSize = 10;
+				//加载平台货源
+				try{
+				var loadingAddr = this.loadingArray;
+				var unLoadingAddr = this.unLoadingArray;
+				var typeArr = this.typeArr;
+				if (loadingAddr.length > 0) {
+					dataParams02.startOffProvince = loadingAddr[0].provinceName;
+					dataParams02.startOffProvinceCode = loadingAddr[0].provinceCode;
+				} else {
+					dataParams02.startOffProvince = null;
+					dataParams02.startOffProvinceCode = null;
+				}
+				
+				var cityArr = [], cityCodeArr = [];
+				if (loadingAddr.length > 0) {
+					
+					//没有选择区，则两个市或者全市，全省
+					loadingAddr.forEach(item => {
+						if (item.cityName) {
+							cityArr.push(item.cityName);
+							cityCodeArr.push(item.cityCode);
+						}
+					})
+					dataParams02.startOffCity = cityArr.join(",") || null;
+					dataParams02.startOffCityCode = cityCodeArr.join(",") || null;	
+				} else {
+					dataParams02.startOffCity = null;
+					dataParams02.startOffCityCode = null;	
+				}
+				//卸货数据
+				cityArr = [], cityCodeArr = [];
+				if (unLoadingAddr.length > 0) {
+					dataParams02.arriveProvince = unLoadingAddr[0].provinceName;
+					dataParams02.arriveProvinceCode = unLoadingAddr[0].provinceCode;
+					
+						unLoadingAddr.forEach(item => {
+							if (item.cityName) {
+								cityArr.push(item.cityName);
+								cityCodeArr.push(item.cityCode);
+							}
+						})
+						dataParams02.arriveCity = cityArr.join(",") || null;
+						dataParams02.arriveCityCode = cityCodeArr.join(",") || null;
+					
+				} else {
+					dataParams02.arriveProvince = null;
+					dataParams02.arriveProvinceCode = null;
+					dataParams02.arriveCity = null;
+					dataParams02.arriveCityCode = null;
+				}
+				
+				//筛选
+				var vehicleLength = "", vehicleModel = "";
+					typeArr.forEach(item => {
+						var label = item.label;
+						if (label == 'A') {
+							//报价方式
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var fixPriceFlag = data[findIndex].fixPriceFlag;
+								if (fixPriceFlag != undefined) {
+									dataParams02.fixPriceFlag = fixPriceFlag
+								} else {
+									dataParams02.fixPriceFlag && delete dataParams02.fixPriceFlag 
+								}
+							}
+						}
+						if (label == 'B') {
+							//装货时间
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var typeName = data[findIndex].typeName;
+								if (typeName == "今天") {
+									//今天的时间
+									var day2 = new Date();
+									day2.setTime(day2.getTime());
+									var s2 = day2.getFullYear()+"-" + (day2.getMonth()+1) + "-" + day2.getDate();
+									dataParams02.loadDates = s2
+								} else if (typeName == "明天") {
+									//今天的时间
+									var day3 = new Date();
+									day3.setTime(day3.getTime()+24*60*60*1000);
+									var s3 = day3.getFullYear()+"-" + (day3.getMonth()+1) + "-" + day3.getDate();
+									dataParams02.loadDates = s3
+								} else if (typeName == "后天") {
+									//今天的时间
+									var day4 = new Date();
+									day4.setTime(day4.getTime()+24*60*60*1000*2);
+									var s4 = day4.getFullYear()+"-" + (day4.getMonth()+1) + "-" + day4.getDate();
+									dataParams02.loadDates = s4
+								} else {
+									dataParams02.loadDates && delete dataParams02.loadDates
+								}
+							
+							}
+						}
+						if (label == "C") {
+							//重量范围
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var typeName = data[findIndex].typeName;
+								if (typeName != '不限') {
+									dataParams02.smallWeight = data[findIndex].startVal
+									dataParams02.bigWeight = data[findIndex].endVal
+								} else {
+									dataParams02.smallWeight && delete dataParams02.smallWeight
+									dataParams02.bigWeight && delete dataParams02.bigWeight
+								}
+							}
+						}
+						if (label == 'D') {
+							//车长
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var typeName = data[findIndex].typeName;
+								if (typeName != '不限') {
+									dataParams02.vehicleLength = data[findIndex].typeName
+								} else {
+									dataParams02.vehicleLength && delete dataParams02.vehicleLength
+								}
+							}
+							
+						}
+						if (label == 'E') {
+							//车型
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var typeName = data[findIndex].typeName;
+								if (typeName != '不限') {
+									if (typeName == "冷藏") {
+										dataParams02.vehicleModel = data[findIndex].typeName
+									} else {
+										dataParams02.vehicleModel = data[findIndex].typeName
+									}
+									
+								} else {
+									dataParams02.vehicleModel && delete dataParams02.vehicleModel
+								}
+							}
+						}
+						if (label == 'F') {
+							//货物类型
+							var data = item.data;
+							var findIndex = data.findIndex(atem => {
+								return atem.isSelected
+							})
+							if (findIndex > -1) {
+								var typeName = data[findIndex].typeName;
+								if (typeName != "不限" ) {
+									
+									dataParams02.typeName = data[findIndex].typeName
+								} else {
+									dataParams02.typeName && delete dataParams02.typeName
+								}
+							}
+						}
+					})
+				
+				if (type == "refresh") {
+					dataParams02.pageNum = 1
+				} else {
+					dataParams02.pageNum = dataParams02.pageNum + 1;
+				}
+				this.dataParams02 = dataParams02;
+				
+				console.log(dataParams02, '平台货源的参数');
+					var platformQuote = await ship.newQueryPostRequest("/td/circuit/getDriverPtmOrders", dataParams02);
+					this.loadingFlag = false;
+					uni.hideLoading();
+					console.log( platformQuote.rspBody.items.length, 'aa')
+					if (platformQuote.retCode == "0000000") {
+						var platformQuoteList = platformQuote.rspBody.items;
+						// console.log(platformQuoteList, '平台货源');
+						if (platformQuoteList.length == 0) {
+							this.isNoData03 = true
+							this.isNoMore02 = 'more'
+						} else if (platformQuoteList.length < 10) {
+							this.isNoData03 = false
+							this.isNoMore02 = 'noMore'
+						} else {
+							this.isNoData03 = false
+							this.isNoMore02 = 'more'
+							
+						}
+						uni.stopPullDownRefresh();
+						//格式化平台列表数据
+						this.formatPlatformQuoteList(platformQuoteList, type);
+						
+					}
+					
+					this.$refs.loadMoreStatus.finish(500);
+				}catch(e){
+					this.$refs.loadMoreStatus.finish(500);
+					console.log(e)
+					this.loadingFlag = false;
+					this.isShow = true;
+					console.log(e)
+					uni.stopPullDownRefresh();
+					//TODO handle the exception
+					uni.hideLoading();
+				}
+				
+			},
+			formatPlatformQuoteList(list, ref) {
+				var platformQuoteList = [];
+				if (list.length < 1) {
+					platformQuoteList = list;
+				}
+				var dataArr = [];
+				try{
+					list.forEach(item => {
+						var startAddr = ''; //装货地址
+						var newStartAddr = ''; //省市区装货地址
+						var endAddr = ''; //卸货地址
+						var newEndAddr = ''; //省市区卸货地址
+						var LoadingAndUnloadingMethods = "";
+						var orderAddressVOS = item.child.orderAddressVOS;
+						
+						//装卸方式
+						var loadingMethods = "", unLoadingMethods = "";
+						orderAddressVOS.forEach(atem => {
+							if (atem.serialnumber == 1) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									startAddr = atem.province + '-' + atem.city
+									newStartAddr =  atem.province + '-' + atem.city
+								} else {
+									startAddr = atem.city + '-' + atem.area;
+									newStartAddr =  atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								loadingMethods = "一装"
+							} else if (atem.serialnumber == 2) {
+								loadingMethods = "二装"
+							} else if (atem.serialnumber == 4) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									endAddr = atem.province + '-' + atem.city
+									newEndAddr = atem.province + '-' + atem.city
+								} else {
+									endAddr = atem.city + '-' + atem.area;
+									newEndAddr = atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								unLoadingMethods = "两卸"
+							} else if (atem.serialnumber == 3) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									endAddr = atem.province + '-' + atem.city
+									newEndAddr = atem.province + '-' + atem.city
+								} else {
+									endAddr = atem.city + '-' + atem.area;
+									newEndAddr = atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								unLoadingMethods = "一卸"
+							}
+						})
+						LoadingAndUnloadingMethods = loadingMethods + unLoadingMethods;
+						//货主发布货源的时间
+						var pushDt = item.pushDt;
+						pushDt = pushDt.replace(/-/g, "/");
+						var newDate = new Date();
+						var nowDataYear = new Date().getFullYear();
+						var nowDataMonth = new Date().getMonth() + 1;
+						var nowDataDay = new Date().getDate();
+						//明天的时间戳
+						var day2 = new Date();
+						day2.setTime(day2.getTime()+24*60*60*1000);
+						var will2Year = day2.getFullYear();
+						var will2Month = day2.getMonth() + 1;
+						var will2Day = day2.getDate();
+						//后天
+						var day3 = new Date();
+						day3.setTime(day3.getTime()+24*60*60*1000);
+						var will3Year = day3.getFullYear();
+						var will3Month = day3.getMonth() + 1;
+						var will3Day = day3.getDate();
+						var dateType = 0; //表示是今天
+						var dateTime = "";
+						var willDoData = new Date(pushDt);
+						var willYear = willDoData.getFullYear();
+						var willMonth = willDoData.getMonth() + 1;
+						var willDay = willDoData.getDate();
+						
+						if (nowDataYear == willYear && nowDataMonth == willMonth && nowDataDay == willDay ) {
+							//是今天
+							dateType = 0;
+						} else if (will2Year == willYear && will2Month == willMonth && will2Day == willDay) {
+							dateType = 1; //明天
+						} else if (will3Year == willYear && will3Month == willMonth && will3Day == willDay) {
+							dateType = 2; //后天
+						} else {
+							dateType = 3; //其他时间
+						}
+						var hour = new Date(pushDt).getHours();
+						var minutes = new Date(pushDt).getMinutes()
+						if (hour < 10) {
+							hour = '0' + hour
+						}
+						if (minutes < 10) {
+							minutes = '0' + minutes
+						}
+						dateTime = hour + ':' +  minutes;
+						if (dateType == 3) {
+							var getMonth = willDoData.getMonth() + 1;
+							var getDate = willDoData.getDate();
+							var getHours = willDoData.getHours() < 10 ? '0' + willDoData.getHours() : willDoData.getHours();
+							var getMinutes = willDoData.getMinutes() < 10 ? '0' + willDoData.getMinutes() : willDoData.getMinutes();
+							dateTime = getMonth + '-' + getDate + ' ' + getHours + ':' + getMinutes;
+						}
+						//装货时间
+						var zhuanghuoDtText = "", startDt = "", zhuanghuoDt = "";
+						var orderLoadTimeRecordVO = item.child.orderLoadTimeRecordVO;
+						orderLoadTimeRecordVO.forEach(atem => {
+							if (atem.serialnumber == 1) {
+								startDt = atem.startDt;
+								startDt = startDt.replace(/-/g, '/');
+								var hour = new Date(startDt).getHours();
+								if (hour > 11) {
+									zhuanghuoDtText = "下午装货"
+								} else {
+									zhuanghuoDtText = "上午装货"
+								}
+								var month = new Date(startDt).getMonth() + 1;
+								var day = new Date(startDt).getDate();
+								if (month < 10) {
+									month = '0' + month
+								}
+								if (day < 10) {
+									day = '0' + day
+								}
+								zhuanghuoDt = month + '月' + day + '日'
+							}
+						})
+						//车长
+						var orderVehicleLengthVOS = item.child.orderVehicleLengthVOs, orderVehicleLength = [];
+						if (orderVehicleLengthVOS) {
+							orderVehicleLengthVOS.forEach(atem => {
+								orderVehicleLength.push(atem.vehicleLength)
+							})
+						}
+						
+						//车型
+						var orderVehicleModelVOS = item.child.orderVehicleModelVOS, orderVehicleModel = [];
+						if (orderVehicleModelVOS) {
+							orderVehicleModelVOS.forEach(atem => {
+								orderVehicleModel.push(atem.vehicleModel)
+							})
+						}
+						
+						
+						orderVehicleLength = orderVehicleLength ? orderVehicleLength.join('/') : '';
+						orderVehicleModel = orderVehicleModel ? orderVehicleModel.join("/") : '';
+						
+						//货物相关
+						var goodsTypeVO = item.cargoChild.goodsTypeVO, good = "", goodType = "";
+						var cargoChild = item.cargoChild;
+						goodsTypeVO.forEach(atem => {
+							var first_typeName = atem.typeName;
+							goodType = first_typeName;
+							if (atem.children) {
+								var atem1 = atem.children;
+								atem1.forEach(atem01 => {
+									var atem2 = atem01.children;
+									if (atem2) {
+										atem2.forEach(atem02 => {
+											var atem3 = atem02.children;
+											if (atem3) {
+												atem3.forEach(atem03 => {
+													var typeName = atem03.typeName;
+													good = typeName
+												})  
+											}
+										})
+									}
+								}) 
+							}
+						})
+						var goods = good;
+						var goodsType = goodType;
+						//单位
+						var weight = cargoChild.weight;
+						var volume = cargoChild.volume;
+						
+						//报价截止时间
+						var finishDt = item.child.orderQuoteVO.quotePriceFinishDt;
+						finishDt = finishDt.replace(/-/g, '/');
+						var quotePriceFinish = new Date(finishDt);
+						var hours1 = quotePriceFinish.getHours();
+						var  minutes1 = quotePriceFinish.getMinutes();
+						hours1 = hours1 < 10 ? '0' + hours1 : hours1; 
+						minutes1 = minutes1 < 10 ? '0' + minutes1 : minutes1;
+						var quotePriceFinishDt = hours1 + ':' + minutes1;
+						
+						//订单状态
+						var orderState = item.orderState, orderStateText = "";
+						var userId = this.userId;
+						var platformOrderStatus = 0;
+						var platformOrderText = '';
+						//1报价中，2已报价，3已成交,4货主未点击同意，5没有报价， 6货主取消， 7司机取消
+							if (orderState == 1) {
+								orderStateText = "报价中"
+							} else if (orderState == 2) {
+								if (userId == item.driverSid) {
+									orderStateText = item.fixPriceFlag == 1 ? '已接单' : "已报价"
+								} else {
+									platformOrderStatus = 1;
+									platformOrderText = "已关闭"
+								}
+								
+							} else if (orderState == 3) {
+								if (userId == item.driverSid) {
+									orderStateText = "已成交"
+									platformOrderStatus = 1;
+									platformOrderText = "已成交"
+								} else {
+									platformOrderStatus = 1;
+									platformOrderText = "已关闭"
+								}
+								
+							} else if (orderState == 4) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							} else if (orderState == 5) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							} else if (orderState == 6) {
+								//实际是货主取消,前端统一展示已关闭
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							}  else if (orderState == 7) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							}
+						
+						
+						
+						//报价状态
+						var quoteState = item.quoteState;
+						
+						
+						
+						//信息费用
+						var orderQuoteVO = item.child.orderQuoteVO;
+						var informationPrice = (orderQuoteVO.informationPrice || 0) / 100;
+						//平台服务费，技术服务费
+						var orderValueAddedVOS = item.child.orderValueAddedVOS;
+						var cargoDamagePrice = (orderValueAddedVOS.cargoDamagePrice || 0) / 100;
+						var shortLandedPrice = (orderValueAddedVOS.shortLandedPrice || 0) / 100;
+						//判断是否是冷藏车还是普通
+						var orderType = item.orderType;
+						
+						
+						//货主信息
+						var goodsUserName = '匿名用户';
+						var gender = item.gender;
+						var orderContactsVOS = item.child.orderContactsVOS;
+						var findIndex = orderContactsVOS.findIndex(item => {
+							return item.serialnumber == 1 || item.serialnumber == 2
+						})
+						if (findIndex > -1) {
+							var name  = orderContactsVOS[findIndex].userName;
+							var subName = gender == "男" ? '先生' : '女士'
+							goodsUserName = name.substring(0, 1) + subName;
+						}
+						//货主的评分
+						var scoreValue = item.scoreValue || "0.0";
+						//货源是否是固定价格的货源
+						var fixPriceFlag = item.fixPriceFlag;
+						var startAddress =  item.child.orderAddressVOS[0].address;
+						var endAddress = '';
+						item.child.orderAddressVOS.map(val=>{
+							if(!endAddress && val.serialnumber==3){
+								endAddress = val.address
+							}
+						})
+						var startDt = item.child.orderLoadTimeRecordVO[0].startDt;
+						var endDt = item.child.orderLoadTimeRecordVO[0].endDt;
+						var startDt1 = '';
+						var endDt1 = '';
+						// console.log(item)
+						item.child.orderLoadTimeRecordVO.map(data=>{
+							if(!startDt1 && data.serialnumber==3){
+								startDt1 = data.startHours;
+								endDt1 = data.endHours;
+							}
+						})
+						var receiptType = item.receiptType;
+						var fixPrice = item.fixPrice;
+						var remark = item.cargoChild.remark;
+						var loadFactor = '';
+						var distance = item.distance ? (item.distance)/1000 : 0;
+						item.child.orderLoadFactorVOS.map((data, index)=>{
+							if(index==0){
+								loadFactor = data.loadFactor
+							} else{
+								loadFactor = loadFactor + ',' +data.loadFactor
+							}
+						})
+						var orderNumber = item.orderNumber;
+						
+						var driverSid = item.driverSid;
+						var latitude = item.latitude;
+						
+						//货物单位
+						var quotePriceTypeName = item.child.orderQuoteVO.quotePriceTypeName;
+						dataArr.push({
+							platformOrderStatus,
+							platformOrderText,
+							quotePriceTypeName,
+							latitude: latitude,
+							orderNumber: orderNumber,
+							sid: item.sid,
+							driverSid,
+							newStartAddr,
+							newEndAddr,
+							startAddress,
+							endAddress,
+							startDt,
+							endDt,
+							startDt1,
+							endDt1,
+							receiptType,
+							remark,
+							loadFactor,
+							startAddr,
+							endAddr,
+							dateTime,
+							dateType,
+							zhuanghuoDtText,
+							zhuanghuoDt,
+							goods,
+							goodsType,
+							orderVehicleModel,
+							orderVehicleLength,
+							LoadingAndUnloadingMethods,
+							volume,
+							weight,
+							sid: item.sid,
+							quotePriceFinishDt,
+							orderStateText,
+							orderState,
+							informationPrice,
+							quoteState,
+							cargoDamagePrice,
+							shortLandedPrice,
+							orderType,
+							goodsUserName,
+							scoreValue,
+							fixPriceFlag,
+							fixPrice,
+							distance
+						})
+						
+					})
+					
+				}catch(e){
+					//TODO handle the exception
+					console.log(e)
+					
+				}
+				
+				platformQuoteList = dataArr;
+				 
+				this.platformQuoteList = ref == 'refresh' ? platformQuoteList : this.platformQuoteList.concat(platformQuoteList)
+					
+				
+				
+			},
+			showPrice(price) {
+				return publicData.showPrice(price, 100)
+			},
+			setChoose(index, i) {
+			   var typeArr = this.typeArr;
+			   var isSelected = typeArr[index].data[i].isSelected;
+			   var data = typeArr[index].data;
+			   data.forEach((atem, a) => {
+				   if (a == i) {
+					   data[a].isSelected = !isSelected
+				   } else {
+					   data[a].isSelected = false
+				   }
+			   })
+			   typeArr[index].data = data;
+			   this.typeArr = typeArr
+			   this.$forceUpdate();
+			},
+			changeScrollView(item, index) { // 锚点定位
+				var  listTilArr = this.listTilArr;
+				var isSelect = listTilArr[index].isSelect;
+				if (isSelect) {
+					return
+				}
+				listTilArr[index].isSelect = !isSelect;
+				for (var i =0; i < listTilArr.length; i ++) {
+					if (index !== i) {
+						listTilArr[i].isSelect = false
+					}
+				}
+				this.listTilArr = listTilArr;
+				this.isRightIndex = index;
+				 const el = this.$refs.scrollerDom[index];
+				  dom.scrollToElement(el, {
+					offset: 0
+				  })
+				this.$forceUpdate();  
+			},
+			reset() {
+				//重置搜索
+				var typeArr = this.typeArr;
+				if (typeArr.length > 0) {
+					typeArr.forEach(item => {
+						var children = item.data;
+						children.forEach(atem => {
+							atem.isSelected = false
+						})
+					})
+					this.typeArr = typeArr;
+					this.dataParams02.vehicleModel = "";
+					this.dataParams02.vehicleLength = "";
+					this.dataParams02.smallWeight = "";
+					this.dataParams02.bigWeight = "";
+					this.dataParams02.typeName = "";
+					this.dataParams02.fixPriceFlag != undefined && delete this.dataParams02.fixPriceFlag
+					this.dataParams02.loadDates = "";
+					this.$forceUpdate();
+				}
+				
+			},
+			search_plateForm() {
+				//筛选
+				plus.navigator.setFullscreen(true);
+				this.isAlert = false;
+				uni.showLoading({
+					title: '加载中'
+				})
+				this.getPlatFormList('refresh');
+			},
+			goDetail(item, index) {
+				//进入货源详情
+				console.log('进入货源详情')
+				if (!ship.btnRepeat()) return;
+				//判断是否三证认证
+				//去认证
+				var userInfo = uni.getStorageSync("userInfo");
+				console.log(userInfo, '用户信息');
+				if (!userInfo) {
+					uni.showModal({
+						title: '请登录后操作',
+						confirmText: '去登录',
+						success: function(res) {
+							if (res.confirm) {
+								service.loginSelf(1);
+							}
+						}
+					})
+					return
+				}
+				var identityVerify = JSON.parse(userInfo).attrs.identityVerify;
+				var driverVerify = JSON.parse(userInfo).attrs.driverVerify;
+				var vehicleVerify  = JSON.parse(userInfo).attrs.vehicleVerify;
+				var faceVerify = JSON.parse(userInfo).attrs.faceVerify;
+				if (identityVerify !== 1 || driverVerify!== 1 || vehicleVerify !== 1 || faceVerify != 1 ) {
+					
+					uni.showModal({
+						title: '请认证驾驶证，行驶证和身份证',
+						content: '未完成认证，请认证后操作。',
+						confirmText: '去认证',
+						cancelText: '再看看',
+						success: function(res) {
+							if (res.confirm) {
+								if (identityVerify !== 1 || faceVerify != 1) {
+									uni.navigateTo({
+										url: '/pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsers'
+									})
+								} else if (driverVerify !== 1) {
+									uni.navigateTo({
+										url: '../../my/driverVerify/newDriverVerify'
+									})
+								} else if (vehicleVerify !== 1) {
+									uni.navigateTo({
+										url: '../../my/carVerify/newCarVerify'
+									})
+								}
+								
+							}
+						}
+					})
+					return
+				}
+				
+				if (index == 2) {
+					//判断是否已报价或已成交
+					var orderState = item.orderState;
+					if (orderState == 3 && this.userId == item.driverSid) {
+						uni.navigateTo({
+							url: '../supplyDetails/supplyGoods?sid=' + item.sid + '&quoteState=' + item.quoteState
+						})
+					} else {
+						uni.navigateTo({
+							url: '../supplyDetails/supplyDetails?sid=' + item.sid + '&quoteState=' + item.quoteState + '&status=' + index
+						})
+					}
+				} else if (index == 1) {
+					//判断是否已报价或已成交
+					uni.navigateTo({
+						url: '../supplyDetails/supplyGoods?sid=' + item.sid + '&quoteState=' + item.quoteState
+					})
+				} else if (index == 3) {
+					//判断是否已报价或已成交
+					var orderState = item.orderState;
+					if (item.quoteState == 1) {
+						uni.navigateTo({
+							url: '../supplyDetails/supplyGoods?sid=' + item.sid + '&quoteState=' + item.quoteState
+						})
+					} else {
+						uni.navigateTo({
+							url: '../supplyDetails/supplyDetails?sid=' + item.sid + '&quoteState=' + item.quoteState + '&status=' + index
+						})
+					}
+				}				
+				
+			},
+			closeVerify() {
+				this.isVerify = false
+			},
+			goVerify() {
+				//去认证
+				var userInfo = uni.getStorageSync("userInfo");
+				if (!userInfo) {
+					uni.showModal({
+						title: '请登录后操作',
+						confirmText: '去登录',
+						success: function(res) {
+							if (res.confirm) {
+								service.loginSelf(1);
+							}
+						}
+					})
+					return
+				}
+				var identityVerify = JSON.parse(userInfo).attrs.identityVerify;
+				var driverVerify = JSON.parse(userInfo).attrs.driverVerify;
+				var vehicleVerify  = JSON.parse(userInfo).attrs.vehicleVerify;
+				var faceVerify = JSON.parse(userInfo).attrs.faceVerify;
+				if (identityVerify !== 1 || driverVerify!== 1 || vehicleVerify !== 1 || faceVerify != 1 ) {
+					if (identityVerify !== 1 || faceVerify != 1) {
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsers'
+						})
+					} else if (driverVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/driverVerify/newDriverVerify'
+						})
+					} else if (vehicleVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/carVerify/newCarVerify'
+						})
+					}	
+				}
+			},
+        }
+    }
+</script>
+
+<style scoped>
+	.pl-20 {
+		padding-left: 20rpx;
+	}
+	.pr-10 {
+		padding-right: 10rpx;
+	}
+	.mt-50 {
+		margin-top: 50rpx;
+	}
+    .uni-swiper-page {
+        flex: 1;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+		background-color: rgba(243, 243, 243, 1);
+    }
+    .list {
+        flex: 1;
+        background-color: #ebebeb;
+    }
+    .list-item {
+        margin-left: 12px;
+        margin-right: 12px;
+        margin-top: 12px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+    .loading {
+        height: 20px;
+    }
+	.tips {
+		padding: 0 32rpx;
+		background-color: rgba(242, 147, 71, 0.3);
+		border-radius: 12rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		height: 70rpx;
+		margin: 16rpx 16rpx 0;
+	}
+	.tipsText {
+		color: #F29347;
+		font-size: 24rpx;
+	}
+	.btnContent {
+		
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+	}
+	.btnCheck {
+		width: 112rpx;
+		height: 50rpx;
+		justify-content: center;
+		align-items: center;
+		background-color: #FF7700;
+		border-radius: 12rpx;
+		margin-right: 24rpx;
+	}
+	.verText {
+		color: #FFFFFF;
+		font-size: 24rpx;
+		
+	}
+	.close {
+		width: 26rpx;
+		height: 26rpx;
+	}
+	.searchInfo {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 30rpx;
+		height: 80rpx;
+	}
+	.searchText {
+		font-size: 26rpx;
+		color: rgba(96, 104, 114, 1);
+	}
+	.searchItem {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.startText {
+		flex: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		lines: 1;
+		font-size: 26rpx;
+		color: rgba(96, 104, 114, 1);
+	}	
+	.down {
+		width: 32rpx;
+		height: 22rpx;
+	}
+	.bottomPopupBox {
+		background: #FFFFFF;
+		border-radius: 36rpx 36rpx 0px 0px;
+		overflow: hidden;
+	}	
+	.popupHead {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 36rpx;
+	}	
+	.title {
+		height: 110rpx;
+		line-height: 110rpx;
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+	.cancelIconBox {
+		height: 110rpx;
+		width: 110rpx;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+	}	
+	.cancelIcon {
+		width:18rpx;
+		height: 18rpx;
+	}
+	.picker-view {
+		height: 400rpx;
+	}
+	.picker-view-item {
+		justify-content: center;
+		align-items: center;
+		height: 34px;
+	}
+	.picker-view-item-text {
+		font-size: 32rpx;
+	}
+	.popupBtnGroup {
+		padding: 24rpx 36rpx;
+	}	
+	.comfirmBtn {
+		height: 96rpx;
+		justify-content: center;
+		align-items: center;
+		background: #4AA2F3;
+		border-radius: 48rpx;
+		text-align: center;
+	}
+	.confirmText {
+		font-size: 36rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+	}
+	.bgScroll {
+		width: 118rpx;
+		background-color: rgba(34, 34, 34, 0.8);
+		flex: 1;
+	}
+	.scroller {
+		width: 750rpx;
+		position: fixed;
+		top: 0;
+		left: 750rpx;
+		padding-left: 0;
+		flex-direction: row;
+	}
+	
+	.scrollerActive {
+		left: 0;
+	}
+	.fix-scroll-bottom {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		
+		width: 632rpx;
+		height: 168rpx;
+		
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		background-color: #FFFFFF;
+		padding: 0 32rpx;
+	}
+	.fix-scroll-bottom-btn {
+		flex: 1;
+		height: 80rpx;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.fix-scroll-bottom-cancel {
+		margin-right: 32rpx;
+		background-color: #EDEFF1;
+	}
+	.fix-scroll-bottom-confirm {
+		background-color: #4AA2F3;
+		
+	}
+	.cancel-text {
+		font-size: 28rpx;
+		color: #969FB2;
+	}
+	.confirm-text {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+		
+	.contentRight {
+		background-color: #FFFFFF;
+		padding-top: 144rpx;
+		width: 180rpx;
+		position: relative;
+	}
+	.contentRight-top {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 180rpx;
+		height: 144rpx;
+		
+		background-color: #F2F2F2;
+		border-radius: 0 0 0 20rpx;
+	}
+	.contentRight-bottom {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: 180rpx;
+		height: 506rpx;
+		background-color: #F2F2F2;
+		border-radius: 20rpx 0 0 0;
+	}
+	.rightList {
+		position: absolute;
+		top: 144rpx;
+		right: 0;
+		
+		width: 180rpx;
+	}
+	.listItem {
+		align-items: center;
+		justify-content: center;
+		height: 100rpx;
+	}	
+	.listItem-line {
+		position: absolute;
+		right: 0;
+		top: 26rpx;
+		height: 44rpx;
+		width: 8rpx;
+		background-color: #4AA2F3;
+		border-radius: 0 4rpx 4rpx 0;
+		
+	}
+	.listItem-active {
+		background-color: #FFFFFF;
+		color: #4AA2F3;
+		
+	}
+	.listItem-text {
+		flex: 1;
+		justify-content: center;
+		align-items: center;
+	}
+	.listItem-text-sub {
+		color: #999999;
+		font-size: 28rpx;
+	}
+	.listItem-dot {
+		width: 40rpx;
+		background-color: #D3D3D3;
+		height: 1px;
+	}
+	.contentLeft {
+		width: 452rpx;
+		padding: 140rpx 0;
+		background-color: #FFFFFF;
+	}	
+	.alertScroller {
+		flex: 1;
+	}
+	.scroll_item {
+		flex-wrap: wrap;
+	}	
+	.scroll_item-list {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.scroll_item-item {
+		width: 190rpx;
+		height: 60rpx;
+		border: 1px solid #DDDDDD;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+		margin-left: 24rpx;
+		margin-bottom: 24rpx;
+	}
+	.scroll_item-item-text {
+		color: #969FB2;
+		font-size: 24rpx;
+	}
+	.scroll_item-item-active {
+		background-color: #4AA2F3;
+		border-color: #4AA2F3;
+	}
+	.scroll_item-item-text-active {
+		color: #FFFFFF;
+	}
+		
+	.scroll_title {
+		padding: 16rpx 26rpx 40rpx;
+	}
+	.scroll_title-text {
+		font-size: 28rpx;
+		color: #333333;
+	}
+	.sub {
+		font-size: 26rpx;
+		color: #999999;
+	}
+	
+	.orderList {
+		margin-left: 20rpx;
+		margin-right: 20rpx;
+		box-shadow: 0 6rpx 16rpx 0 rgba(180, 219, 243, 0.39);
+		background-image: linear-gradient(to bottom, #0469D8, #FFFFFF);
+		padding: 2rpx;
+		border-radius: 12rpx;
+		margin-top: 24rpx;
+	}
+	.orderList-first {
+		margin-top: 0;
+	}
+	.orderSubList {
+		background-color: #FFFFFF;
+		border-radius: 12rpx;
+	}
+	.orderListHead {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 24rpx;
+		height: 100rpx;
+	}	
+	.orderListHead-time-text {
+		color: #777777;
+		font-size: 26rpx;
+	}
+	.orderStatusBox {
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		font-size: 26rpx;
+		color:#F29347;
+		width: 100rpx;
+		
+	}
+	.time {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 24rpx;
+		color: #333333;
+	}	
+	.orderAddress {
+		flex: 1;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}	
+	.addressMsg {
+		line-height: 40rpx;
+		flex: 1;
+	}
+	.address {
+		width: 22rpx;
+	}
+	.addressMsg-text {
+		flex: 1;
+		font-size: 40rpx;
+		color: #333333;
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		lines:1;
+		
+	}
+	.addressStatus {
+		width:66rpx;
+		height: 18rpx;
+		margin: 0 32rpx 0 32rpx;
+	}
+	
+	.going {
+		justify-content: center;
+		align-items: center;
+	}
+	.km {
+		color: #F29347;
+		padding: 0 10rpx;
+		font-size: 24rpx;
+		font-weight: 500;
+	}
+
+	.status {
+		
+		width: 98rpx;
+		height: 34rpx;
+		border: 1px solid #A4C3E7;
+		border-radius: 17rpx;
+		color: #7792AF;
+		font-size: 16rpx;
+		
+		justify-content: center;
+		align-items: center;
+		margin-left: 28rpx;
+	}
+	.contentMsg {
+		line-height: 38rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+		width: 706rpx;
+		margin-bottom: 12rpx;
+	}	
+	.contentMsg-last {
+		margin-bottom: 30rpx;
+	}
+	.contentMsg-msg {
+		line-height: 38rpx;
+		font-size:28rpx;
+		color:#777;
+		flex: 1;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+	.goosType {
+		border-width: 2rpx;
+		border-color: #2DA955;
+		border-radius: 19rpx;
+		padding: 0 10rpx;
+		margin: 0 10rpx;
+		height: 38rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.goods-type-text {
+		color: #2DA955;
+	}
+	.goods-text {
+		color: #666666;
+		font-size: 26rpx;
+	}
+	.goods-distance-text {
+		font-size: 26rpx;
+		color: #F29347;
+		padding: 0 10rpx;
+	}
+	.contentMsg-title {
+		width: 94rpx;
+		height: 38rpx;
+		line-height: 38rpx;
+		justify-content: center;
+		align-items: center;
+	}	
+	.eye {
+		width: 30rpx;
+	}
+	.comments-icon {
+		width: 20rpx;
+		margin:0 10rpx;
+	}
+	.addrIcon {
+		width: 20rpx;
+		height: 25rpx;
+	}
+				
+	.box08 {
+		width: 26rpx;
+	}
+	.box02 {
+		width: 30rpx;
+		height: 26rpx;
+	}
+	.box03 {
+		width: 32rpx;
+		height: 32rpx;
+	}
+	.box05 {
+		width: 30rpx;
+		height: 28rpx;
+	}
+	.time {
+		width: 26rpx;
+		height: 26rpx;
+	}
+	.clock {
+		width: 26rpx;
+		height: 26rpx;
+	}
+		
+	.order-time {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 24rpx;
+		color: #333333;
+		padding-right: 30rpx;
+	}	
+	.clock {
+		width: 26rpx;
+		height: 26rpx;
+		margin-right: 10rpx;
+	}
+		
+	.orderStatusBox {
+		height: 66rpx;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		font-size: 26rpx;
+		color:#F29347;
+	}	
+	.forzenIcon {
+		width:32rpx;
+		height: 36rpx;
+		margin-left:30rpx;
+	}
+	.orangeRightIcon {
+		width: 12rpx;
+		height: 22rpx;
+		margin-left:12rpx;
+	}
+	
+	.isFrozen {
+		padding-right:16rpx;
+		background: linear-gradient(to top right, #FFF, #FFF, #FFF, #FFF, rgba(96, 203, 250, 0.54));
+	}
+	.notFrozen {
+		padding-right:32rpx;
+	}
+	.fixedPrice {
+		position: absolute;
+		right: 44rpx;
+		bottom: 90rpx;
+		
+	}
+	.price-text {
+		color: #FF7700;
+		font-size: 28rpx;
+	}
+	.fixPrice-text {
+		font-size: 28rpx;
+		color: #FFFFFF;
+	}
+	.goOpt-text {
+		font-size: 24rpx;
+		color: #fff;
+	}
+	.goOpt {
+		width: 154rpx;
+		height: 52rpx;
+		border-radius: 8rpx;
+		background-color: #4AA2F3;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		right: 32rpx;
+		bottom: 24rpx;
+	}
+	.fixPrice {
+		background-color: #F29347;
+	}
+	.close-opt {
+		background-color: #CCCCCC;
+	}
+	.close-text {
+		font-size: 28rpx;
+		color: #666666;
+	}
+	/*** 平台货源 **/
+	
+	.triangle {
+		width: 0px;
+		height: 0px;
+		border-width: 12rpx 7rpx;
+		border-color: transparent transparent rgba(96, 104, 114, 0.26);
+		border-style: solid;
+	}	
+	.triangleActive {
+		 border-color: transparent transparent rgba(96, 104, 114, 1);
+	}
+	.rev-triangle {
+		margin-top: 4rpx;
+		width: 0px;
+		height: 0px;
+		border-width: 12rpx 7rpx;
+		border-color: rgba(96, 104, 114, 0.26) transparent transparent;
+		border-style: solid;
+	}
+	.rev-triangle-active {
+		 border-color: rgba(96, 104, 114, 1) transparent transparent;
+	}
+		
+	
+	
+		
+		
+	
+	
+</style>

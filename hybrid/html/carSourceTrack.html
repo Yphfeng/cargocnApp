@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>webview</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0 !important;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none; 
+				/* overflow: hidden; */
+			}
+			.label-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.road-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.label-box::-webkit-scrollbar {
+                display: none;
+            }
+			.label-child{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.label-text{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.label-text1{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			.road-text{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.road-text1{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			[v-cloak]{
+			    display: none;
+			}
+			.status-box{
+				position: absolute;
+				top: 70px; 
+				right: 10px; 
+				z-index: 99;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.status-img{
+				width: 48px;
+				height: 26px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container" style="width: 100vw; height: 100vh; position: relative;">
+		</div>
+		<div id="app" v-cloak>
+			<!-- <div @click="refreshEvent">
+				<img style="position: absolute;bottom: 110px; right: 10px; width: 35px; height: 35px; z-index: 99;" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/refresh.png" >
+			</div> -->
+			<div @click="locationCenter">
+				<img style="position: absolute;bottom: 70px; right: 10px; width: 35px; height: 35px; z-index: 99;" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/position.png" >
+			</div>
+			<!-- <div id="">
+				{{dataContent}}
+			</div> -->
+		</div>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<script type="text/javascript">
+		        window._AMapSecurityConfig = {
+		            securityJsCode:'f96a62d7be2cbe38d4e56b4407f1c14c',
+		        }
+		</script>
+		<script type="text/javascript"
+			src="https://webapi.amap.com/maps?v=1.4.15&key=1fcf56c15627205127953252e20666e0&plugin=AMap.Marker,AMap.Scale">
+		</script>
+		<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+		<script type="text/javascript">
+			function getQuery(name) {
+				// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+				let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				let r = window.location.search.substr(1).match(reg);
+				if (r != null) {
+					// 对参数值进行解码
+					return decodeURIComponent(r[2]);
+				}
+				return null;
+			};
+			var massMarks;
+			var style;
+			var bigImg;
+			var clearPoint = 0;
+			var selectData = {};
+			var clearSelect = 0;
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+						isClicking: false,
+						isCommonHelp: false,
+						dataContent: '111111',
+						maps: [],
+						mapkeys: '',
+						labelArr: [],
+						newLabelArr: [],
+						newLabelId: '',
+						mapType: '',
+						roadLabelArr: [],
+						idList: [],
+						screen: '',
+						mapData: JSON.parse(getQuery('buriedPoint')),
+						buriedPoint: {
+							commonFrontLabel: 'driver',
+							commonPhoneModel: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonPhoneModel:'',
+							commonFrontType: 'mobile',
+							commonApplication: 'app',
+							commonUserName: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonUserName:'',
+							commonUserId: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonUserId:'',
+							commonNowVersion: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonNowVersion:'',
+							commonSystemVersion: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonSystemVersion:'',
+							commonFrontPath: getQuery('buriedPoint')?JSON.parse(getQuery('buriedPoint')).commonFrontPath:'',
+						},
+					}
+				},
+				created() {
+
+				},
+				mounted() {
+					var that = this;	
+					
+					that.getList()
+				},
+				methods: {
+					refreshEvent(){
+						var that = this;
+						if (that.isClicking) {
+							return
+						}
+						that.isClicking = true;
+						this.getList();
+					},
+					locationCenter(){
+						var that = this;
+						clearPoint = 1;
+						console.log(11111);
+						clearSelect = 0;
+						mapkeys.setZoom(14);
+						mapkeys.setCenter([that.mapData.selfLongitude, that.mapData.selfLatitude]);
+					},
+					getList() {
+						
+						var that = this;
+						
+						
+						var maps = [{
+							style: 0,
+							latitude: JSON.parse(getQuery('buriedPoint')).latitude,
+							longitude: JSON.parse(getQuery('buriedPoint')).longitude
+						}];
+														
+						that.maps = maps;
+						var webData = {
+							hideLoading: 1
+						}
+						uni.postMessage({
+							data: webData,
+						});
+						clearPoint = 0;
+						// that.dataContent = res.rspBody.items;
+						that.setMap();
+						
+					},
+					setMap() {
+						var that = this;
+						style = [{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/icon_line.png',
+							anchor: new AMap.Pixel(6, 6),
+							size: new AMap.Size(20, 22.8),
+						}, {
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/icon_offline.png',
+							anchor: new AMap.Pixel(6, 6),
+							size: new AMap.Size(20, 22.8),
+						},
+						{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/icon_lineing.png',
+							anchor: new AMap.Pixel(6, 6),
+							size: new AMap.Size(20, 22.8),
+						}];
+						massMarks = new AMap.MassMarks(null, {
+							zIndex: 111, // 海量点图层叠加的顺序
+							zooms: [3, 19], // 在指定地图缩放级别范围内展示海量点图层
+							style: style ,// 设置样式对象
+							alwaysRender: false,
+						});
+						var address = [];
+						// that.dataContent = that.maps;
+						that.maps.forEach(function(marker, index) {
+							var obj = {
+								info: marker,
+								id: 0
+							};
+							var longitude = Number(marker.longitude);
+							var latitude = Number(marker.latitude);
+							var lnglat = [longitude, latitude];
+							obj.lnglat = lnglat;
+							obj.style = marker.style;
+							address.push(obj);
+						});
+						// that.dataContent = address;
+						//将数组设置到 massMarks 图层
+						massMarks.setData(address);
+						// 将海量点添加至地图实例
+						massMarks.setMap(mapkeys);
+					},
+				}
+			})
+			console.log(JSON.parse(getQuery('buriedPoint')));
+			var centerLon = JSON.parse(getQuery('buriedPoint')).selfLongitude;
+			var centerLat = JSON.parse(getQuery('buriedPoint')).selfLatitude;
+			var centerNum = [centerLon, centerLat];
+			
+			// var centerNum = [121.318163, 31.202984];
+			// vm.dataContent = window.location;
+			console.log(window.location);
+			var zoomLevel = 8;
+			var countNum = 0;
+			var firstNum = 1;
+			var mapkeys = new AMap.Map("container", {
+				resizeEnable: false,
+				rejectMapMask: true,
+				viewMode: '2D',
+				center: centerNum,
+				zoom: zoomLevel,
+				animateEnable: false,
+				isHotspot: false,
+				jogEnable: false,
+				showBuildingBlock: false,
+				buildingAnimation: false,
+				showIndoorMap: false,
+			});
+			mapkeys.addControl(new AMap.Scale());
+			new AMap.Marker({
+				map: mapkeys,
+				zIndex: 9999,
+				position: [centerLon, centerLat],
+				icon: new AMap.Icon({            
+					image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/locationMy.png',
+					size: new AMap.Size(25, 25),  //图标大小
+					imageSize: new AMap.Size(25,25),
+					// imageOffset: new AMap.Pixel(0, 0)
+				}),
+				offset: new AMap.Pixel(-10,-10),  
+			});
+			var latitude = JSON.parse(getQuery('buriedPoint')).latitude;
+			var longitude = JSON.parse(getQuery('buriedPoint')).longitude
+			new AMap.Marker({
+				map: mapkeys,
+				zIndex: 9999,
+				position: [longitude, latitude],
+				icon: new AMap.Icon({            
+					image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/icon_lineing.png',
+					size: new AMap.Size(20, 22.8),  //图标大小
+					imageSize: new AMap.Size(20,22.8),
+					// imageOffset: new AMap.Pixel(0, 0)
+				}),
+				offset: new AMap.Pixel(-10,-10),  
+			});
+			// 禁用双击放大
+			var lastTouchEnd = 0;
+			document.documentElement.addEventListener('touchend', function (event) {
+			    var now = Date.now();
+			    if (now - lastTouchEnd <= 300) {
+			        event.preventDefault();
+			    }
+			    lastTouchEnd = now;
+			}, {
+			    passive: false
+			});
+		</script>
+	</body>
+</html>

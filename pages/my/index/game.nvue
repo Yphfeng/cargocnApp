@@ -1,0 +1,195 @@
+<template>
+	
+	<view style="width: 100vw;height: 100vh;">
+		<web-view :src="url" style="position: fixed; top: 0;left: 0; bottom: 0;right: 0;"></web-view>
+		
+		  <image
+		      ref="menuImg"
+		      @mousedown="down"
+		      @touchstart.stop="down"
+		      @mousemove="move"
+		      @touchmove.stop="move"
+		      @mouseup="end"
+		      @touchend.stop="end"
+		      class="menu_icon"
+		      :style="{ top: position.y + 'px', left: position.x + 'px' }"
+		      @click="trans"
+		      v-show="menuIcon"
+		      src="../../../static/images/drag.png"
+		      alt
+		    ></image>
+		
+	</view>
+</template>
+
+<script>
+	import md5 from 'js-md5';
+	var screenWidth;
+	var screenHeight;	
+	
+	export default {
+		data() {
+			return {
+				url: '',
+				// flags: false,
+				position: {
+				        x: 0,
+				        y: 0,
+				      },
+			}
+		},
+		onLoad() {
+			let userInfo = JSON.parse(uni.getStorageSync("userInfo"));	
+			let params = {
+				channel:18599,
+				openid:userInfo.attrs.userCode,
+				nick:userInfo.userName,
+				avatar:userInfo.attrs.avatar,
+				sex:userInfo.attrs.userGender == '男' ? '1' : userInfo.attrs.userGender == '女' ? '2' : '0',
+				phone:userInfo.mobile,
+				time: Date.parse(new Date()) / 1000,
+			}
+			
+			console.log(params,'paramsparams')
+			let paramsToUrl = {
+				channel:params.channel,
+				openid:encodeURIComponent(params.openid),
+				nick:encodeURIComponent(params.nick),
+				avatar:encodeURIComponent(params.avatar),
+				sex:params.sex,
+				phone:params.phone,
+				time:params.time,
+			}
+			
+			let paramsToSign = {
+				channel:params.channel,
+				openid:params.openid,
+				nick:params.nick,
+				avatar:params.avatar,
+				sex:params.sex,
+				phone:params.phone,
+				time:params.time,
+			}
+			// Nick,avatar参与加密不编码，附在链接参数上需要编码
+			let appkey = 'ba853e84e58849798e74bdc3d4440695'
+			let string = `channel=${paramsToSign.channel}&openid=${paramsToSign.openid}&time=${paramsToSign.time}&nick=${paramsToSign.nick}&avatar=${paramsToSign.avatar}&sex=${paramsToSign.sex}&phone=${paramsToSign.phone}${appkey}`;
+			console.log(string,'签名串未加密')
+			let sign =  md5(string).toLowerCase();
+			params.sign  = sign;
+			console.log(sign,'加密串signsign')
+			let string2 = `channel=${paramsToSign.channel}&openid=${paramsToSign.openid}&time=${paramsToSign.time}&nick=${paramsToUrl.nick}&avatar=${paramsToUrl.avatar}&sex=${paramsToSign.sex}&phone=${paramsToSign.phone}&sign=${params.sign}&sdw_simple=7&sdw_ld=1`;
+			const authPage = 'http://www.shandw.com/auth?' + string2;
+			console.log(authPage,'authPageauthPageauthPage')
+	
+			this.url =  authPage;
+			// 获取传递过来的链接
+			console.log(this.url,'this.urlthis.url1')
+			
+			let vm = this;
+			uni.getSystemInfo({
+			    success: function (res) {
+					console.log(res,'resres')
+					vm.position.x = res.safeArea.width - 50;
+					vm.position.y = res.safeArea.height -  90;
+					screenWidth = res.safeArea.width * 2;
+					screenHeight = res.safeArea.height;
+					console.log(screenWidth,screenHeight)
+			    }
+			});
+		},
+		methods:{
+			trans(){
+				uni.navigateBack({
+					
+				})
+			},
+			  // 实现移动端拖拽
+			     down(event) {
+			    //    this.flags = true;
+			    //    var touch;
+			    //    if (event.touches) {
+			    //      touch = event.touches[0];
+			    //    } else {
+			    //      touch = event;
+			    //    }
+				   // console.log(event, '开始拖拽')
+			     },
+				 
+				 move(event) {
+				       let vm = this;
+					   // console.log(event)
+				       // if (vm.flags) {
+				         var touch;
+				         if (event.touches) {
+				           touch = event.touches[0];
+				         } else {
+				           touch = event;
+				         }
+						 console.log(event.touches)
+				         // 定位滑块的位置
+				         // vm.position.x = touch.screenX;
+				         // vm.position.y = touch.screenY ;
+				         vm.position.x = touch.screenX -25; 
+				         vm.position.y = touch.screenY -25;
+						 // 限制滑块超出页面
+				         // console.log('屏幕大小', screenWidth, screenHeight )
+						 
+						 console.log(vm.position.x,'vm.position.x')
+						 console.log(screenWidth - touch.screenX,'screenWidth - touch.screenX')
+				         if (vm.position.x < 0) {
+				           vm.position.x = 0;
+				         } else if (vm.position.x > screenWidth - touch.screenX) {
+				           vm.position.x = screenWidth - touch.screenX ;
+				         }
+						  console.log(vm.position.x,'vm.position.x结束')
+						 
+				         // if (vm.position.y < 1.9 * fontSize) {
+				         //   vm.position.y = 1.9 * fontSize;
+				         // } else if (
+				         //   vm.position.y >
+				         //   screenHeight - touch.target.clientHeight - 1.9 * fontSize
+				         // ) {
+				         //   vm.position.y =
+				         //     screenHeight - touch.target.clientHeight - 1.9 * fontSize;
+				         // }
+				         //阻止页面的滑动默认事件
+				         // document.addEventListener(
+				         //   "touchmove",
+				         //   function () {
+				         //     event.preventDefault();
+				         //   },
+				         //   false
+				         // );
+				       // }
+				     },
+					 
+					  //鼠标释放时候的函数
+					     end() {
+					       let vm = this;
+						   console.log('拖拽结束')
+					       // let left = vm.$refs.menuImg.offsetLeft;
+					       // if (screenWidth / 2 > left) {
+					       //   vm.$refs.menuImg.style.left = 0;
+					       //   vm.isRight = false;
+					       // } else {
+					       //   vm.$refs.menuImg.style.left = screenWidth - 1.31 * fontSize - 15 + "px";
+					       //   vm.isRight = true;
+					       // }
+					 
+					       // vm.flags = false;
+					     },
+		}
+	}
+</script>
+
+<style lang="scss" scoped>	
+.menu_icon {
+  width: 50px;
+  height: 50px;
+  opacity: 0.9;
+  position: fixed;
+  z-index: 9999 !important;
+  // top: 100rpx;
+  // right: 0;
+}
+</style>

@@ -1,0 +1,1523 @@
+<template>
+	<view class="container">
+		<view class="head">
+			<view class="backer" @click="back">
+				<image src="../../../static/images/back.png" class="back"></image>
+			</view>
+			<text class="header-text">{{showHeaderUserName()}}</text>
+			<text class="header-text" style="padding-left: 40rpx;"
+				v-if="showHeaderPlateNo()">{{showHeaderPlateNo()}}</text>
+		</view>
+		<map class="map" id="mapContext" :style="{height: mapHeight}" :latitude="latitude" :longitude="longitude"
+			:scale="scale" :polyline="polylines" :markers="markers"></map>
+		<!-- 		<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapRefresh.png" class="refresh" :style="{bottom: (mapBootom + 50) + 'rpx'}" @click="refresh"></image> -->
+		<!-- <image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapCenter.png" class="mapCenter" @click="mapCenter" :style="{bottom: (mapBootom - 50) + 'rpx'}"></image> -->
+		<view class="bottomContent" v-if="selectedMapItem">
+
+			<view class="contentRight">
+				<view class="title-btnWhole">
+					<text class="title">轨迹时间</text>
+					<view class="title-select">
+						<view class="select-time">
+							<view class="select-item" v-for="(item, index) in selectArr"
+								:class="{'select-item-active': item.isSelected, 'select-item-second': index > 0 }"
+								@click="selectTime(index)">
+								<text class="select-item-text"
+									:class="{'select-item-text-active': item.isSelected}">{{item.name}}</text>
+							</view>
+						</view>
+					</view>
+				</view>
+				<view class="title-btnWhole">
+
+					<view class="select-self">
+						<view class="select-self-item">
+							<picker class="picker" mode="multiSelector" :value="dateTime" @change="changeDateTime"
+								@columnchange="changeDateTimeColumn" :range="dateTimeArray">
+								<view class='lableBox'>
+									<text class="select-self-item-text" v-if="!params.dateTime">开始时间</text>
+									<text v-else class="select-self-item-has-text">{{params.dateTime}}</text>
+								</view>
+							</picker>
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png"
+								class="dateSelect"></image>
+						</view>
+						<view class="select-self-item select-self-item-last">
+							<picker class="picker" mode="multiSelector" :value="endTime" @change="changeEndTime"
+								@columnchange="changeEndTimeColumn" :range="endTimeArray">
+								<view class='lableBox'>
+									<text class="select-self-item-text" v-if="!params.endTime">结束时间</text>
+									<text v-else class="select-self-item-has-text">{{params.endTime}}</text>
+								</view>
+							</picker>
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png"
+								class="dateSelect"></image>
+						</view>
+					</view>
+
+
+				</view>
+				<view class="btnContent">
+					<view class="boot-item boot-item-first" @click="switchIndex(0)">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track-app.png" class="track-img">
+						</image>
+						<view class="track-content">
+							<text class="boot-item-title">App轨迹</text>
+							<text class="boot-item-sub">(免费)</text>
+						</view>
+
+					</view>
+					<view class="boot-item boot-item-second" @click="switchIndex(1)">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track-zj.png" class="track-img">
+						</image>
+						<view class="track-content">
+							<text class="boot-item-title">北斗轨迹</text>
+							<text class="boot-item-sub">(限时免费)</text>
+						</view>
+
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<uni-popup ref="chargeAlert" type="center">
+			<view class="hintBox">
+				<view class="alertContent">
+					<text class="hintBox-text">您当前账户余额为0，请充值10元。</text>
+				</view>
+				<view class="bandBtnGroup">
+					<view class="cancelBtn cancel-first" @tap="cancelBand()">
+						<text class="cancelBtn-text">取消</text>
+					</view>
+					<view class="cancelBtn" @tap="goRecharge()">
+						<text class="confirmBtn-text">前往充值</text>
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import * as ship from "@/utils/ship";
+	const {
+		dateTimePicker,
+		getMonthDay
+	} = require('@/utils/date.js');
+	import * as utils from "@/utils/utils"
+	export default {
+		data() {
+			return {
+				scale: 8,
+				mapHeight: 0,
+				index: 0,
+				params: {
+					dateTime: '',
+					endTime: ''
+				},
+				dateTime: null,
+				endTime: null,
+				dateTimeArray: null,
+				endTimeArray: null,
+				startYear: 2000,
+				latitude: '',
+				longitude: '',
+				polylines: [{
+					points: [],
+					color: "#2DA955",
+					width: 2,
+					arrowLine: false
+				}],
+				markers: [],
+				centerLatitude: '',
+				centerLongitude: '',
+				isLoading: true,
+				selectArr: [{
+						name: "今天",
+						isSelected: true
+					},
+					{
+						name: "昨天",
+						isSelected: false
+					},
+					{
+						name: "前天",
+						isSelected: false
+					},
+				],
+				dateTime: null,
+				endTime: null,
+				todaySelected: true,
+				yestodaySelected: false,
+				lastSelected: false,
+				nowDateStr: '',
+				userCode: '',
+				isFee: false,
+
+			}
+		},
+		onLoad(options) {
+			var that = this;
+			this.isFee = options.isFee;
+			var windowHeight = uni.getSystemInfoSync().windowHeight;
+			var statusBarHeight = uni.getSystemInfoSync().statusBarHeight;
+			var mapHeight = (windowHeight * 2 - 274) + 'rpx';
+			var mapBootom = (windowHeight * 2 - 274 - statusBarHeight * 2) / 2
+			var latitude = options.latitude;
+			var longitude = options.longitude;
+			var dateTime = options.dateTime;
+			var endTime = options.endTime;
+			var selectedMapItem = options.selectedMapItem;
+			this.selectedMapItem = JSON.parse(selectedMapItem);
+			console.log("xua你在的数据", this.selectedMapItem);
+			this.params.dateTime = dateTime;
+			this.params.endTime = endTime;
+			this.index = options.index || 0;
+			var obj = this.getPickerArr(dateTime);
+			var obj2 = this.getPickerArr(endTime);
+			var dateTime = obj.dateTime;
+			var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+			this.dateTime = startTime;
+			var willTime = obj2.dateTime;
+			var noTime = [willTime[0], willTime[1], willTime[2], willTime[3], willTime[4]];
+			this.endTime = noTime;
+
+			var nowDateDay = utils.GetDateStr(0);
+			var yesDateDay = utils.GetDateStr(-1);
+			var beforeDateDay = utils.GetDateStr(-2);
+			this.nowDateDay = nowDateDay;
+			this.yesDateDay = yesDateDay;
+			this.beforeDateDay = beforeDateDay;
+			this.initTime();
+
+			console.log(options, 'asassaa');
+			this.longitude = longitude;
+			this.latitude = latitude;
+			this.mapHeight = mapHeight;
+			this.mapBootom = mapBootom;
+			this.statusBarHeight = statusBarHeight * 2 + 'rpx';
+			uni.getLocation({
+				type: 'gcj02',
+				success: function(res) {
+					console.log(res, '地图');
+					that.centerLatitude = res.latitude;
+					that.centerLongitude = res.longitude;
+					setTimeout(() => {
+						that._mapContext = uni.createMapContext('mapContext');
+						that.initData();
+					}, 500)
+				},
+				fail: function() {
+					uni.showToast({
+						title: '请打开定位',
+						icon: 'none'
+					})
+					setTimeout(() => {
+						that._mapContext = uni.createMapContext('mapContext');
+						that.initData();
+					}, 500)
+				}
+			})
+		},
+		watch: {
+			todaySelected(newVal, oldVal) {
+				console.log(newVal, oldVal, '啊啊撒', this.yestodaySelected, this.lastSelected)
+				var yestodaySelected = this.yestodaySelected;
+				var lastSelected = this.lastSelected;
+				if (!newVal) {
+					//清空时间
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			},
+			yestodaySelected(newVal, oldVal) {
+				console.log(newVal, 'asa1111111')
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+
+				var lastSelected = this.lastSelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (todaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+
+			},
+			lastSelected(newVal, oldVal) {
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+
+				var yestodaySelected = this.yestodaySelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (todaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			}
+		},
+		methods: {
+			showHeaderUserName() {
+				var selectedMapItem = this.selectedMapItem;
+				if (!selectedMapItem) return;
+				var userName = selectedMapItem.userName ? selectedMapItem.userName : selectedMapItem.driverName ? selectedMapItem.driverName : '';
+				var userCode = selectedMapItem.userCode;
+				var isAdmin = selectedMapItem.isAdmin;
+				var isOwner = selectedMapItem.isOwner;
+				//判断是否付费
+				var isFee = this.isFee;
+				if (isFee) {
+					return userName || userCode
+				} else if (isOwner || isAdmin) {
+					return userName || userCode
+				} else {
+					return userName ? userName.substr(0, 1) + '师傅' : userCode
+				}
+			},
+			showHeaderPlateNo() {
+				var selectedMapItem = this.selectedMapItem;
+				if (!selectedMapItem) return;
+				var isAdmin = selectedMapItem.isAdmin;
+				var isOwner = selectedMapItem.isOwner;
+				var plateNo = selectedMapItem.plateNo;
+				//判断是否付费
+				var isFee = this.isFee;
+				if (isFee) {
+					return plateNo || ""
+				} else if (isOwner || isAdmin) {
+					return plateNo || ""
+				} else {
+					return plateNo ? plateNo.substr(0, 2) + "****" + plateNo.substr(-1) : ''
+				}
+			},
+			selectTime(index) {
+				var selectArr = this.selectArr;
+				var isSelected = selectArr[index].isSelected;
+				selectArr[index].isSelected = !isSelected;
+				this.selectArr = selectArr;
+				if (index == 0) {
+					this.todaySelected = !isSelected
+				} else if (index == 1) {
+					this.yestodaySelected = !isSelected
+				} else {
+					this.lastSelected = !isSelected
+				}
+			},
+			//获取日期的picker显示
+			getPickerArr(date) {
+				// 获取完整的年月日 时分秒，以及默认显示的数组
+				let datenow = new Date();
+				let endYear = datenow.getFullYear();
+				let obj = dateTimePicker(this.startYear, endYear, date);
+				// 精确到分的处理，将数组的秒去掉
+				let lastArray = obj.dateTimeArray.pop();
+				let lastTime = obj.dateTime.pop();
+				return obj
+			},
+			async switchIndex(index) {
+				// this.$refs.chargeAlert.open();
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				if (!dateTime || !endTime) {
+					uni.showToast({
+						title: '请选择查询时间',
+						icon: 'none'
+					})
+					return;
+				}
+				var willTime = endTime.replace(/-/g, "/");
+				var willTime2 = dateTime.replace(/-/g, "/");
+				var day = utils.getDaysBetween(willTime2, willTime);
+				console.log(day, '日期之差')
+				if (day < 0) {
+					uni.showToast({
+						title: '查询结束时间应大于开始时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (day > 3) {
+					uni.showToast({
+						title: '最多只能查询三天内的轨迹',
+						icon: 'none'
+					})
+					return;
+				}
+				if (!ship.btnRepeat()) return;
+				console.log(index,'indexindexindex')
+				if (index == 1) {
+					//判断是否有多余次数
+					this.index = index;
+					this.initData();
+				} else {
+					this.index = index;
+					this.initData();
+					// this.appletTrajectory()
+				}
+			},
+			initTime() {
+				let date = new Date();
+				let endYear = date.getFullYear();
+				// 获取完整的年月日 时分秒，以及默认显示的数组
+				let obj = dateTimePicker(this.startYear, endYear);
+				// 精确到分的处理，将数组的秒去掉
+				let lastArray = obj.dateTimeArray.pop();
+				let lastTime = obj.dateTime.pop();
+
+				this.dateTimeArray = obj.dateTimeArray;
+				this.endTimeArray = obj.dateTimeArray;
+				this.$forceUpdate();
+			},
+			changeDateTime(e) {
+				this.dateTime = e.detail.value;
+				this.params.dateTime = this.createTimeStr(this.dateTimeArray, this.dateTime);
+				//ios时间不能用'-'解析成时间戳
+			},
+			changeEndTime(e) {
+				this.endTime = e.detail.value;
+				this.params.endTime = this.createTimeStr(this.endTimeArray, this.endTime);
+			},
+
+			/*年,月切换时重新更新计算*/
+			changeDateTimeColumn(e) {
+				//let {id} = e.target;
+				let {
+					column,
+					value
+				} = e.detail;
+				if (column == 0 || column == 1) {
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.dateTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.dateTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.dateTime = dateTime;
+					this.dateTimeArray = dateTimeArray;
+				}
+			},
+			changeEndTimeColumn(e) {
+				let {
+					column,
+					value
+				} = e.detail;
+				if (column == 0 || column == 1) {
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.endTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.endTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.endTime = dateTime;
+					this.endTimeArray = dateTimeArray;
+				}
+			},
+
+			createTimeStr(dateTimeArray, dateTime) {
+				let timeStr = dateTimeArray[0][dateTime[0]] + '-' + dateTimeArray[1][dateTime[1]] + '-' + dateTimeArray[2][
+					dateTime[2]
+				] + ' ' + dateTimeArray[3][dateTime[3]] + ":" + dateTimeArray[4][dateTime[4]];
+				console.log(timeStr)
+				return timeStr
+			},
+			refresh() {
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				if (!dateTime || !endTime) {
+					uni.showToast({
+						title: '请选择查询时间',
+						icon: 'none'
+					})
+					return;
+				}
+				var willTime = endTime.replace(/-/g, "/");
+				var willTime2 = dateTime.replace(/-/g, "/");
+				var day = utils.getDaysBetween(willTime2, willTime);
+				console.log(day, '日期之差')
+				if (day < 0) {
+					uni.showToast({
+						title: '查询结束时间应大于开始时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (day > 3) {
+					uni.showToast({
+						title: '最多只能查询三天内的轨迹',
+						icon: 'none'
+					})
+					return;
+				}
+				if (!ship.btnRepeat()) return;
+				this.initData();
+			},
+			mapCenter() {
+				var that = this;
+				that._mapContext.moveToLocation({
+					latitude: that.centerLatitude,
+					longitude: that.centerLongitude
+				})
+			},
+			
+			//小程序轨迹
+			async appletTrajectory(){
+				var that = this;
+				var userInfo = uni.getStorageSync("userInfo");
+				var userId = JSON.parse(userInfo).userId;
+				var selectedMapItem = this.selectedMapItem;
+				var dateTime = this.params.dateTime + ':00';
+				var endTime = this.params.endTime + ':59';
+				console.log(this.params.dateTime, this.params.endTime, '11qq');
+				let params = {
+					trackTimeBegin:dateTime,
+					trackTimeEnd:endTime,
+					userCode: selectedMapItem.userCode,
+					userId:userId
+				}
+				console.log(params,'params')
+				try {
+					uni.showLoading({
+						title: '加载中...'
+					})
+					this.isLoading = true;
+					var res = await ship.postRequest('/tm/track/tr/location/queryWeChatOrApp', params)
+					console.log(res,'resresres')
+					var items = [];
+					if(res.retCode != '0000000') {
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+						this.isLoading = false;
+						return;
+					}
+					
+					if(!res.rspBody) {
+						uni.showToast({
+							title: '暂无轨迹',
+							icon: 'none'
+						})
+						return;
+					}
+					
+						items = res.rspBody.trackList;
+						
+						if (items.length < 1) {
+							that.markers = [];
+							that.polylines = [{
+						
+								color: '#007aff',
+						
+								width: 4,
+						
+								points: []
+						
+							}];
+							this.isLoading = false;
+							uni.hideLoading()
+							this.$forceUpdate();
+							uni.showToast({
+								title: '暂无轨迹',
+								icon: 'none'
+							})
+							return;
+						}
+						var points = [];
+						var markers = [];
+						
+						items.forEach((a, index) => {
+							if (index == 0) {
+								markers.push({
+									id: 0,
+									width: 20,
+									height: 20,
+									latitude: a.latitude,
+									longitude: a.longitude,
+									iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapStart.png",
+									label: {
+										x: -30,
+										y: -45,
+										anchorX: -30,
+										anchorY: -45,
+										content: "起点",
+										color: '#333333',
+										fontSize: 13,
+										borderRadius: 8,
+										padding: 3,
+										bgColor: '#FFFFFF',
+										textAlign: 'center',
+										borderColor: '#333333',
+										borderWidth: 4,
+									}
+								})
+							}
+							if (index == items.length - 1) {
+								markers.push({
+									id: 1,
+									width: 20,
+									height: 20,
+									latitude: a.latitude,
+									longitude: a.longitude,
+									iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapStart.png",
+									label: {
+										x: -15,
+										y: 5,
+										anchorX: -15,
+										anchorY: 5,
+										content: "终点",
+										color: '#333333',
+										fontSize: 13,
+										borderRadius: 8,
+										padding: 3,
+										bgColor: '#FFFFFF',
+										textAlign: 'center',
+										borderColor: '#333333',
+										borderWidth: 4,
+									}
+								})
+							}
+						
+							points.push({
+								latitude: a.latitude,
+								longitude: a.longitude,
+							})
+
+					})
+					
+					if (that.centerLatitude) {
+						markers.push({
+							id: 2,
+							width: 20,
+							height: 20,
+							latitude: that.centerLatitude,
+							longitude: that.centerLongitude,
+							iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/locationCennter.png"
+						})
+					}
+					var platform = uni.getSystemInfoSync().platform,
+						polylines = [];
+					if (platform == 'ios') {
+						polylines = [{
+							points: points,
+							color: "#F00000",
+							width: 4,
+							arrowLine: false
+						}];
+					} else {
+						polylines = [{
+							points: points,
+							color: "#F00000",
+							width: 5,
+							arrowLine: false,
+							borderColor: "#333333",
+							borderWidth: 4,
+						}];
+					}
+					
+					
+					that.markers = markers;
+					that.polylines = polylines;
+					that._mapContext.includePoints({
+						padding: [30],
+						points: points
+					});
+					uni.hideLoading()
+					this.isLoading = false;
+					this.$forceUpdate();
+					
+				} catch (e) {
+					console.log(e,'eeeeee')
+					this.isLoading = false;
+					//TODO handle the exception
+					console.log(e)
+					uni.hideLoading()
+				}
+			},
+			
+			async initData() {
+				//获取轨迹的数据
+				var that = this;
+				var userInfo = uni.getStorageSync("userInfo");
+				var selectedMapItem = that.selectedMapItem;
+				var plateNo = selectedMapItem.plateNo;
+				try {
+					uni.showLoading({
+						title: '加载中...'
+					})
+					this.isLoading = true;
+					var dateTime = this.params.dateTime + ':00';
+					var endTime = this.params.endTime + ':59';
+					console.log(this.params.dateTime, this.params.endTime, '11qq');
+					var index = this.index;
+					console.log(index,'indexindex')
+					var url = "",
+						paramsObj = new Object();
+					if (index == 0) {
+						console.log('app轨迹')
+						// url = "/cd/user/location/trajectory";
+						// paramsObj = {
+						// 	createdDtStart: dateTime,
+						// 	createdDtEnd: endTime,
+						// 	userCode: selectedMapItem.userCode
+						// }
+						url = "/tm/track/tr/location/queryWeChatOrApp"
+						paramsObj = {
+							trackTimeBegin:dateTime,
+							trackTimeEnd:endTime,
+							userCode: selectedMapItem.userCode,
+							userId: selectedMapItem.userId
+						}
+					} else {
+						if (!plateNo) {
+							uni.showToast({
+								title: '暂无车牌号，无法查询北斗轨迹',
+								icon: 'none'
+							})
+							return
+						};
+						var paramPlateNo = plateNo.split(',')[0];
+						url = "/calc/web/datacenter/findTrack",
+							paramsObj = {
+								plateNo: paramPlateNo,
+								// plateNo: 'veh0002',
+								trackTimeBegin: dateTime,
+								trackTimeEnd: endTime
+
+
+							}
+					}
+					console.log(paramsObj, '参数11', selectedMapItem);
+					var res = await ship.postRequest(url, paramsObj)
+					console.log(res,'resresres')
+					// console.log(res.rspBody.tkList,'resresres')
+					if (res.retCode != "0000000") {
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+						this.isLoading = false;
+						return;
+					}
+					//0 = app轨迹  else = 北斗
+					if(index == 0) {
+						if(!res.rspBody.retContent) {
+							uni.showToast({
+								title: '该用户暂无APP轨迹',
+								icon: 'none'
+							})
+							return;
+						}
+					}else {
+						if(!res.rspBody.retContent) {
+							uni.showToast({
+								// title: res.rspBody.msg,
+								title: '该用户暂无北斗轨迹',
+								icon: 'none'
+							})
+							return;
+						}
+						
+					}
+					
+					var items = [];
+					if (index == 0) {
+						// items = res.rspBody;
+						items = res.rspBody.retContent.trackList;
+					} else {
+						var zjNumber = res.rspBody.retContent.zjNumber;
+						console.log(zjNumber, '次数')
+						if (zjNumber == -1) {
+							that.markers = [];
+
+							that.polylines = [{
+
+								color: '#007aff',
+
+								width: 4,
+
+								points: []
+
+							}];
+
+							this.isLoading = false;
+							uni.hideLoading()
+							this.$forceUpdate();
+							// this.$refs.chargeAlert.open();
+							uni.showToast({
+								title: '暂无查询次数',
+								icon: 'none'
+							})
+							return;
+						}
+						items = res.rspBody.retContent.tkList;
+					}
+					console.log(items.length, '数据长度', items)
+					if (items.length < 1) {
+						that.markers = [];
+						that.polylines = [{
+
+							color: '#007aff',
+
+							width: 4,
+
+							points: []
+
+						}];
+						this.isLoading = false;
+						uni.hideLoading()
+						this.$forceUpdate();
+						uni.showToast({
+							title: '暂无轨迹',
+							icon: 'none'
+						})
+						return;
+					}
+					var points = [];
+					var markers = [];
+
+					items.forEach((a, index) => {
+						if (index == 0) {
+							markers.push({
+								id: 0,
+								width: 20,
+								height: 20,
+								latitude: a.latitude,
+								longitude: a.longitude,
+								iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapStart.png",
+								label: {
+									x: -30,
+									y: -45,
+									anchorX: -30,
+									anchorY: -45,
+									content: "起点",
+									color: '#333333',
+									fontSize: 13,
+									borderRadius: 8,
+									padding: 3,
+									bgColor: '#FFFFFF',
+									textAlign: 'center',
+									borderColor: '#333333',
+									borderWidth: 4,
+								}
+							})
+						}
+						if (index == items.length - 1) {
+							markers.push({
+								id: 1,
+								width: 20,
+								height: 20,
+								latitude: a.latitude,
+								longitude: a.longitude,
+								iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapStart.png",
+								label: {
+									x: -15,
+									y: 5,
+									anchorX: -15,
+									anchorY: 5,
+									content: "终点",
+									color: '#333333',
+									fontSize: 13,
+									borderRadius: 8,
+									padding: 3,
+									bgColor: '#FFFFFF',
+									textAlign: 'center',
+									borderColor: '#333333',
+									borderWidth: 4,
+								}
+							})
+						}
+
+						points.push({
+							latitude: a.latitude,
+							longitude: a.longitude,
+						})
+					});
+					if (that.centerLatitude) {
+						markers.push({
+							id: 2,
+							width: 20,
+							height: 20,
+							latitude: that.centerLatitude,
+							longitude: that.centerLongitude,
+							iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/locationCennter.png"
+						})
+					}
+					var platform = uni.getSystemInfoSync().platform,
+						polylines = [];
+					if (platform == 'ios') {
+						polylines = [{
+							points: points,
+							color: "#F00000",
+							width: 4,
+							arrowLine: false
+						}];
+					} else {
+						polylines = [{
+							points: points,
+							color: "#F00000",
+							width: 5,
+							arrowLine: false,
+							borderColor: "#333333",
+							borderWidth: 4,
+						}];
+					}
+
+
+					that.markers = markers;
+					that.polylines = polylines;
+					that._mapContext.includePoints({
+						padding: [30],
+						points: points
+					});
+					uni.hideLoading()
+					this.isLoading = false;
+					this.$forceUpdate();
+				} catch (e) {
+					this.isLoading = false;
+					//TODO handle the exception
+					console.log(e)
+					uni.hideLoading()
+				}
+			},
+			reset() {
+				if (this.isLoading) {
+					uni.showToast({
+						title: '数据加载中...',
+						icon: 'none'
+					})
+					return
+				}
+				this.params.dateTime = "";
+				this.params.endTime = "";
+			},
+			back() {
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			async confirmFind() {
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				if (!dateTime || !endTime) {
+					uni.showToast({
+						title: '请选择查询时间',
+						icon: 'none'
+					})
+					return;
+				}
+				var willTime = endTime.replace(/-/g, "/");
+				var willTime2 = dateTime.replace(/-/g, "/");
+				var day = utils.getDaysBetween(willTime2, willTime);
+				console.log(day, '日期之差')
+				if (day < 0) {
+					uni.showToast({
+						title: '查询结束时间应大于开始时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (day > 3) {
+					uni.showToast({
+						title: '最多只能查询三天内的轨迹',
+						icon: 'none'
+					})
+					return;
+				}
+				if (this.index == 1) {
+					var rspNum = await ship.postRequest("/calc/web/datacenter/tr/zj/query")
+					if (rspNum.rspBody == undefined || rspNum.rspBody == 0) {
+						uni.showToast({
+							title: '暂无可查询次数',
+							icon: 'none',
+						})
+						return
+					}
+				}
+				if (!ship.btnRepeat()) return;
+				this.initData();
+
+			},
+			cancelBand() {
+				this.$refs.chargeAlert.close();
+			},
+			goRecharge() {
+				this.$refs.chargeAlert.close();
+				var userInfo = uni.getStorageSync("userInfo");
+				if (!userInfo) {
+					uni.showModal({
+						title: '请登录后操作',
+						confirmText: '去登录',
+						success: function(res) {
+							if (res.confirm) {
+								service.loginSelf(1);
+							}
+						}
+					})
+					return
+				}
+				var identityVerify = JSON.parse(userInfo).attrs.identityVerify;
+				var driverVerify = JSON.parse(userInfo).attrs.driverVerify;
+				var vehicleVerify = JSON.parse(userInfo).attrs.vehicleVerify;
+				var faceVerify = JSON.parse(userInfo).attrs.faceVerify;
+				if (identityVerify !== 1 || driverVerify !== 1 || vehicleVerify !== 1 || faceVerify != 1) {
+					if (identityVerify !== 1 || faceVerify != 1) {
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsers'
+						})
+					} else if (driverVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/driverVerify/newDriverVerify'
+						})
+					} else if (vehicleVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/carVerify/newCarVerify'
+						})
+					}
+					return;
+				}
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/userCenter/userWallet/trackTopUp?type=fleetMap'
+				})
+
+			},
+		}
+	}
+</script>
+
+<style scoped>
+	.head {
+		align-items: center;
+		position: relative;
+		flex-direction: row;
+		height: 176rpx;
+		width: 750rpx;
+		justify-content: center;
+		align-items: flex-end;
+		padding-bottom: 26rpx
+	}
+
+	.header-text {
+		font-size: 36rpx;
+		color: rgba(51, 51, 51, 1);
+		line-height: 44rpx;
+	}
+
+	.backer {
+		position: absolute;
+		left: 38rpx;
+		bottom: 16rpx;
+		width: 66rpx;
+		height: 66rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+
+	.back {
+		width: 22rpx;
+		height: 40rpx;
+	}
+
+	.map {
+		width: 750rpx;
+	}
+
+	.select-self-item {
+		width: 248rpx;
+		height: 82rpx;
+		border: 2rpx solid #D9D9D9;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16rpx;
+		border-radius: 8rpx;
+	}
+
+	.select-self-item-last {
+		margin-left: 74rpx;
+	}
+
+	.dateSelect {
+		width: 24rpx;
+		height: 20rpx;
+	}
+
+	.picker {
+		flex: 1;
+	}
+
+	.select-self-item-text {
+		flex: 1;
+		color: rgba(0, 0, 0, 0.25);
+		font-size: 28rpx;
+	}
+
+	.select-self-item-has-text {
+		flex: 1;
+		color: #333333;
+		font-size: 28rpx;
+	}
+
+	.refresh {
+		position: absolute;
+		right: 24rpx;
+		width: 86rpx;
+		height: 86rpx;
+	}
+
+	.mapCenter {
+		position: absolute;
+		right: 24rpx;
+		width: 86rpx;
+		height: 86rpx;
+	}
+
+	.head-btn {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.btn-item {
+		width: 100rpx;
+		height: 60rpx;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.btn-item-first {
+		background-color: #FFFFFF;
+		border: 2rpx solid #0171F9;
+		margin-right: 100rpx;
+	}
+
+	.btn-first-text {
+		color: #0171F9;
+	}
+
+	.btn-second-text {
+		color: #FFFFFF;
+	}
+
+	.btn-item-second {
+		background-color: #0171F9;
+	}
+
+	.btn-text {
+		font-size: 28rpx;
+	}
+
+	.hintBox {
+		background: #FFFFFF;
+		border-radius: 12rpx;
+		margin: 0 32rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 560rpx;
+		height: 320rpx;
+	}
+
+	.alertContent {
+		padding: 38rpx 50rpx 0;
+		flex: 1;
+	}
+
+	.hintBox-text {
+		display: flex;
+		flex-wrap: wrap;
+		font-size: 34rpx;
+		color: #333333;
+	}
+
+	.bandBtnGroup {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		box-sizing: border-box;
+		width: 560rpx;
+		border-top-color: #F3F3F3;
+		border-top-width: 2rpx;
+	}
+
+	.cancelBtn {
+		flex: 1;
+		height: 88rpx;
+		font-size: 32rpx;
+		font-weight: 500;
+		color: rgba(255, 255, 255, 1);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.cancel-first {
+		border-right-color: #F3F3F3;
+		border-right-width: 2rpx;
+	}
+
+	.cancelBtn-text {
+		font-size: 32rpx;
+		color: #777777;
+		font-weight: 500;
+	}
+
+	.confirmBtn-text {
+		font-size: 32rpx;
+		color: #0171F9;
+		font-weight: 500;
+	}
+
+	.bottomContent {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		z-index: 1;
+		width: 750rpx;
+		border-top-left-radius: 40rpx;
+		border-top-right-radius: 40rpx;
+		background-color: #FFFFFF;
+		display: flex;
+		align-items: center;
+		padding: 54rpx 44rpx 30rpx 56rpx;
+		box-shadow: 0 -3px 9px 1px rgba(0, 0, 0, 0.1700);
+	}
+
+
+	.contentRight {
+		flex: 1;
+		width: 750rpx;
+		padding: 0 32rpx;
+	}
+
+	.item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+
+	}
+
+	.first {
+		padding-bottom: 10rpx;
+	}
+
+	.name {
+		font-size: 32rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		font-weight: 600;
+	}
+
+	.dateDesc {
+		font-size: 26rpx;
+		color: #777777;
+	}
+
+	.plateNo {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+	}
+
+	.address {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		width: 500rpx;
+	}
+
+	.btn {
+		background-color: #0171F9;
+		border-radius: 16rpx;
+		width: 138rpx;
+		height: 52rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.text {
+		color: #FFFFFF;
+		font-size: 26rpx;
+	}
+
+	.select-time {
+		flex-direction: row;
+		flex: 1;
+	}
+
+	.select-item {
+		width: 148rpx;
+		height: 56rpx;
+		border: 2rpx solid #D9D9D9;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+		margin-left: 30rpx;
+	}
+
+	.select-item-text {
+		color: rgba(51, 51, 51, 1);
+		font-size: 30rpx;
+	}
+
+	.select-item-second {
+		margin-left: 24rpx;
+	}
+
+	.select-item-active {
+		border: 2rpx solid #0171F9;
+		background-color: #D9EAFF;
+	}
+
+	.select-item-text-active {
+		color: #0171F9;
+	}
+
+	.select-self {
+		flex: 1;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 42rpx;
+	}
+
+	.select-self-item {
+		width: 248rpx;
+		height: 82rpx;
+		border: 2rpx solid #D9D9D9;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16rpx;
+		border-radius: 8rpx;
+	}
+
+	.select-self-item-last {
+		margin-left: 32rpx;
+	}
+
+	.dateSelect {
+		width: 24rpx;
+		height: 20rpx;
+	}
+
+	.picker {
+		flex: 1;
+	}
+
+	.select-self-item-text {
+		flex: 1;
+		color: rgba(0, 0, 0, 0.25);
+		font-size: 28rpx;
+	}
+
+	.select-self-item-has-text {
+		flex: 1;
+		color: #333333;
+		font-size: 28rpx;
+	}
+
+	.btnContent {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 36rpx;
+	}
+
+	.boot-item {
+		width: 296rpx;
+		height: 106rpx;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}
+
+	.boot-item-first {
+
+		margin-right: 54rpx;
+	}
+
+	.track-img {
+		width: 296rpx;
+		height: 106rpx;
+	}
+
+	.track-content {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 296rpx;
+		height: 106rpx;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.boot-item-title {
+		color: #FFFFFF;
+		font-size: 32rpx;
+		font-weight: 500;
+	}
+
+	.boot-item-sub {
+		color: #FFFFFF;
+		font-size: 24rpx;
+	}
+
+	.title-btnWhole {
+		flex-direction: row;
+	}
+
+	.title {
+		color: rgba(51, 51, 51, 1);
+		font-size: 36rpx;
+		font-weight: 600;
+	}
+
+	.hintBox {
+		background: #FFFFFF;
+		border-radius: 12rpx;
+		margin: 0 32rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 560rpx;
+		height: 320rpx;
+	}
+
+	.msgIcon {
+		margin-left: 32rpx;
+		height: 28rpx;
+		width: 28rpx;
+	}
+</style>

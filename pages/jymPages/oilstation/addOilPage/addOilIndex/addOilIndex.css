@@ -1,0 +1,745 @@
+Page {
+    background: #F7F7F7;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.placeholderinput {
+    font-size: 40rpx;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    color: #8D8D8D;
+}
+
+.divLine {
+    background: #EDEEF0;
+}
+
+.topView {
+    display: flex;
+    flex-direction: row;
+    /* padding-left: 50rpx; */
+    height: 80rpx;
+    background: #F7F7F7;
+}
+
+.topView image {
+    margin-left: 30rpx;
+    margin-top: 24rpx;
+    width: 30rpx;
+    height: 32rpx;
+}
+
+.topView text {
+    margin-left: 10rpx;
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #13227A;
+    line-height: 80rpx;
+}
+
+.cardView {
+    display: flex;
+    height: 80rpx;
+    justify-content: space-between;
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.couponView {
+    display: flex;
+    height: 80rpx;
+    justify-content: space-between;
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.color333Size30Title {
+    margin-left: 45rpx;
+    font-size: 23rpx;
+    font-weight: 400;
+    line-height: 27rpx;
+    color: #4B4B4B;
+}
+
+.couponViewLeft {
+    font-size: 25rpx;
+    color: #4B4B4B;
+    display: flex;
+    margin-left: 8rpx;
+    min-width: 100rpx;
+}
+
+.couponViewLeft .coupons-img {
+    width: 60rpx;
+    height: 40rpx;
+}
+
+.couponViewLeft .coupons-text {
+    display: flex;
+    align-items: center;
+    padding-left: 20rpx;
+    font-size: 25rpx;
+    color: #4B4B4B;
+}
+
+.couponViewRight {
+    flex: 1;
+    margin-left: 30rpx;
+    text-align: right;
+    justify-content: flex-end;
+    max-lines: 1;
+    align-items: center;
+    font-size: 25rpx;
+    color: #4B4B4B;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.couponViewRight text {}
+
+.couponView image {
+    width: 30rpx;
+    height: 30rpx;
+}
+
+.cardView text {
+    font-size: 30rpx;
+    color: #333333;
+    line-height: 80rpx;
+}
+
+.cardViewRight {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.cardViewRight image {
+    width: 30rpx;
+    height: 30rpx;
+}
+
+.balanceView {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+    font-size: 30rpx;
+    color: #333333;
+    box-sizing: border-box;
+}
+
+.parent {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    align-content: flex-start;
+    padding: 0 43rpx;
+    box-sizing: border-box;
+}
+.parent1 {
+    width: 100%;
+    display: flex;
+    padding: 0 43rpx;
+    font-size: 25rpx;
+    color: #4B4B4B;
+}
+
+.child {
+    width: 143rpx;
+    height: 49rpx;
+    background: #F7F7F7;
+    border: 1rpx solid #90B1F0;
+    opacity: 1;
+    border-radius: 8rpx;
+    font-size: 25rpx;
+    color: #6D9AED;
+    margin-right: 30rpx;
+    margin-top: 14rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.childSelect {
+    width: 143rpx;
+    height: 49rpx;
+    color: white;
+    background-color: #469DFC;
+    border: 1rpx solid #90B1F0;
+    opacity: 1;
+    border-radius: 8rpx;
+    font-size: 25rpx;
+    margin-right: 30rpx;
+    margin-top: 14rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unitView {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 39rpx;
+    padding-right: 45rpx;
+    font-size: 25rpx;
+    color: #4B4B4B;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.inputView {
+    display: flex;
+    flex-direction: row;
+    height: 100rpx;
+    margin-left: 43rpx;
+    margin-right: 30rpx;
+    align-items: center;
+    border-bottom: 1rpx solid #EDEEF0;
+}
+
+.inputView text {
+    font-size: 27rpx;
+    color: #8D8D8D;
+    padding-top: 10rpx;
+    box-sizing: border-box;
+    width: 70rpx;
+    text-align: center;
+}
+
+.inputView input {
+    margin-left: 10rpx;
+    /* background: yellow; */
+    height: 100%;
+    font-size: 58rpx;
+    color: #696969;
+}
+
+.bottomButton {
+    margin: 50rpx 0;
+	padding-bottom: 20rpx;
+}
+
+.red {
+    color: red;
+}
+
+.bottomSave {
+    height: 70rpx;
+    background: #6D9AED;
+    font-size: 27rpx;
+    color: #F7F7F7;
+    border: none;
+    border-radius: 45rpx;
+    display: flex;
+    align-items: center;
+    margin: 0 50rpx;
+    justify-content: center;
+}
+
+.commodity_screen {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.2;
+    overflow: hidden;
+    z-index: 1000;
+    color: #fff;
+}
+
+.commodity_attr_box {
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 2000;
+    background: #fff;
+    /* padding-top: 20rpx; */
+}
+
+.showViewTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 120rpx;
+    /* background: red; */
+    width: 100%;
+}
+
+.coupon {
+    width: 35rpx;
+    height: 35rpx;
+    background: #8E81EC;
+    text-align: center;
+    line-height: 35rpx;
+    border-radius: 4rpx;
+    color: #fff;
+    margin-right: 16rpx;
+}
+
+.showViewTitle image {
+    padding-left: 30rpx;
+    margin-top: 45rpx;
+    height: 30rpx;
+    width: 30rpx;
+    box-sizing: border-box;
+}
+
+.showViewTitle text {
+    line-height: 120rpx;
+    color: #333333;
+    font-size: 30rpx;
+}
+
+.scrollView {
+    height: 500rpx;
+    width: 100%;
+    background: white;
+}
+
+.cardContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20rpx;
+    margin-left: 25rpx;
+    margin-right: 25rpx;
+    height: 183rpx;
+    background: #F7F1DF;
+    border-radius: 11rpx;
+    background-size: cover;
+}
+
+.cellView {
+    display: flex;
+    height: 183rpx;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+}
+
+.cellView1_img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cellView image {
+    width: 150rpx;
+    height: 120rpx;
+    margin-left: 26rpx;
+}
+
+.leftView {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* background: red; */
+}
+
+.leftView view {
+    font-size: 24rpx;
+    min-width: 280rpx;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.leftView .leftView_stationName {
+    font-size: 34rpx;
+}
+
+.leftView_stationName image {
+    width: 28rpx;
+    height: 16rpx;
+    margin-left: 17rpx;
+}
+
+.leftView .leftView_compSecondName {
+    margin-top: 10rpx;
+    font-size: 22rpx;
+    width: 300rpx;
+    overflow: hidden;
+    /*超出部分隐藏*/
+    white-space: nowrap;
+    /*不换行*/
+    text-overflow: ellipsis;
+    /*超出部分文字以...显示*/
+}
+
+.leftView text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24rpx;
+}
+
+.rightView_view {
+    min-width: 150rpx;
+    margin-left: 10rpx;
+    margin-right: 26rpx;
+}
+
+.rightView_view .amount {
+    display: flex;
+    flex-direction: row;
+    font-size: 40rpx;
+}
+
+.rightView {
+    display: flex;
+    flex-direction: row;
+}
+
+.rightView view {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.rightView checkbox {
+    height: 41rpx;
+    color: #666666;
+    font-size: 24rpx;
+    border-radius: 25rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    position: absolute;
+    right: 17rpx;
+    bottom: 19rpx;
+}
+
+
+/*checkbox 选项框大小  */
+
+checkbox .wx-checkbox-input {
+    width: 40rpx;
+    height: 40rpx;
+    border-radius: 24rpx;
+    border: none;
+}
+
+.list-masonry {
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    column-count: 3;
+    column-gap: 10rpx;
+    /* background: red; */
+    padding-bottom: 20rpx;
+    border-bottom: 1rpx solid rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+
+.item-masonry {
+    break-inside: avoid;
+    box-sizing: border-box;
+    padding-bottom: 10rpx;
+    padding-top: 10rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+}
+
+.btnView {
+    width: 28vw;
+    height: 50rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 20rpx;
+    color: #666666;
+    border: 1rpx solid #E5E5E5;
+    border-radius: 25rpx;
+}
+
+.oilTypePriceView {
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    height: 100rpx;
+    /* background: gainsboro; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.oilTypePriceView text {
+    line-height: 100rpx;
+    color: #333333;
+    font-size: 32rpx;
+}
+
+.oilTypePriceView rich-text {
+    line-height: 100rpx;
+    color: #F54748;
+    font-size: 32rpx;
+}
+
+
+/*
+  下面是输入密码
+*/
+
+.password-input-box {
+    margin: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1002;
+    border-radius: 30rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 40rpx;
+    box-sizing: border-box;
+    height: 100rpx;
+    box-sizing: border-box;
+}
+
+.input-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input {
+    height: 100rpx;
+    width: 100%;
+    border: 1px solid #BBB;
+    border-radius: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 50rpx;
+}
+
+.input>view:nth-child(6) {
+    border-right: none;
+}
+
+.input>view {
+    height: 100%;
+    width: 16.6%;
+    border-right: 1px solid #BBB;
+}
+
+.password-input {
+    width: 0;
+    height: 0;
+}
+
+.commodity_screen1 {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.2;
+    overflow: hidden;
+    z-index: 100;
+    color: #fff;
+}
+
+.commodity_attr_box1 {
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 101;
+    background: #fff;
+    /* padding-top: 20rpx; */
+}
+
+.showViewTitle1 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 120rpx;
+    /* background: red; */
+    width: 100%;
+}
+
+.showViewTitle1 image {
+    padding-left: 30rpx;
+    margin-top: 45rpx;
+    height: 30rpx;
+    width: 30rpx;
+    box-sizing: border-box;
+}
+
+.showViewTitle1 text {
+    line-height: 120rpx;
+    color: #333333;
+    font-size: 30rpx;
+}
+
+.scrollView1 {
+    padding-left: 60rpx;
+    padding-right: 60rpx;
+    height: 700rpx;
+    /* width: 100%; */
+    background: white;
+    box-sizing: border-box;
+}
+
+
+/* 弹出框 */
+
+button {
+    border-radius: 0rpx;
+    padding: 0rpx;
+    margin: 0rpx;
+    display: inline-block;
+    background-color: #fff;
+}
+
+button::after {
+    /*button的边框样式是通过::after方式实现的*/
+    border: none;
+}
+
+.btn-cancel {
+    width: 50%;
+    color: #666;
+    text-align: center;
+    border-right: 1px solid #dedede;
+}
+
+.btn-confirm {
+    width: 50%;
+    color: #576B95;
+    text-align: center;
+}
+
+.mask {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000000;
+    opacity: 0.21;
+    z-index: 999;
+    /* 		background: rgba(110, 110, 110, 0.4); */
+}
+
+.modalDlg {
+    width: 568rpx;
+    height: 300rpx;
+    position: fixed;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 18rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal_top {
+    height: 78rpx;
+    line-height: 100rpx;
+    text-align: center;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+    width: 100%;
+    position: relative;
+}
+
+.modal_con {
+    border: 0;
+    height: 120rpx;
+    line-height: 120rpx;
+}
+
+.modal_btm {
+    height: 82rpx;
+    width: 100%;
+    display: flex;
+    margin-top: 14rpx;
+    align-items: center;
+    border-top: 1rpx solid #EAEAEA;
+}
+
+.modal_btm view {
+    width: 50%;
+    text-align: center;
+    line-height: 82rpx;
+    box-sizing: border-box;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #6D9AED;
+}
+
+.modal_btm button {
+    width: 50%;
+    text-align: center;
+    line-height: 82rpx;
+    box-sizing: border-box;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #6D9AED;
+    border-radius: 0 0 18rpx 0;
+}
+
+.modal_btm view:nth-child(1) {
+    border-right: 1rpx solid #EAEAEA;
+    color: #666666;
+}
+
+.tips {
+    font-size: 26rpx;
+    color: #666666;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    margin: 0rpx 20px 50rpx;
+    padding: 10px 32rpx;
+    background: #FFF2CE;
+    box-sizing: border-box;
+    align-items: flex-start;
+}
+
+.tipsContent {
+    flex: 1;
+    text-align: left;
+    line-height: 50rpx;
+}
+
+.tipsTitle {
+    font-size: 34rpx;
+    font-weight: bold;
+}
+
+.tips .red {
+    font-size: 28rpx;
+    font-weight: bold;
+    color: #D11010;
+}

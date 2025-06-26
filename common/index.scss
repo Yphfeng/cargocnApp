@@ -1,0 +1,77 @@
+
+.font-8 {
+	font-size: $font_size_8;
+}
+.font-9 {
+	font-size: $font_size_9;
+}
+.font-10 {
+	font-size: $font_size_10;
+}
+.font-12 {
+	font-size: $font_size_12;
+}
+.font-13 {
+	font-size: $font_size_13;
+}
+.font-14 {
+	font-size: $font_size_14;
+}
+.font-16 {
+	font-size: $font_size_16;
+}
+.font-20 {
+	font-size: $font_size_20;
+}
+.font-24 {
+	font-size: $font_size_24;
+}
+
+
+//颜色
+.color-paragraph {
+	color: $uni-font-color-title;
+}
+.color-main {
+	color: $uni-font-color-main;
+}
+.color-tips {
+	color: rgba(112, 112, 112, 1);
+}
+.red {
+	color: red;
+}
+.color-font-second {
+	color: rgba(51, 51, 51, 1);
+}
+.color-font-subSecond {
+	color: rgba(119, 119, 119, 1);
+}
+
+//间距
+.pr-20 {
+	padding-right: 20rpx;
+}
+.pl-20 {
+	padding-left: 20rpx;
+} 
+.pt-10 {
+	padding-top: 10px;
+}
+.pl-5 {
+	padding-left: 5px;
+} 
+
+//input的默认样式
+.input-placeholder {
+	color: #ccc;
+}
+
+.page {
+	display: flex;
+	box-sizing: border-box;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+}

@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>webview</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0 !important;
+				font-family: PingFang SC-Regular, PingFang SC;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none; 
+				/* overflow: hidden; */
+			}
+			.label-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.road-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.label-box::-webkit-scrollbar {
+                display: none;
+            }
+			.label-child{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.label-text{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.label-text1{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			.road-text{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.road-text1{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			[v-cloak]{
+			    display: none;
+			}
+			.status-box{
+				position: absolute;
+				top: 70px; 
+				right: 10px; 
+				z-index: 99;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.status-img{
+				width: 48px;
+				height: 26px;
+			}
+			.tabs {
+				position: absolute;
+				top: 95px;
+				left: 18px;
+				width: calc(100vw - 36px);
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-icon1.png);
+				background-size: cover;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				background-position: 100%;
+			}
+			.tabs.active {
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-icon2.png);
+			}
+			.tab-item {
+				flex: 1;
+				height: 39px;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				font-size: 16px;
+				color: #333333;
+			}
+			.tab-item.active {
+				font-weight: 600;
+			}
+			.marker-info {
+				position: absolute;
+				bottom: 26px;
+				left: 18px;
+				width: calc(100vw - 36px);
+				background-color: #FFFFFF;
+				border-radius: 12px;
+				display: flex;
+				flex-direction: row;
+				height: 114px;
+				justify-content: center;
+				align-items: center;
+				padding: 0 16px;
+				box-sizing: border-box;
+			}
+			.info {
+				flex: 1;
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				margin-top: 17px;
+				
+			}
+			.avatar {
+				width: 44px;
+				height: 44px;
+				border-radius: 44px;
+				margin-right: 10px;
+			}
+			.info-content {
+				
+			}
+			.user-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+			}
+			.name {
+				font-size: 16px;
+				color: #333333;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.date {
+				font-size: 12px;
+				color: #666666;
+				margin-left: 6px;
+			}
+			.addr {
+				font-size: 14px;
+				color: #333333;
+				line-height: 22px;
+				margin-bottom: 14px;
+			}
+			.car-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				font-size: 18px;
+				color: #333333;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.car-type {
+				margin-right: 15px;
+			}
+			.car-mobile {
+				width: 22px;
+				height: 22px;
+			}
+			.car-news {
+				width: 24px;
+				height: 24px;
+			}
+			.contact-info {
+				display: flex;
+				flex-direction: row;
+				
+			}
+			.car-icon-item {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				line-height: 12px;
+				color: #000000;
+				font-size: 10px;
+			}
+			.car-icon-item:last-child {
+				margin-left: 22px;
+			}
+			.back {
+				position: absolute;
+				left: 18px;
+				top: 59px;
+				width: 28px;
+				height: 28px;
+			}
+			.marker-Content {
+				width: 81px;
+				height: 81px;
+				border-radius: 81px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.marker-Content-first {
+				background-color: rgba(212, 94, 222, 0.32);
+			}
+			.marker-Content-second {
+				background-color: rgba(151, 222, 94, 0.32);
+			}
+			.marker-Content-three {
+				background-color: rgba(94, 99, 222, 0.32);
+			}
+			.marker-Content-four {
+				background-color: rgba(222, 102, 94, 0.32);
+			}
+			.marker-marker {
+				height: 45px;
+				width: 45px;
+				border-radius: 45px;
+				line-height: 45px;
+				margin: 0 auto;
+				text-align: center;
+				color: #FFFFFF;
+				font-size: 16px;
+				font-weight: 600;
+			}
+			.marker-marker-first {
+				background-color: rgba(212, 94, 222, 1);
+			}
+			.marker-marker-second {
+				background-color: rgba(151, 222, 94, 1);
+			}
+			.marker-marker-three {
+				background-color: rgba(94, 99, 222, 1);
+			}
+			.marker-marker-four {
+				background-color: rgba(222, 102, 94, 1);
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<div id="container" style="width: 100vw; height: 100vh; position: relative;">
+		</div>
+		<div id="app" v-cloak>
+			
+			<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-map-back.png" class="back" @click="back">
+			
+			<div class="tabs" :class="{active: mapIndex == 1}">
+				<div class="tab-item" @click="switchMap(0)" :class="{active: mapIndex == 0}">车源地图</div>
+				<div class="tab-item" @click="switchMap(1)" :class="{active: mapIndex == 1}">司机位置地图</div>
+			</div>
+			<div class="marker-info" v-show="mapIndex == 1 && memberInfo.id">
+				<div class="info">
+					<img :src="memberInfo.avatar" class="avatar" v-if="memberInfo.avatar">
+					<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png" class="avatar" v-else>
+					<div class="info-content">
+						<div class="user-info">
+							<div class="name">{{showName(memberInfo.userName)}}</div>
+							<!-- <div class="date">2小时前在线</div> -->
+						</div>
+						<div class="addr">{{memberInfo.lastAddr}}</div>
+						<!-- <div class="car-info">
+							<div class="car-type">沪A12*</div>
+							<div>平板8.7</div>
+						</div> -->
+					</div>
+					
+				</div>
+				<div class="contact-info">
+					<div class="car-icon-item" @click="call(memberInfo)">
+						<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-map-mobile.png" class="car-mobile" >
+						电话
+					</div>
+					<div class="car-icon-item" @click="toGoEasy(memberInfo)">
+						<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-map-news.png" class="car-news">
+						私信
+					</div>
+				</div>
+			</div>
+		<!-- 	<div @click="refreshEvent">
+				<img style="position: absolute;bottom: 30%; right: 10px; width: 35px; height: 35px; z-index: 99;" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/refresh.png" >
+			</div>
+			<div @click="locationCenter">
+				<img style="position: absolute;bottom: 35%; right: 10px; width: 35px; height: 35px; z-index: 99;" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/position.png" >
+			</div> -->
+			<!-- <div id="">
+				{{dataContent}}
+			</div> -->
+		</div>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<script type="text/javascript">
+		        window._AMapSecurityConfig = {
+		            securityJsCode:'f96a62d7be2cbe38d4e56b4407f1c14c',
+		        }
+		</script>
+		<script type="text/javascript"
+			src="https://webapi.amap.com/maps?v=1.4.15&key=1fcf56c15627205127953252e20666e0&plugin=AMap.Marker,AMap.Scale">
+		</script>
+		<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+		<script type="text/javascript">
+			function getQuery(name) {
+				// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+				let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				let r = window.location.search.substr(1).match(reg);
+				if (r != null) {
+					// 对参数值进行解码
+					return decodeURIComponent(r[2]);
+				}
+				return null;
+			};
+		
+			var massMarks;
+			var style;
+			var bigImg;
+			var clearPoint = 0;
+			var selectData = {};
+			var clearSelect = 0;
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+						memberInfo: {},
+						mapIndex: 0,
+						isClicking: false,
+						isCommonHelp: false,
+						dataContent: '111111',
+						maps: [],
+						labelArr: [],
+						newLabelArr: [],
+						newLabelId: '',
+						mapType: '',
+						screen: '',
+						centerLatitude: getQuery('latitude'),
+						centerLongitude: getQuery('longitude'),
+						Authorization: getQuery('Authorization'),
+						ApiRootUrl: getQuery('ApiRootUrl'),
+						params: getQuery('params'),
+					}
+				},
+				created() {
+
+				},
+				mounted() {
+					var that = this;
+					var addressObj = {
+						lon: Number(that.centerLongitude),
+						lat: Number(that.centerLatitude)
+					}
+					
+					setTimeout(() => {
+						//地图相关事件
+						mapkeys.on('moveend', that.mapMoveend);
+						mapkeys.on('zoomend', that.mapZoomend);
+						console.log(pointsParams, '地址信息');
+						this.getList();
+					}, 1000)
+					
+				},
+				methods: {
+					mapMoveend() {
+						var mapMarkers = this.mapMarkers;
+						mapkeys.clearMap(mapMarkers);
+						this.mapMarkers = [];
+						this.getInitData();
+					},
+					mapZoomend() {
+						var mapMarkers = this.mapMarkers;
+						mapkeys.clearMap(mapMarkers);
+						this.mapMarkers = [];
+						this.getInitData();
+					},
+					getInitData() {
+						var that = this;
+						var webData = {
+							type: 'startLoad'
+						}
+						uni.postMessage({
+							data: webData,
+						});
+						var params = [];
+						var bounds = mapkeys.getBounds();
+						
+						var maxLGD = bounds.northeast.lng;
+						var maxDMS = bounds.northeast.lat;
+						var minLGD = bounds.southwest.lng;
+						var minDMS = bounds.southwest.lat;
+						
+						var mapMinAndMax = {
+							maxLGD: maxLGD,
+							maxDMS: maxDMS,
+							minLGD: minLGD,
+							minDMS: minDMS,
+						}
+						var firstLng = (maxLGD - minLGD) / 4 + minLGD;
+						var secondLng = (maxLGD - minLGD) / 4 + minLGD + (maxLGD - minLGD);
+						var threeLng = (maxLGD - minLGD) / 4 + minLGD + (maxLGD - minLGD)*2;
+						var firstLat = (maxDMS - minDMS) / 4 + minDMS;
+						var secondLat = (maxDMS - minDMS) / 4 + minDMS + (maxDMS - minDMS)
+						var threeLat = (maxDMS - minDMS) / 4 + minDMS + (maxDMS - minDMS)*2
+						var objArr = [
+							{longitude: threeLng,latitude: threeLat},
+							{longitude: secondLng,latitude: threeLat},
+							{longitude: firstLng,latitude: threeLat},
+							{longitude: threeLng,latitude: secondLat},
+							{longitude: threeLng,latitude: firstLat},
+							{longitude: secondLng,latitude: secondLat},
+							{longitude: secondLng,latitude: firstLat},
+							{longitude: firstLng,latitude: secondLat},
+							{longitude: firstLng,latitude: firstLat},
+						]
+						for (let i = 0; i < objArr.length; i++) {
+							let data = objArr[i];
+							let location1 = [data.longitude, data.latitude];
+							console.log(location1, '信息1111')
+							geocoder.getAddress(location1, function(status, result) {
+							    if (status === 'complete' && result.info === 'OK') {
+							        // result为对应的地理位置详细信息
+									console.log(result, '逆地理编码11')
+									if (result.regeocode.addressComponent.province != '中华人民共和国') {
+										var province = result.regeocode.addressComponent.province;
+										if (province == "上海市" || province == "北京市" || province == "重庆市" || province == "天津市") {
+											params.push({
+												longitude: data.longitude,
+												latitude: data.latitude,
+												distName: result.regeocode.addressComponent.district,
+											})
+										} else {
+											params.push({
+												longitude: data.longitude,
+												latitude: data.latitude,
+												distName: result.regeocode.addressComponent.city,
+											})
+										}
+										
+									}
+									if (i == objArr.length - 1) {
+										pointsParams = params;
+										console.log(pointsParams, 'aaaaa')
+										that.getList();
+									}
+							    }
+							})
+							
+						}
+						
+					},
+					showName(driverName) {
+						if (!driverName) return "匿名用户";
+						return driverName.slice(0, 1) + '师傅'
+						
+					},
+					call(memberInfo) {
+						var webData = {
+							type: 'call',
+							data: memberInfo,
+						}
+						uni.postMessage({
+							data: webData,
+						});
+					},
+					toGoEasy(memberInfo) {
+						//跳转goEasy
+						var webData = {
+							type: 'toGoEasy',
+							data: memberInfo
+						};
+						uni.postMessage({
+							data: webData,
+						});
+					},
+					switchMap(index) {
+				
+						if (index == this.mapIndex) return;
+						this.mapIndex = index;
+						var webData = {
+							type: 'startLoad'
+						}
+						uni.postMessage({
+							data: webData,
+						});
+						if (index == 0) {
+							massMarks && massMarks.clear();
+							this.getList();
+						} else {
+							var mapMarkers = this.mapMarkers;
+							mapkeys.clearMap(mapMarkers);
+							this.mapMarkers = [];
+							this.getDriverList();
+						}
+					},
+					refreshEvent(){
+						var that = this;
+						if (that.isClicking) {
+							return
+						}
+						that.isClicking = true;
+						if (that.isCommonHelp) {
+							that.isCommonHelp = false;
+							var webData = {
+								subType: '即将回到互助主页面'
+								
+							}
+							uni.postMessage({
+								data: webData,
+							});
+						}
+						
+						selectData = {};
+						this.isCommonHelp = false;
+						if(bigImg){
+							mapkeys.remove(bigImg);
+						}
+						
+					},
+					locationCenter(){
+						var that = this;
+						clearPoint = 1;
+						console.log(11111);
+						clearSelect = 0;
+						mapkeys.setZoom(14);
+						mapkeys.setCenter([that.centerLongitude, that.centerLatitude]);
+					},
+					getList() {
+						let that = this;
+						//获取数据
+						var params = {
+							districtVOS: pointsParams
+						}
+						$.ajax({
+							url: getQuery('ApiRootUrl') + "/cy/carSource/plat_aggregate",
+							data: JSON.stringify(params),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', that.Authorization);
+							},
+							success: function(res) {
+								var obj = new Object();
+								console.log(res, '数据')
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+								if (res.retCode == "0000000") {
+									var rsp = res.rspBody;
+									if (rsp.length< 1) return;
+									var markers = [];
+									rsp.forEach(item => {
+										var sender = item.sender + "人民政府";
+										markers.push({
+											sender: sender,
+											senderCount: item.senderCount,
+										})
+									})
+									
+								   
+									
+									//地址转经纬度
+									var mapMarkers = [];
+									markers.forEach((item, index) => {
+										let address = item.sender;
+										console.log(address, '信息1111');
+										var content;
+										if (index % 4 == 0) {
+											content = '<div class="marker-Content marker-Content-first"><div class="marker-marker marker-marker-first">' + item.senderCount + '</div></div>';
+										} else if (index % 4 == 1) {
+											content = '<div class="marker-Content marker-Content-second"><div class="marker-marker marker-marker-second">' + item.senderCount + '</div></div>';
+										} else if (index % 4 == 2) {
+											content = '<div class="marker-Content marker-Content-three"><div class="marker-marker marker-marker-three">' + item.senderCount + '</div></div>';
+										} else {
+											content = '<div class="marker-Content marker-Content-four"><div class="marker-marker marker-marker-four">' + item.senderCount + '</div></div>';
+										}
+										
+										geocoder.getLocation(address, function(status, result) {
+											if (status === 'complete' && result.info === 'OK') {
+												// result为对应的地理位置详细信息
+												console.log(result, '地理编码11')
+												var location = result.geocodes[0].location;
+												var position = [location.lng, location.lat];
+												var marker = new AMap.Marker({
+												    position: position,
+												    offset: new AMap.Pixel(-10, -10),
+												    content: content,
+												});
+												mapMarkers.push(marker);
+												this.mapMarkers = mapMarkers;
+												mapkeys.add(marker);
+											}
+										})
+									});
+								}
+							},
+							fail: function() {
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+							}
+						})	
+					},
+					getDriverList() {
+						let that = this;
+						//获取数据
+						console.log(mapMinAndMax, 'aa');
+						$.ajax({
+							url: getQuery('ApiRootUrl') + "/cy/carSource/driver_location_cy",
+							data: JSON.stringify(mapMinAndMax),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', that.Authorization);
+							},
+							success: function(res) {
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+								var obj = new Object();
+								console.log(res, '数据')
+								if (res.retCode == "0000000") {
+									that.maps = res.rspBody;
+									that.setMap();
+								}
+							},
+							fail: function() {
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+							}
+						})	
+					},
+					
+					setMap() {
+						var that = this;
+						style = [{
+							url: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/source-driver-location.png',
+							anchor: new AMap.Pixel(6, 6),
+							size: new AMap.Size(33, 33),
+							// zIndex: 每种样式图标的叠加顺序，数字越大越靠前
+							zIndex: 1,  
+						}];
+						massMarks = new AMap.MassMarks(null,{
+							zIndex: 111, // 海量点图层叠加的顺序
+							zooms: [3, 19], // 在指定地图缩放级别范围内展示海量点图层
+							style: style ,// 设置样式对象
+							alwaysRender: false,
+						});
+						
+						
+						var address = [];
+						
+						that.maps.forEach(function(marker, index) {
+							var obj = {
+								info: marker,
+								id: 0
+							};
+							var lastlgd = marker.lastlgd;
+							var lastdms = marker.lastdms;
+							var lnglat = [Number(lastlgd), Number(lastdms)];
+							obj.lnglat = lnglat;
+							obj.style = 1;
+							address.push(obj);
+						});
+						console.log(address, 'aaa');
+					
+						//将数组设置到 massMarks 图层
+						massMarks.setData(address);
+						// 将海量点添加至地图实例
+						massMarks.setMap(mapkeys);
+						that.showAddress();
+					},
+					//获取成员的信息
+					getMemberInfo() {
+						//获取司机成员信息
+						var that = this;
+						var apiUrl = '/cy/carSource/driver_info'; 
+						var newData = {
+							userCode: selectData.userCode,
+						};
+						$.ajax({
+							url: getQuery('ApiRootUrl') + apiUrl,
+							data: JSON.stringify(newData),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', that.Authorization);
+							},
+							success: function(res) {
+								var obj = new Object();
+								console.log(res, '司机信息');
+								if (res.retCode == "0000000") {
+									var item = res.rspBody;
+									if (!item) return;
+									//经纬度转地址
+									console.log(selectData, '数据11');
+									var location1 = [selectData.lastlgd, selectData.lastdms];
+									geocoder.getAddress(location1, function(status, result) {
+									    if (status === 'complete' && result.info === 'OK') {
+									        // result为对应的地理位置详细信息
+											console.log(result, '逆地理编码11')
+											if (result.regeocode.addressComponent.province != '中华人民共和国') {
+												
+												item.lastAddr = result.regeocode.formattedAddress
+												
+												that.$nextTick(function () {
+													that.memberInfo = item;
+												})
+											} else {
+												that.$nextTick(function () {
+													that.memberInfo = item;
+												})
+											}
+									    } else {
+											that.$nextTick(function () {
+												that.memberInfo = item;
+											})
+										}
+									})
+									
+									
+								}
+							},
+						})	
+						
+					},
+					showAddress() {
+						var that = this;
+
+						//给marker点击事件
+						massMarks.on("click", function(e) {
+							// that.dataContent = e.data.info;
+							// mapkeys.clearMap();
+							selectData = e.data.info;
+				
+							that.getMemberInfo();
+						});
+						//缩放事件
+					},
+					back() {
+						//返回上一页
+						var webData = {
+							type: 'back'
+						}
+						console.log(webData);
+						uni.postMessage({
+							data: webData,
+						});
+					}
+				}
+			})
+			
+			var centerLon = getQuery('longitude');
+			var centerLat = getQuery('latitude');
+			var centerNum = [centerLon, centerLat];
+			// var centerNum = [121.318163, 31.202984];
+			// vm.dataContent = window.location;
+			console.log(window.location);
+			var zoomLevel = 10;
+			// var zoomLevel = 16;
+			var countNum = 0;
+			var firstNum = 1;
+			var mapkeys = new AMap.Map("container", {
+				resizeEnable: false,
+				rejectMapMask: true,
+				viewMode: '2D',
+				center: centerNum,
+				zoom: zoomLevel,
+				animateEnable: false,
+				isHotspot: false,
+				jogEnable: false,
+				showBuildingBlock: false,
+				buildingAnimation: false,
+				showIndoorMap: false,
+			});
+			mapkeys.addControl(new AMap.Scale());
+			new AMap.Marker({
+				map: mapkeys,
+				zIndex: 9999,
+				position: [centerLon, centerLat],
+				icon: new AMap.Icon({            
+					image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/locationMy.png',
+					size: new AMap.Size(25, 25),  //图标大小
+					imageSize: new AMap.Size(25,25),
+					// imageOffset: new AMap.Pixel(0, 0)
+				}),
+				offset: new AMap.Pixel(-10,-10),  
+			});
+			
+			var bounds = mapkeys.getBounds();
+
+			var maxLGD = bounds.northeast.lng;
+			var maxDMS = bounds.northeast.lat;
+			var minLGD = bounds.southwest.lng;
+			var minDMS = bounds.southwest.lat;
+			
+			var mapMinAndMax = {
+				maxLGD: maxLGD,
+				maxDMS: maxDMS,
+				minLGD: minLGD,
+				minDMS: minDMS,
+			}
+			var firstLng = (maxLGD - minLGD) / 4 + minLGD;
+			var secondLng = (maxLGD - minLGD) / 4 + minLGD + (maxLGD - minLGD);
+			var threeLng = (maxLGD - minLGD) / 4 + minLGD + (maxLGD - minLGD)*2;
+			var firstLat = (maxDMS - minDMS) / 4 + minDMS;
+			var secondLat = (maxDMS - minDMS) / 4 + minDMS + (maxDMS - minDMS)
+			var threeLat = (maxDMS - minDMS) / 4 + minDMS + (maxDMS - minDMS)*2
+			var objArr = [
+				{longitude: threeLng,latitude: threeLat},
+				{longitude: secondLng,latitude: threeLat},
+				{longitude: firstLng,latitude: threeLat},
+				{longitude: threeLng,latitude: secondLat},
+				{longitude: threeLng,latitude: firstLat},
+				{longitude: secondLng,latitude: secondLat},
+				{longitude: secondLng,latitude: firstLat},
+				{longitude: firstLng,latitude: secondLat},
+				{longitude: firstLng,latitude: firstLat},
+				]
+			//逆地理编码得到经纬度
+			var pointsParams = [];
+			var geocoder;
+			var webData = {
+				type: 'start',
+			}
+			AMap.plugin('AMap.Geocoder', function() {
+				geocoder = new AMap.Geocoder();
+				for (let i = 0; i < objArr.length; i++) {
+					let data = objArr[i];
+					let location1 = [data.longitude, data.latitude];
+					console.log(location1, '信息1111')
+					
+					geocoder.getAddress(location1, function(status, result) {
+					    if (status === 'complete' && result.info === 'OK') {
+					        // result为对应的地理位置详细信息
+							console.log(result, '逆地理编码11')
+							if (result.regeocode.addressComponent.province != '中华人民共和国') {
+								var province = result.regeocode.addressComponent.province;
+								if (province == "上海市" || province == "北京市" || province == "重庆市" || province == "天津市") {
+									pointsParams.push({
+										longitude: data.longitude,
+										latitude: data.latitude,
+										distName: result.regeocode.addressComponent.district,
+									})
+								} else {
+									pointsParams.push({
+										longitude: data.longitude,
+										latitude: data.latitude,
+										distName: result.regeocode.addressComponent.city,
+									})
+								}
+								
+							}
+					    }
+					})
+				}
+			})
+			
+			
+			
+			console.log(mapMinAndMax, 'aa');
+			// 禁用双击放大
+			var lastTouchEnd = 0;
+			document.documentElement.addEventListener('touchend', function (event) {
+			    var now = Date.now();
+			    if (now - lastTouchEnd <= 300) {
+			        event.preventDefault();
+			    }
+			    lastTouchEnd = now;
+			}, {
+			    passive: false
+			});
+		</script>
+	</body>
+</html>

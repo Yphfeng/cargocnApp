@@ -1,0 +1,319 @@
+<!-- 重点：districtExplorer.locatePosition -->
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <!-- 原始地址：//webapi.amap.com/ui/1.1/ui/geo/DistrictExplorer/examples/locate.html -->
+  <!-- <base href="//webapi.amap.com/ui/1.1/ui/geo/DistrictExplorer/examples/" /> -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+  <title>全国疫情防控政策查询</title>
+  <script>
+    window._AMapSecurityConfig = {
+      securityJsCode: 'f96a62d7be2cbe38d4e56b4407f1c14c',
+    }
+  </script>
+  <script src="./vue.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="./index.css">
+  <script type="text/javascript" src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js "></script>
+  <!-- <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script> -->
+  <script src="./jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <div class="container">
+      <!-- <div class="top_header">
+        <img src="./images/leftArrow.png" alt="">
+        <div>全国疫情防控政策查询</div>
+        <div></div>
+      </div> -->
+      <div class="banner"></div>
+      <div class="content">
+        <div class="content_item">
+          <div class="content_title">
+            <div>防疫地区</div>
+          </div>
+          <div class="content_box"></div>
+          <div class="content_name" @click="showWxCode">
+            <div>{{activeCity.province}}</div>
+            <img src="./images/bottomArrow.png" alt="">
+          </div>
+        </div>
+        <div class="content_item" style="height: 0.78rem;">
+          <div class="content_box" style="height: 0.7rem;"></div>
+          <div class="content_wechat" @click="openUrl">
+            <div class="join_text">
+              <img class="we_chat" src="./images/wechat.png" alt="">
+              <div style="margin-left: 0.2rem;">
+                <div>加入{{activeCity.province}}疫情群</div>
+                <div class="text">当地疫情路况先知道</div>
+              </div>
+            </div>
+            <img class="right_arrow" src="./images/bottomArrow.png" alt="">
+          </div>
+        </div>
+        <div class="content_item" v-if="!isWeChat" style="height: 0.78rem;">
+          <div class="content_box" style="height: 0.7rem;"></div>
+          <div class="content_wechat" @click="openTx">
+            <div class="join_text" style="margin-left: 0;">
+              <img class="we_chat" src="./images/guanf.png" alt="">
+              <div style="margin-left: 0.2rem;">官方疫情防控政策查询</div>
+            </div>
+            <img class="right_arrow" src="./images/bottomArrow.png" alt="">
+          </div>
+        </div>
+        <div class="content_item_list" v-if="!isWeChat">
+          <div class="content_box">
+            <div class="news_title">
+              <img src="./images/news.png" alt="">
+              <div style="margin-left: 0.2rem;">{{activeCity.province}}疫情防控政策</div>
+              <div></div>
+            </div>
+            <div class="news_list">
+              <div class="news_item" @click="goRichText(activeCity)">
+                <div class="news_content">{{activeCity.province}} - 最新疫情防控政策</div>
+                <!-- <div class="news_date">{{dateFormat()}}</div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div @click="closeMask" class="mask" :style="{ opacity: isShowTran ? 1 : 0 }" v-show="isShowWxCode">
+      <div class="dialog" @click.stop :style="{ bottom: isShowDialog ? '0' : '-100vh' }">
+        <div class="dialog_header">
+          <div>请选择所在地区</div>
+          <img @click="closeMask" src="./images/closeBtn.png" alt="">
+        </div>
+        <div class="select_box">
+          <div>请选择</div>
+          <div class="line"></div>
+        </div>
+        <div class="province_list">
+          <div class="province_item" @click="selectItem(index,item)" v-for="(item,index) in urlList" :key="index">
+            <div :style="{color: selectIndex === index ? '#3D8AFF' : '#333333'}">{{item.province}}</div>
+            <div :style="{background: selectIndex === index ? '#3D8AFF' : 'none'}" class="line"></div>
+          </div>
+        </div>
+        <div class="bottom_btn">
+          <div class="left" @click="closeMask">取消</div>
+          <div class="right" @click="initDefault">确定</div>
+        </div>
+      </div>
+    </div>
+    <div class="rich_text" v-if="showRichText" >
+      <img class="left_arrow" @click="closeRichText" src="./images/leftArrow.png" alt="">
+      <div class="rich_details" v-html="contentDetail"></div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="./url.js"></script>
+<script type="text/javascript">
+  let isWeChat = false
+  var url = window.location.href;
+  if (url.indexOf('weChat') > -1) {
+    isWeChat = true
+  }
+  $.ajax({
+    url: "https://hyjy.hyzgapp.com/api/wx/platform/get/ticket/signature",
+    contentType: "application/json; charset=utf-8",
+    headers: { 'source': 'community', 'Authorization': 'eyJhbGciOiJIUzI1NiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWKi5NUrJSMjQ2NgECMyBQ0lEqLU4t8kxRsjLUUcrJT8_MC6ksSFWysjA00FFKrSgAipuZmpoZWxiZmtYCADHPA6pBAAAA.NcVPvhSEeOB6W6ZOhDrNdXrbhnkklr2AMrY_OgcQ-zc' },
+    data: JSON.stringify({
+      url: location.href.split('#')[0]
+    }),
+    type: "POST",
+    success: function (res) {
+      let signObj = res.rspBody
+      wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印
+        appId: 'wxa7f5f75aa671d26c', // 必填，公众号的唯一标识
+        timestamp: signObj.timeMillis, // 必填，生成签名的时间戳
+        nonceStr: signObj.noncestr, // 必填，生成签名的随机串
+        signature: signObj.signature, // 必填，签名
+        jsApiList: ['updateTimelineShareData', 'updateAppMessageShareData', 'onMenuShareTimeline', 'onMenuShareAppMessage'], // 必填，需要使用的JS接口列表
+        // openTagList: ['wx-open-launch-app'] // 可选，需要使用的开放标签列表，例如['wx-open-launch-app']
+      });
+      wx.ready(function () {
+        //显示所有功能按钮
+        // wx.showAllNonBaseMenuItem();
+        //转发
+        wx.onMenuShareAppMessage({
+          title: '全国卡友疫情防控早知道', // 分享标题
+          desc: '各地疫情政策、高速通行政策、疫情防控最新消息', // 分享描述
+          link: 'https://m.hyzgapp.com/YQH5/index.html', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+          imgUrl: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/caogocnLogoYQ.png', // 分享图标
+          type: 'link', // 分享类型,music、video或link，不填默认为link
+          dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+          success: function () {
+            // 用户点击了分享后执行的回调函数
+          }
+        });
+        // https://mp.weixin.qq.com/s/1Otsw7wkzrUCGSWW-RMKAA
+        // wx.onMenuShareTimeline({
+        //   title: '全国卡友疫情防控早知道', // 分享标题
+        //   link: 'https://m.hyzgapp.com/YQH5/index.html', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+        //   imgUrl: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/caogocnLogoYQ.png', // 分享图标
+        //   success: function () {
+        //     // 用户点击了分享后执行的回调函数
+        //   }
+        // })
+
+        wx.updateTimelineShareData({
+          title: '全国卡友疫情防控早知道', // 分享标题
+          link: 'https://m.hyzgapp.com/YQH5/index.html', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+          imgUrl: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/caogocnLogoYQ.png', // 分享图标
+          success: function () {
+            // 设置成功
+          }
+        })
+      });
+    }
+  })
+
+
+
+  fnResize();
+  window.onresize = function () {
+    fnResize();
+  }
+
+  function fnResize() {
+    var deviceWidth = document.documentElement.clientWidth || window.innerWidth;
+    if (deviceWidth >= 750) {
+      deviceWidth = 750;
+    }
+    if (deviceWidth <= 320) {
+      deviceWidth = 320;
+    }
+    document.documentElement.style.fontSize = (deviceWidth / 3.75) + 'px';
+  }
+  var vm = new Vue({
+    el: "#app",
+    data() {
+      return {
+        isWeChat,
+        selectIndex: 24,
+        selectObj: {
+          province: '河北',
+          url: 'https://mp.weixin.qq.com/s/7duyOkP2EdcsrtNmUZakrQ',
+          docUrl: 'https://docs.qq.com/doc/DWERjVmJ0bUFyWXZ2'
+        },
+        urlList: urlList,
+        isShowWxCode: false,
+        isShowTran: false,
+        isShowDialog: false,
+        activeCity: {
+          province: '河北',
+          url: 'https://mp.weixin.qq.com/s/7duyOkP2EdcsrtNmUZakrQ',
+          docUrl: 'https://docs.qq.com/doc/DWERjVmJ0bUFyWXZ2'
+        },
+        contentDetail: "",
+        showRichText: false
+      }
+    },
+    created() {
+      let that = this
+      // that.initDefault()
+    },
+    mounted() {
+      let that = this
+    },
+    methods: {
+      // 关闭富文本
+      closeRichText(){
+        let that = this
+        that.showRichText = false
+        that.contentDetail = ""
+      },
+      // 打开富文本
+      goRichText() {
+        let that = this
+        $.ajax({
+          url: "https://hyjy-test.hyzgapp.com:8600/api/ts/html/text/config/select",
+          contentType: "application/json; charset=utf-8",
+          headers: { 'source': 'community', 'Authorization': 'eyJhbGciOiJIUzI1NiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWKi5NUrJSMjQ2NgECMyBQ0lEqLU4t8kxRsjLUUcrJT8_MC6ksSFWysjA00FFKrSgAipuZmpoZWxiZmtYCADHPA6pBAAAA.NcVPvhSEeOB6W6ZOhDrNdXrbhnkklr2AMrY_OgcQ-zc' },
+          data: JSON.stringify({
+            textName: that.activeCity.province
+          }),
+          type: "POST",
+          success: function (res) {
+            if(res.retCode == "0000000"){
+              that.contentDetail = res.rspBody.items[0].contentDetail
+              that.showRichText = true
+            }
+          }
+        })
+      },
+      dateFormat(date = new Date()) {
+        let format = 'yyyy-MM-dd hh:mm:ss';
+        if (date != 'Invalid Date') {
+          var o = {
+            "M+": date.getMonth() + 1, //month
+            "d+": date.getDate(), //day
+            "h+": date.getHours(), //hour
+            "m+": date.getMinutes(), //minute
+            "s+": date.getSeconds(), //second
+            "q+": Math.floor((date.getMonth() + 3) / 3), //quarter
+            "S": date.getMilliseconds() //millisecond
+          }
+          if (/(y+)/.test(format)) format = format.replace(RegExp.$1,
+            (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+          for (var k in o)
+            if (new RegExp("(" + k + ")").test(format))
+              format = format.replace(RegExp.$1,
+                RegExp.$1.length == 1 ? o[k] :
+                  ("00" + o[k]).substr(("" + o[k]).length));
+          let formatDate = format.split(' ')[0].split('-')[1] + '-' + format.split(' ')[0].split('-')[2]
+          return formatDate;
+          // return format;
+        }
+        return '';
+
+      },
+      openTx() {
+        let that = this
+        window.open("https://news.qq.com/hdh5/sftravel.htm")
+      },
+      openUrl() {
+        let that = this;
+
+        // window.open(that.activeCity.url)
+        window.open('https://mp.weixin.qq.com/s/1Otsw7wkzrUCGSWW-RMKAA')
+      },
+      selectItem(index, item) {
+        let that = this
+        that.selectIndex = index
+        that.selectObj = item
+      },
+      initDefault() {
+        let that = this
+        that.activeCity = that.selectObj
+        that.closeMask()
+      },
+      closeMask() {
+        let that = this;
+        that.isShowDialog = false;
+        setTimeout(() => {
+          that.isShowTran = false;
+          setTimeout(() => {
+            that.isShowWxCode = false;
+          }, 100);
+        }, 200);
+      },
+      showWxCode() {
+        let that = this;
+        that.isShowWxCode = true;
+        setTimeout(() => {
+          that.isShowTran = true;
+          setTimeout(() => {
+            that.isShowDialog = true;
+          }, 100);
+        }, 100);
+      },
+
+    }
+  })
+</script>
+
+</html>

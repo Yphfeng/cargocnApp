@@ -1,0 +1,769 @@
+.myContainer {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+}
+
+page {
+    background: #F7F7F7;
+}
+.password_container{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap; 
+}
+.password_item{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 33.33%;
+    height: 138rpx;
+    font-size: 40rpx;
+    color: #333;
+    box-sizing: border-box;
+    background: #FCFCFE;
+    
+}
+.delete_img{
+    width: 48rpx;
+    height: 36rpx;
+}
+.number{
+    width: 100%;
+    text-align: center;
+    line-height: 138rpx;
+    height: 138rpx;
+    padding: 10rpx;
+    
+    border-radius: 5px;
+}
+.topTitle {
+    display: flex;
+    align-items: center;
+    height: 70rpx;
+    padding-left: 30rpx;
+    color: #333;
+    font-size: 30rpx;
+    background: #F7F7F7;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    background: #F7F7F7;
+}
+
+.cardContainer {
+    display: flex;
+    margin-left: 26rpx;
+    margin-right: 26rpx;
+    margin-top: 25rpx;
+    flex-direction: row;
+    border-radius: 11rpx;
+    height: 184rpx;
+    align-items: center;
+}
+
+.cardContainer radio {
+    position: absolute;
+    right: 18rpx;
+    bottom: 18rpx;
+}
+
+.cardContainerNoPrice {
+    display: flex;
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    margin-top: 30rpx;
+    padding: 30rpx;
+    flex-direction: column;
+    border-left: #999 solid 1rpx;
+    border-right: #999 solid 1rpx;
+    border-bottom: #999 solid 1rpx;
+    border-bottom-left-radius: 20rpx;
+    border-bottom-right-radius: 20rpx;
+    min-height: 100rpx;
+    justify-content: center;
+}
+
+.cardContentContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: #333;
+    font-size: 30rpx;
+}
+
+.cardContent {
+    display: flex;
+    flex-direction: column;
+}
+.input_circle{
+    width: 10rpx;
+    height: 10rpx;
+    background-color: #000;
+    border-radius: 50%;
+}
+.cardContentNoPrice {
+    display: flex;
+    flex-direction: column;
+    color: #333;
+    font-size: 30rpx;
+}
+
+.cardSelectLeft {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    color: #333;
+    font-size: 30rpx;
+    margin-right: 30rpx;
+}
+
+.cardSelectLine1 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+/* .radio_container{
+	position: relative;
+	width: 50rpx;
+	width: 50rpx;
+} */
+.radio_mask{
+	position: absolute;
+	right: 20rpx;
+	width: 60rpx;
+	height: 60rpx;
+	bottom: 16rpx;
+	z-index: 10;
+}
+.cardSelectLine2 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cardSelectLine3 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.cardContentLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.wechatImage {
+    width: 50rpx;
+    height: 40rpx;
+}
+
+.bottomButton {
+    height: 90rpx;
+    background: #6D9AED;
+    color: white;
+    border: none;
+    border-radius: 45rpx;
+    display: flex;
+    font-size: 27rpx;
+    align-items: center;
+    justify-content: center;
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    margin-top: 80rpx;
+    margin-bottom: 50rpx;
+}
+
+.rechargeButton {
+    height: 40rpx;
+    display: flex;
+    font-size: 25rpx;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32rpx;
+    margin-top: 26rpx;
+}
+
+.rechargeButton view text {
+    font-size: 29rpx;
+    color: #D93F31;
+}
+
+.rechargeButton view:nth-child(2) {
+    color: #F7F7F7;
+    background: #6D9AED;
+    font-size: 22rpx;
+    padding: 4rpx 25rpx;
+    border-radius: 20rpx;
+}
+
+.showViewTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 120rpx;
+    /* background: red; */
+    width: 100%;
+}
+
+.showViewTitle image {
+    padding-left: 30rpx;
+    margin-top: 45rpx;
+    height: 30rpx;
+    width: 30rpx;
+}
+
+.showViewTitle text {
+    line-height: 120rpx;
+    color: #333333;
+    font-size: 30rpx;
+}
+
+.scrollView {
+    height: 500rpx;
+    width: 100%;
+    background: white;
+}
+
+.bankItemView {
+    height: 140rpx;
+    margin: 42rpx 30rpx 0rpx 30rpx;
+    background-color: #FF6565;
+    border-top-left-radius: 15rpx;
+    border-top-right-radius: 15rpx;
+    box-shadow: 0 6rpx 10rpx 2rpx #E9ECF2;
+    /*for Android*/
+    -webkit-box-shadow: 0px 3px 5px 1px #E9ECF2;
+    /*for IOS*/
+    display: flex;
+    flex-direction: row;
+    /* justify-content: space-evenly; */
+}
+
+.bankHeadImage {
+    margin-top: 34rpx;
+    margin-left: 30rpx;
+    width: 72rpx;
+    height: 72rpx;
+}
+
+.bankItemView view {
+    width: 60%;
+    margin-left: 20rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 32rpx;
+    color: white;
+}
+
+
+/*
+  下面是输入密码
+*/
+
+.password-input-box {
+    margin: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1002;
+    border-radius: 30rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 40rpx;
+    box-sizing: border-box;
+    height: 100rpx;
+}
+
+.input-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input {
+    height: 100rpx;
+    width: 100%;
+    border: 1px solid #BBB;
+    border-radius: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 50rpx;
+}
+.hide_input{
+	position: absolute;
+	z-index: -10;
+}
+.input>view:nth-child(6) {
+    border-right: none;
+}
+
+.input>view {
+    height: 100%;
+    width: 16.6%;
+    border-right: 1px solid #BBB;
+}
+
+.password-input {
+    width: 0;
+    height: 0;
+}
+
+.commodity_screen1 {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.2;
+    overflow: hidden;
+    z-index: 100;
+    color: #fff;
+}
+
+.commodity_attr_box2 {
+    width: 100%;
+    overflow: hidden;
+    /* position: fixed; */
+    position: absolute;
+    /* left: 50%; */
+    /* transform: translateX(-50%); */
+    bottom: 0;
+    /* left: 0; */
+    z-index: 101;
+    background: #fff;
+    /* padding-top: 20rpx; */
+}
+
+.commodity_attr_box1 {
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 101;
+    background: #fff;
+    /* padding-top: 20rpx; */
+}
+
+.showViewTitle1 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 120rpx;
+    /* background: red; */
+    width: 100%;
+}
+
+.showViewTitle1 image {
+    padding-left: 30rpx;
+    margin-top: 45rpx;
+    height: 30rpx;
+    width: 30rpx;
+}
+
+.showViewTitle1 text {
+    line-height: 120rpx;
+    color: #333333;
+    font-size: 30rpx;
+}
+
+.scrollView1 {
+    /* padding-left: 60rpx; */
+    /* padding-right: 60rpx; */
+    height: 700rpx;
+    /* width: 100%; */
+    background: white;
+    position: relative;
+}
+/* .password_mask{
+    position: absolute;
+    background: #fff;
+    z-index: 12;
+    width: 200rpx;
+    height: 100rpx;
+} */
+.commodity_screen {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.2;
+    overflow: hidden;
+    z-index: 1000;
+    color: #fff;
+}
+
+.commodity_attr_box {
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 2000;
+    background: #fff;
+    /* padding-top: 20rpx; */
+}
+
+.cardView {
+    margin-bottom: 35rpx;
+    height: 300rpx;
+    /* background: yellow; */
+    width: 100vw;
+}
+
+.cardView1 {
+    margin: 0rpx 30rpx 0rpx 30rpx;
+    height: 300rpx;
+    background-color: darkorange;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 20rpx;
+}
+
+.card {
+    margin-left: 40rpx;
+    display: flex;
+    flex-direction: row;
+    height: 100rpx;
+    justify-content: space-between;
+}
+
+.card text {
+    color: white;
+    font-size: 24rpx;
+}
+
+.cardType1 {
+    margin-top: 20rpx;
+    display: flex;
+    flex-direction: row;
+}
+
+.cardType1 view {
+    margin-left: 5rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cardType1 image {
+    width: 80rpx;
+    height: 80rpx;
+}
+
+.cardType2 {
+    margin-right: 40rpx;
+    margin-left: 10rpx;
+    display: flex;
+    color: white;
+    font-size: 24rpx;
+}
+
+.cardType2 image {
+    width: 90rpx;
+    height: 80rpx;
+}
+
+.cardTypeContainer {
+    display: flex;
+    width: 90rpx;
+    color: white;
+    font-size: 24rpx;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    padding-top: 10rpx;
+}
+
+.cardAccountView {
+    margin-left: 40rpx;
+    margin-right: 40rpx;
+    display: flex;
+    flex-direction: row;
+    height: 100rpx;
+    text-align: center;
+    color: white;
+    justify-content: center;
+}
+
+.cardAccountView view {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cardAccountView text {
+    color: #FFFFFF;
+    font-size: 22rpx;
+    font-weight: 300;
+    text-align: left;
+}
+
+.cardAccountView span {
+    margin-top: 25rpx;
+    height: 50rpx;
+    width: 120rpx;
+    font-size: 26rpx;
+    color: white;
+    background: #469DFC;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 50rpx;
+    border-radius: 25rpx;
+}
+
+.cardAccountView label {
+    color: white;
+    font-size: 48rpx;
+    font-weight: 500;
+}
+
+.numView {
+    margin-left: 40rpx;
+    margin-right: 40rpx;
+    margin-bottom: 20rpx;
+    height: 70rpx;
+    color: white;
+    font-size: 24rpx;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.numView view {
+    display: flex;
+    flex-direction: column;
+}
+
+.numView span {
+    color: #FFFFFF;
+    font-size: 22rpx;
+    font-weight: 300;
+    text-align: left;
+}
+
+.numView image {
+    width: 130rpx;
+    height: 70rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.line3 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: 40rpx;
+}
+
+.cardContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20rpx;
+    margin-left: 25rpx;
+    margin-right: 25rpx;
+    height: 183rpx;
+    background: #F7F1DF;
+    border-radius: 11rpx;
+    background-size: cover;
+}
+
+.cellView1 {
+    display: flex;
+    height: 183rpx;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+}
+
+.cellView1_img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cellView1 image {
+    width: 150rpx;
+    height: 120rpx;
+    margin-left: 26rpx;
+}
+
+.leftView2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* background: red; */
+}
+
+.leftView2 view {
+    font-size: 24rpx;
+    width: 280rpx;
+    text-align: center;
+}
+
+.leftView2 .leftView_stationName {
+    font-size: 34rpx;
+}
+
+.leftView2 .leftView_compSecondName {
+    margin-top: 10rpx;
+    font-size: 22rpx;
+}
+
+.leftView2 text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24rpx;
+}
+
+.rightView_view {
+    min-width: 150rpx;
+    margin-left: 10rpx;
+    margin-right: 30rpx;
+}
+
+.rightView_view .amount {
+    display: flex;
+    flex-direction: row;
+    font-size: 40rpx;
+}
+
+.rightView2 {
+    display: flex;
+    flex-direction: row;
+}
+
+.rightView2 view {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cardViewBody {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    position: relative;
+    justify-content: space-between;
+}
+
+.cardContainerLeft {
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-size: 28rpx;
+    font-weight: bold;
+    margin-left: 55rpx;
+    align-items: center;
+    justify-content: center;
+    margin-right: 30rpx;
+}
+
+.cardContainerLeft image {
+    width: 80rpx ! important;
+    height: 82rpx ! important;
+}
+
+.cardContainerCon {
+    position: absolute;
+    height: 184rpx;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cardContainerRight {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-around;
+}
+
+.cardContainerRightLine1 {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 34rpx;
+    font-weight: bold;
+    color: #666;
+}
+
+.cardContainerNeed {
+    height: 143rpx;
+    background: #F2F2F2;
+    margin: 0 25rpx;
+    margin-top: -20rpx;
+}
+
+.cardContainerNeedtext {
+    font-size: 25rpx;
+    color: #D93F31;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 19rpx;
+}
+
+.cardContainerRightLine2 {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 24rpx;
+    color: #FFCB00;
+}
+
+
+/* 未选中的 背景样式 */
+
+radio .wx-radio-input {
+    border-radius: 50%;
+    border: none;
+}
+
+
+/* 选中后的 背景样式 */
+
+radio .wx-radio-input.wx-radio-input-checked {
+    border: none;
+    background: #fff;
+}
+
+radio .wx-radio-input.wx-radio-input-checked::before {
+    font-size: 48rpx;
+    color: #00ad4f;
+}
+
+
+wx-button[disabled]:not([type]) {
+    background: #6D9AED;
+    color: white;
+    font-size: 32rpx;
+}

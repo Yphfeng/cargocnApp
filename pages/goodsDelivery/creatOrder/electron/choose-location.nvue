@@ -1,0 +1,433 @@
+<template>
+	<view class='container'>
+		<!-- <view :style="{height: height+'px'}"></view> -->
+		<view class="navTitle" :style="{top: height+'px'}">
+			<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/close_white.png" class="close" @click="navigateBack"></image>
+			<view class="confirm" @click="bindConfirm"><text class="confirm-text">确定</text></view>
+		</view>
+		<map id="map" ref="map" class="map"
+			:latitude="latitude"
+			:longitude="longitude"
+			:markers="markers"
+			:show-location="true"
+			:style="{width: '750rpx',height: windowHeight-height-300+'px'}"
+			@tap="mapTap">
+		</map>
+		<cover-image src="/static/images/icon-dingwei.png" class="dingwei" @click="getLocation"></cover-image>
+		<view class="search-box">
+			<scroll-view :scroll-y="true" class="scroll" @scrolltolower='refresh'>
+				<view class="list" v-for="(item, index) in list" :key="index" @click="bindPointClick(index)">
+					<view class="top">
+						<view class="left">
+							<view>
+								<text class="name">{{item.name}}</text>
+							</view>
+							<view>
+								<text class="detail" v-if="isNearby">{{item.distance <= 100 ? '100m内｜' + item.addrDetails  : item.distance+'m|'+item.addrDetails}}</text>
+								<text class="detail" v-else>{{item.addrDetails}}</text>
+							</view>
+						</view>
+						<view v-if="item.checked">
+							<!-- <text class="hook">✔</text> -->
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/duigou_addr.png" class="checked"></image>
+						</view>
+					</view>
+					<view class="line"></view>
+				</view>
+			</scroll-view>
+			<view class="list">
+				<input class="input" type="text" placeholder="搜索地点" confirm-type="search" v-model="condition" @confirm="bindSearchClick"/>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import * as turf from "@/utils/turf.min.js";
+	import * as publicData from "@/utils/publicData.js"
+	export default {
+		data() {
+			return {
+				isNearby: true,
+				pageSize: 20,
+				pageNum: 1,
+				sysInfo: null,
+				height:'',
+				windowHeight:'',
+				mapContext: null,
+				map: null,
+				searchObj: null,
+				searchCity:'',
+				latitude: '30',
+				longitude: '120',
+				myLocation:{},
+				myMarker:[],
+				pointMarker:[],
+				condition:'',
+				index:0,
+				list: [],
+				doMove: false,
+			}
+		},
+		onLoad() {
+			plus.navigator.setFullscreen(true);
+			this.sysInfo = uni.getSystemInfoSync();
+			this.height = this.sysInfo.statusBarHeight;
+			this.windowHeight = this.sysInfo.windowHeight;
+		},
+		onUnload() {
+			plus.navigator.setFullscreen(false);
+		},
+		onReady() {
+			this.getLocation();
+		},
+		computed:{
+			markers() {
+				return [...this.myMarker, ...this.pointMarker];
+			},
+		},
+		watch:{
+			condition(){ // 根据城市搜索poi点
+				this.index = 0;
+				this.list = [];
+				if(this.condition!=''){
+				
+					this.getPoiInCity(this.condition);
+				}else{
+					setTimeout(()=>{
+						this.getLocation();
+					}, 500)
+				}
+			}
+		},
+		methods: {
+			navigateBack() {
+				uni.navigateBack({
+					delta:1
+				})
+			},
+			bindSearchClick() {
+				this.pageNum = 1;
+				this.list = [];
+				this.doMove = true;
+				if(this.condition!=''){
+					this.getPoiInCity(this.condition);
+				}else{
+					this.getLocation();
+				}
+			},
+			bindConfirm() { // 确认按钮的方法，可自定义上一页所需参数
+				let point = {};
+				this.list.forEach(v => {
+					if(v.checked){
+						point = v;
+					}
+				})
+				let pages = getCurrentPages();
+				let prevPage = pages[pages.length - 2].$vm;
+				prevPage.renderSearchLocation(point);
+				uni.navigateBack({
+					delta:1
+				})
+			},
+			getLocation() { // 获取当前位置
+				let self = this;
+				this.index = 0;
+				this.list = [];
+				uni.getLocation({
+					type:"gcj02",
+					geocode:true,
+					success(res) {
+						console.log('getLocation:'+res.address)
+						self.longitude = res.longitude;
+						self.latitude = res.latitude;
+						self.myLocation = {
+							longitude: res.longitude,
+							latitude: res.latitude
+						}
+						self.doMove = true;
+						var street = res.address.street;
+						let poiName = res.address.poiName;
+						self.pageNum = 1;
+						self.getNearbyPoi("");
+					},
+					fail(res) {
+						console.log(res)
+					}
+				})
+			},
+			
+			async getNearbyPoi(poiName = ""){ // 获取附近poi
+				let self = this;
+				try{
+					self.isNearby = true;
+					console.log("街道信息", poiName);
+					let myLocation = this.myLocation;
+					let locations = this.longitude + ',' + this.latitude;
+					let startPoint = turf.point([self.longitude, self.latitude]);
+					let pageSize = this.pageSize;
+					let pageNum = this.pageNum;
+					var res = await publicData.getCityPOI(poiName, locations, pageNum);
+					console.log("sous1", res);
+					if (res && res.status == 2) {
+						let list = res.geocodesData;
+						for (let i = 0; i < list.length; i++) {
+							console.log("数据", list[i])
+							let location = list[i].location;
+							let longitude = location.split(',')[0];
+							let latitude = location.split(',')[1];
+							let endPoint = turf.point([longitude, latitude]);
+							list[i].distance = turf.distance(startPoint, endPoint).toFixed(2)*1000;
+							list[i].longitude = longitude;
+							list[i].latitude = latitude;
+							var pname = list[i].pname;
+							if (pname == "上海市" || pname == "天津市" || pname == "北京市" || pname == "重庆市") {
+								list[i].addrDetails = list[i].pname + list[i].adname + list[i].address
+							} else {
+								list[i].addrDetails = list[i].pname + list[i].cityname + list[i].adname + list[i].address
+							}
+							
+						}
+						self.list = self.list.concat(list);
+						if(self.list.length>0 && self.index==0){
+							self.list[0].checked = true;
+							let path = '';
+							let point = self.list[0];
+							if(self.doMove){
+								self.moveToLocation(point);
+								self.doMove = false;
+							}
+						}
+					} else {
+						//暂无数据了
+					}
+				}catch(e){
+					//TODO handle the exception
+					//没有查询到poi,则使用反地理编码查询
+				}
+			},
+			async getPoiInCity(){ 
+				//关键字搜索
+				let self = this;
+				try{
+					self.isNearby = false;
+					let locations = this.longitude + ',' + this.latitude;
+					let startPoint = turf.point([self.longitude, self.latitude]);
+					let pageNum = this.pageNum;
+					let condition = this.condition;
+					var res = await publicData.getNearbyPOI(condition, pageNum);
+					console.log("sous1", res);
+					if (res && res.status == 2) {
+						let list = res.geocodesData;
+						for (let i = 0; i < list.length; i++) {
+							console.log("数据", list[i])
+							let location = list[i].location;
+							let longitude = location.split(',')[0];
+							let latitude = location.split(',')[1];
+							let endPoint = turf.point([longitude, latitude]);
+							list[i].distance = turf.distance(startPoint, endPoint).toFixed(2)*1000;
+							list[i].longitude = longitude;
+							list[i].latitude = latitude;
+							var pname = list[i].pname;
+							if (pname == "上海市" || pname == "天津市" || pname == "北京市" || pname == "重庆市") {
+								list[i].addrDetails = list[i].pname + list[i].adname + list[i].address
+							} else {
+								list[i].addrDetails = list[i].pname + list[i].cityname + list[i].adname + list[i].address
+							}
+							
+						}
+						self.list = self.list.concat(list);
+						if(self.list.length>0 && self.index==0){
+							self.list[0].checked = true;
+							let path = '';
+							let point = self.list[0];
+							if(self.doMove){
+								self.moveToLocation(point);
+								self.doMove = false;
+							}
+						}
+					} else {
+						//关键字没有搜到,转地理编码搜索
+						var res = await publicData.getCityCode(condition);
+						console.log("地理编码搜索", res, condition);
+						if (res && res.length > 0) {
+							let list = res;
+							for (let i = 0; i < list.length; i++) {
+								console.log("数据", list[i])
+								let location = list[i].location;
+								let longitude = location.split(',')[0];
+								let latitude = location.split(',')[1];
+								let endPoint = turf.point([longitude, latitude]);
+								list[i].distance = turf.distance(startPoint, endPoint).toFixed(2)*1000;
+								list[i].longitude = longitude;
+								list[i].latitude = latitude;
+								var pname = list[i].province;
+								var formatted_address = list[i].formatted_address;
+								if (pname == "上海市" || pname == "天津市" || pname == "北京市" || pname == "重庆市") {
+									list[i].addrDetails = formatted_address
+								} else {
+									list[i].addrDetails = formatted_address
+								}
+								
+							}
+							self.list = self.list.concat(list);
+							if(self.list.length>0 && self.index==0){
+								self.list[0].checked = true;
+								let path = '';
+								let point = self.list[0];
+								if(self.doMove){
+									self.moveToLocation(point);
+									self.doMove = false;
+								}
+							}
+						}
+					}
+				}catch(e){
+					//TODO handle the exception
+					//没有查询到poi,则使用反地理编码查询
+				}
+				
+			},
+			refresh(){
+				this.pageNum ++;
+				if(this.condition){
+					this.getPoiInCity(this.condition);
+				}else{
+					this.getNearbyPoi();
+				}
+			},
+			bindPointClick(index){
+				let point = this.list[index];				this.moveToLocation(point);
+				this.list.forEach((v,i)=>{
+					if(index != i){
+						v.checked = false;
+					}else{
+						v.checked = true;
+					}
+				})
+				//收起键盘
+				uni.hideKeyboard()
+			},
+			mapTap(e){
+				console.log(e, "位置");
+				this.list = [];
+				let point = { longitude: e.detail.longitude, latitude: e.detail.latitude };
+				this.moveToLocation(point);
+				this.getNearbyPoi();
+			},
+			moveToLocation(point){
+				let path = '';
+				if(this.sysInfo.platform == 'ios'){
+					path = '/static/images/location32.png';
+				}else{
+					path = '/static/images/location64.png';
+				}
+				this.longitude = point.longitude;
+				this.latitude = point.latitude;
+				this.pointMarker = [{
+					id: 'pointMarker',
+					longitude: point.longitude,
+					latitude: point.latitude,
+					iconPath: path
+				}];
+			},
+		}
+	}
+</script>
+
+<style>
+	.dingwei{
+		width: 80rpx;
+		height: 80rpx;
+		position: fixed;
+		bottom: 660rpx;
+		right: 30rpx;
+	}
+	.navTitle {
+		position: fixed;
+		left: 0;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		width: 750rpx;
+		padding: 40rpx 36rpx 0;
+	}
+	.close {
+		width: 48rpx;
+		height: 48rpx;
+	}
+	.confirm {
+		width: 120rpx;
+		height: 80rpx;
+		background-color: #155BDA;
+		border-radius: 12rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.confirm-text {
+		font-size: 32rpx;
+		color: #FFFFFF;
+	}
+	.search-box{
+		width: 750rpx;
+		height: 630rpx;
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		background-color: #FFFFFF;
+		z-index: 99;
+		border-radius: 20rpx;
+		padding-left: 20rpx;
+		padding-right: 20rpx;
+		padding-top: 30rpx;
+		padding-bottom: 0;  
+		padding-bottom: constant(safe-area-inset-bottom);  
+		padding-bottom: env(safe-area-inset-bottom);  
+	}
+	.input{
+		width: 690rpx;
+		height: 80rpx;
+		padding-left: 20rpx;
+		line-height: 34rpx;
+		margin-top: 30rpx;
+		margin-left: 10rpx;
+		font-size: 26rpx;
+		background-color: #ececec;
+		border-radius: 8rpx;
+	}
+	.scroll{
+		height: 480rpx;
+	}
+	.list{
+		flex-direction: column;
+	}
+	.top{
+		flex-direction: row;
+		align-items: center;
+	}
+	.left{
+		width: 650rpx;
+		flex-direction: column;
+	}
+	.name{
+		font-size: 28rpx;
+		margin-bottom: 10rpx;
+	}
+	.hook{
+		font-size: 26rpx;
+	}
+	.detail{
+		font-size: 24rpx;
+		color: #666666;
+		margin-bottom: 10rpx;
+	}
+	.line{
+		height: 1rpx;
+		background-color: #CCCCCC;
+		margin-bottom: 14rpx;
+	}
+	.checked {
+		width: 32rpx;
+		height: 32rpx;
+	}
+</style>

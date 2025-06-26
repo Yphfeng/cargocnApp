@@ -1,0 +1,33 @@
+{
+	"name": "HG-Background",
+	"id": "HG-Background",
+	"version": "1.0",
+	"description": "前台服务插件",
+	"_dp_type": "nativeplugin",
+	"_dp_nativeplugin": {
+		"android": {
+			"plugins": [{
+				"type": "module",
+				"name": "HG-Background",
+				"class": "com.github.uniapp_kill_service_plugin.WhiteListModal"
+			}],
+			"integrateType": "aar",
+			"dependencies": [
+				
+			],
+			"abis": [
+				"armeabi-v7a",
+				"arm64-v8a",
+				"arm64",
+				"armeabi",
+				"x86",
+				"x86-64"
+			],
+			"minSdkVersion": "23",
+			"permissions": [
+
+			]
+
+		}
+	}
+}

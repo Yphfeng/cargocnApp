@@ -1,0 +1,108 @@
+<template>
+	<!-- <view class="container" :style="{height: height}">
+		
+	</view> -->
+	<view class="">
+		<view class="newHeader">
+			<view style="width: 64rpx; flex-direction: row; align-items: center;" @click="backTap">
+				<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/back.png" style="width: 22rpx;" mode="widthFix"></image>
+			</view>
+			<text class="pageTitle">在线客服</text>
+			<view style="width: 64rpx;"></view>
+		</view>
+		<web-view 
+			:webview-styles="webviewStyles"
+			style="position: fixed; top: 80; left: 0; right: 0; bottom: 0;" 
+			:src="paramUrl">
+		</web-view>
+	</view>
+</template>
+
+<script>
+	import * as ship from "@/utils/ship"
+	
+	function jsonToString(obj){
+	    let arr = [];
+	    for(let key in obj){
+	        arr.push(key + "=" + obj[key]);
+	    }
+	    console.log(arr);
+	    return arr.join('&');
+	}
+	export default {
+		data() {
+			return {
+				height: 0,
+				paramUrl: '',
+				webviewStyles: {
+					progress: {
+						color: '#FFFFFF'
+					}
+				}
+			}
+		},
+		onLoad(options) {
+			console.log(options)
+			let that = this
+			var apiRoot = ship.ApiUrl;
+			var url = apiRoot + '/hyzgcs1.html';
+			this.height = uni.getSystemInfoSync().windowHeight*2 + 'rpx';
+			console.log(this.height, 'assa')
+			//获取运单信息
+			var params = {
+				name : options.name || "",
+				address : options.address || "",
+				tel : options.tel || "",
+				waystyle : options.waystyle || "",
+				waynumber : options.waynumber || "",
+				comment : options.comment || "",
+				appversion : options.appversion || "",
+				userRole : options.userRole || "",
+				phoneversion : options.phoneversion || "",
+				userCode : options.userCode || ""
+			}
+			console.log(params)
+			var paramUrl = url + "?" + jsonToString(params);
+			this.paramUrl = paramUrl
+			console.log(this.paramUrl)
+			
+		},
+		methods: {
+			backTap(){
+				uni.navigateBack({
+					
+				})
+			},
+		}
+	}
+</script>
+
+<style>
+	.container {
+		background-image: url(../../../static/images/conTact-img.png);
+		width: 750rpx;
+	}
+	.newHeader {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding:80rpx 20rpx 14rpx 20rpx;
+		background-color: #FFF;
+	}
+	.back-box{
+		width: 20rpx;
+	}
+	.pageTitle {
+		height: 60rpx;
+		line-height: 60rpx;
+		text-align: center;
+		font-size:36rpx;
+		color:#000;
+	}
+	.headerSaveBtn {
+		height: 60rpx;
+		line-height: 60rpx;
+		font-size:28rpx;
+		color:#000;
+	}
+</style>

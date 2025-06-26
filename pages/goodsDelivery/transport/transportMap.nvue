@@ -1,0 +1,640 @@
+<template>
+	<view class="all">
+		<view>
+			<web-view
+			 :webview-styles="webviewStyles"
+				id="transoprtMap"
+			  :src="transportMapUrl"
+			  style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;"
+			  :style="webViewHeight"
+			  class="mapView"
+			  @message="reciveMessage"
+			  @onPostMessage="recivePostMessage"
+			>
+			</web-view>
+		</view>
+
+		<view class="back-box" @click="backToFromPage">
+			<image class="back-img" src="/static/images/goodsDelivery/labelLeft.png" mode=""></image>
+		</view>
+		<view class="popup-box">
+			<view class="count-box" v-if="isLabel" @click="goLabel(transportObg.labelNum)">
+				<text class="count-text">标签</text>
+				<view class="count-num-box">
+					<text class="count-num">{{transportObg.labelNum}}</text>
+					<text class="count-num-unit">张</text>
+					<image class="count-img" src="/static/images/goodsDelivery/labelRight.png" mode=""></image>
+				</view>
+			</view>
+			<view class="goods-box" :class="contentShow?'contentSwitch':'contentSwitch1'">
+				<view class="goods-head">
+					<view class="goods-num-box">
+						<text class="goods-num">货运中国面单编号：{{transportObg.surfaceNumber}}</text>
+						<image class="copy-box" src="/static/images/goodsDelivery/copy.png"  @click="setClipboardData(transportObg.surfaceNumber)" mode="" ></image>
+					</view>
+					<text class="goods-spread" @click="spreadEvent">{{contentShow?'收起':'展开'}}</text>
+				</view>
+				<view class="address-box">
+					<view class="address-time">
+						<text class="address-status">{{transportObg.status2Text}}</text>
+						<text class="address-time-text">{{transportObg.updatedDt}}</text>
+					</view>
+					<view class="info-box">
+						<view class="info-child">
+							<text class="info-name">{{transportObg.shipmentsAddress.userName}}</text>
+							<text class="address-time-text">{{transportObg.shipmentsAddress.city}}</text>
+						</view>
+						<image class="arrow-right" src="/static/images/goodsDelivery/arrowRight.png" mode=""></image>
+						<view class="info-child">
+							<text class="info-name">{{transportObg.arriveAddress.userName}}</text>
+							<text class="address-time-text">{{transportObg.arriveAddress.city}}</text>
+						</view>
+					</view>
+				</view>
+				<scroll-view scroll-y="true" class="scroll-box" show-scrollbar="false" v-if="contentShow">
+					<view class="info-all">
+						<view class="info-label">
+							<text class="label-text">货物类型</text>
+							<view class="label-content">
+								<text class="label-content-text" v-for="item in transportObg.goodsArr">{{item}}</text>
+							</view>
+						</view>
+						<view class="info-label">
+							<text class="label-text">寄件地址</text>
+							<view class="label-content">
+								<text class="label-content-text">{{transportObg.shipmentsAddress.userName}} {{transportObg.shipmentsAddress.mobile}}</text>
+								<text class="label-content-text" style="width: 400rpx;">{{transportObg.shipmentsAddress.addressText}}</text>
+							</view>
+						</view>
+						<view class="info-label">
+							<text class="label-text">收件地址</text>
+							<view class="label-content">
+								<text class="label-content-text">{{transportObg.arriveAddress.userName}} {{transportObg.arriveAddress.mobile}}</text>
+								<text class="label-content-text" style="width: 400rpx;">{{transportObg.arriveAddress.addressText}}</text>
+							</view>
+						</view>
+						<view class="info-label">
+							<text class="label-text">面单编号</text>
+							<view class="label-content">
+								<text class="label-content-text">{{transportObg.surfaceNumber}}</text>
+								<text class="label-content-text label-copy" @click="setClipboardData(transportObg.surfaceNumber)">复制</text>
+							</view>
+						</view>
+						<view class="info-label">
+							<text class="label-text">原始编号</text>
+							<view class="label-content">
+								<text class="label-content-text">{{transportObg.originalNumber}}</text>
+							</view>
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+			<view class="detail-box" :class="contentStatusShow?'contentStatusSwitch':'contentStatusSwitch1'">
+				<view class="unfold-box">
+					<text class="unfold-text" @tap="spreadStatusEvent">{{contentStatusShow?'点击收起':'点击展开'}}</text>
+				</view>
+				<view class="detail-operate">
+					<view class="switch-box" @tap="adjustStatus">
+						<image class="switchImg" src="/static/images/goodsDelivery/switchStatus.png" mode=""></image>
+						<text class="switch-text">调整状态</text>
+					</view>
+					<view class="switch-box" @tap="reportException">
+						<image class="reportImg" src="/static/images/goodsDelivery/report.png" mode=""></image>
+						<text class="switch-text">上报异常</text>
+					</view>
+					<view class="switch-box" @tap="freightDetails">
+						<image class="reportImg" src="/static/images/goodsDelivery/report.png" mode=""></image>
+						<text class="switch-text">运费明细</text>
+					</view>
+				</view>
+				<view class="first-box" v-if="!contentStatusShow && scanRecordArr.length!=0">
+					<view class="operate-box">
+						<view :class="scanRecordArr[0].status == 7?'dot-box':'dot-box1'"></view>
+						<view class="status-body">
+							<view class="status-box">
+								<text :class="scanRecordArr[0].status == 7?'status-text':'status-text1'">{{scanRecordArr[0].statusText}}</text>
+								<text class="detail-text" v-if="scanRecordArr[0].statusText!='下单'" @tap="findScanRecordDetail($event, scanRecordArr[0])">明细</text>
+							</view>
+							<text class="detail-time">{{scanRecordArr[0].reqDt}}</text>
+							<text class="detail-time" v-if="scanRecordArr[0].province">{{scanRecordArr[0].province + scanRecordArr[0].city + scanRecordArr[0].county + scanRecordArr[0].address}}  扫描员是{{scanRecordArr[0].reqName}}</text>
+						</view>
+					</view>
+				</view>
+				<scroll-view scroll-y="true" class="scroll-operate-box" show-scrollbar="false" v-else>
+					<view class="operate-box" v-for="(item, index) in scanRecordArr">
+						<view class="dot-box" :class="item.status == 7?'dot-box':'dot-box1'"></view>
+						<view class="status-body">
+							<view class="status-box">
+								<text :class="item.status == 7?'status-text':'status-text1'">{{item.statusText}}</text>
+								<text class="detail-text" v-if="item.statusText!='下单'" @tap="findScanRecordDetail($event, item)">明细</text>
+							</view>
+							<text class="detail-time">{{item.reqDt}}</text>
+							<text class="detail-time" v-if="item.province">{{item.province + item.city + item.county + item.address}}  扫描员是{{item.reqName}}</text>
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/ship.js";
+	export default {
+	    data() {
+	        return {
+	            transportMapUrl: '',
+				webViewHeight: '',
+				webviewStyles: {
+				    progress: false
+				},
+				contentShow: false,
+				contentStatusShow: false,
+				transportObg: {},
+				isGoLabel: false,
+				isLabel: false,
+				scanRecordArr: [],
+	        }
+	    },
+		onLoad(options) {
+			//获取当前定位点
+			let that = this;
+			var longitude = getApp().globalData.longitude;
+			var latitude = getApp().globalData.latitude;
+			var userInfo = uni.getStorageSync("userInfo");
+			
+			
+			console.log(options.map, 'aaaa', userInfo);
+			var Authorization = JSON.parse(userInfo).attrs.token;
+			this.transportObg = JSON.parse(options.map);
+			
+			if (longitude && latitude) {
+				uni.showLoading({
+					title: '加载中...'
+				})
+				this.transportMapUrl = utils.lingdanMap + '?ldeId=' + this.transportObg.ldeId + '&longitude=' + longitude + '&latitude=' + latitude + '&Authorization=' + Authorization + '&ApiRootUrl=' + utils.ApiRootUrl;
+				console.log(this.transportObg, this.transportMapUrl);
+			} else {
+				uni.getLocation({
+					type: 'gcj02',
+					success: function(res) {
+						console.log(res, '啊啊啊啊啊啊')
+						uni.showLoading({
+							title: '加载中...'
+						})
+						var longitude = res.longitude;
+						var latitude = res.latitude;
+						that.transportMapUrl = utils.lingdanMap + '?ldeId=' + that.transportObg.ldeId + '&longitude=' + longitude + '&latitude=' + latitude + '&Authorization=' + Authorization + '&ApiRootUrl=' + utils.ApiRootUrl;
+						console.log(that.transportObg, that.transportMapUrl);
+					},
+					fail() {
+						uni.showToast({
+							title: '请打开定位',
+							icon: 'none'
+						})
+					}
+				})
+			}
+			
+			
+			setTimeout(()=>{
+				this.isLabel = true
+			}, 1000)
+			setTimeout(()=>{
+				uni.hideLoading();
+			}, 10000)
+			
+			this.findScanRecord();
+		},
+	    methods: {
+			findScanRecord(){
+				utils.postRequest('/ld/ldebarcode/findScanRecord', {
+					ext1: this.transportObg.ldeId
+				}).then(res=>{
+					console.log(res);
+					if(res.retCode == "0000000"){
+						this.scanRecordArr = res.rspBody.items;
+						this.scanRecordArr.push({
+							statusText: '下单',
+							status: 1,
+							reqDt: this.transportObg.createdDt,
+						})
+					}
+				})
+				.catch(err=>{
+					
+				})
+			},
+			goLabel(num){
+				// if(!this.isGoLabel){
+				// 	uni.showToast({
+				// 		title: '请稍后...',
+				// 		icon: 'none'
+				// 	})
+				// 	return
+				// }
+				var map = {
+					shipmentsAddress: this.transportObg.shipmentsAddress,
+					arriveAddress: this.transportObg.arriveAddress,
+				}
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/transport/transport?num=' + num + '&ldeId=' + this.transportObg.ldeId + '&addressObj=' + JSON.stringify(map)
+				})
+			},
+			setClipboardData(str){
+				uni.setClipboardData({
+				    data: str,
+				    success: function () {
+				        uni.showToast({
+				        	title: '复制成功',
+							icon: 'none'
+				        })
+				    }
+				});
+			},
+	        backToFromPage() {
+	        	uni.navigateBack({
+	        		
+	        	})
+	        },
+			reciveMessage(e){
+				console.log(e, "收到的message")
+			},
+			recivePostMessage(e){ // 地图传递参数
+				console.log('地图传递参数', e);
+				let obj = e.detail.data[0];
+				if(obj.type == "successMap"){
+					this.isGoLabel = true;
+					uni.hideLoading();
+				}
+			},
+			spreadEvent(){
+				this.contentShow = !this.contentShow;
+				this.contentStatusShow = false;
+			},
+			findScanRecordDetail(e, val){
+				// #ifdef APP-NVUE
+				e.stopPropagation()
+				// #endif
+				// utils.postRequest('/ld/ldebarcode/findScanRecordDetail', {
+				// 	ext1: this.transportObg.ldeId,
+				// 	status: status
+				// })
+				var map = JSON.stringify(val)
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/transport/scanGoodsDetail?map=' + map + '&ldeId=' + this.transportObg.ldeId + '&surfaceNumber=' + this.transportObg.surfaceNumber
+				})
+			},
+			spreadStatusEvent(e){
+				
+				// #ifdef APP-NVUE
+				e.stopPropagation()
+				// #endif
+				this.contentShow = false;
+				this.contentStatusShow = !this.contentStatusShow;
+			},
+			adjustStatus(e) {
+				//调整状态
+				
+				// #ifdef APP-NVUE
+				e.stopPropagation()
+				// #endif
+				console.log(this.transportObg, '对象11');
+				var transportObg = this.transportObg;
+				uni.navigateTo({
+					url: './adjustmentStatus?sid=' + transportObg.sid
+				})
+			},
+			freightDetails(e) {
+				//上报异常
+				// #ifdef APP-NVUE
+				e.stopPropagation()
+				// #endif
+				var transportObg = this.transportObg;
+				var isDetails = 0;
+				if(transportObg.costA){
+					isDetails = 1;
+				}
+				if(transportObg.costB){
+					isDetails = 1;
+				}
+				if(transportObg.costC){
+					isDetails = 1;
+				}
+				if(transportObg.costList != "[]"){
+					isDetails = 1;
+				}
+				if(!isDetails){
+					uni.showToast({
+						title: '暂无运费明细',
+						icon: 'none'
+					})
+					return
+				}
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/transport/freightDetails?costA=' + transportObg.costA + '&costB=' + transportObg.costB + '&costC=' + transportObg.costC + '&costList=' + transportObg.costList
+				})
+			},
+			reportException(e) {
+				//上报异常
+				// #ifdef APP-NVUE
+				e.stopPropagation()
+				// #endif
+				var transportObg = this.transportObg;
+				uni.navigateTo({
+					url: './exception?transportObg=' + JSON.stringify(transportObg)
+				})
+			}
+	    }
+	}
+</script>
+
+<style>
+	.all{
+		background-color: #F3F3F3;
+	}
+	.back-box{
+		position: fixed;
+		top: 88rpx;
+		left: 32rpx;
+		width: 68rpx;
+		height: 68rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		z-index: 999;
+		background-color: #fff;
+		border-radius: 34rpx;
+	}
+	.back-img{
+		width: 20rpx;
+		height: 36rpx;
+	}
+	.popup-box{
+		position: fixed;
+		left: 0; 
+		right: 0; 
+		bottom: 0;
+		z-index: 99
+	}
+	.count-box{
+		background-color: #fff;
+		border-radius: 24rpx;
+		margin: 20rpx 32rpx 0 32rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 42rpx 40rpx;
+		border: 3rpx solid #333333;
+	}
+	.count-text{
+		font-size: 40rpx;
+		font-weight: 600;
+		color: #333;
+	}
+	.count-num-box{
+		flex-direction: row;
+		align-items: center;
+	}
+	.count-num{
+		font-size: 40rpx;
+		font-weight: 600;
+		color: #0171F9;
+	}
+	.count-num-unit{
+		font-size: 40rpx;
+		font-weight: 600;
+		color: #333;
+		margin: 0 24rpx;
+	}
+	.count-img{
+		width: 20rpx;
+		height: 36rpx;
+	}
+	.goods-box{
+		background-color: #fff;
+		border-radius: 24rpx;
+		margin: 20rpx 32rpx;
+		transition-property: height;
+		transition-duration:0.3s;
+		transition-delay:0.1s;
+		transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+		height: 200rpx;
+	}
+	.contentSwitch{
+		height: 680rpx;
+	}
+	.contentSwitch1{
+		height: 200rpx;
+	}
+	.goods-head{
+		height: 64rpx;
+		padding: 0 32rpx;
+		background-color: #0171F9;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		border-top-left-radius: 24rpx;
+		border-top-right-radius: 24rpx;
+	}
+	.goods-num-box{
+		flex-direction: row;
+		align-items: center;
+	}
+	.goods-num{
+		font-size: 24rpx;
+		font-weight: 500;
+		color: #fff;
+	}
+	.copy-box{
+		width: 22rpx;
+		height: 22rpx;
+		margin-left: 20rpx;
+	}
+	.goods-spread{
+		font-size: 24rpx;
+		color: #fff;
+	}
+	.address-box{
+		height: 136rpx;
+		flex-direction: row;
+		align-items: center;
+	}
+	.address-time{
+		width: 312rpx;
+		flex-direction: column;
+		align-items: center;
+	}
+	.address-status{
+		font-size: 32rpx;
+		font-weight: 500;
+		color: #333;
+	}
+	.address-time-text{
+		font-size: 26rpx;
+		color: #777;
+		text-align: center;
+		flex-wrap: wrap;
+	}
+	.info-box{
+		width: 374rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.info-child{
+		flex-direction: column;
+		align-items: center;
+		width: 143rpx;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+	.info-name{
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #333;
+		width: 100rpx;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	.arrow-right{
+		width: 88rpx;
+		height: 18rpx;
+		margin: 0 14rpx;
+	}
+	.scroll-box{
+		height: 480rpx;
+	}
+	.info-all{
+		padding: 0 48rpx;
+	}
+	.info-label{
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 24rpx 0;
+		border-bottom: 2rpx solid #F2F3F3;
+	}
+	.label-text{
+		font-size: 26rpx;
+		color: #777;
+	}
+	.label-content{
+		width: 440rpx;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+	.label-content-text{
+		font-size: 26rpx;
+		color: #333;
+		flex-wrap: wrap;
+		text-align: right;
+		margin-left: 32rpx;
+	}
+	.label-copy{
+		color: #0171F9;
+	}
+	.detail-box{
+		background-color: #fff; 
+		border-radius: 40rpx 40rpx 0rpx 0rpx;
+		padding: 0 72rpx;
+		transition-property: height;
+		transition-duration:0.3s;
+		transition-delay:0.1s;
+		transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+		height: 350rpx;
+	}
+	.contentStatusSwitch{
+		height: 600rpx;
+	}
+	.contentStatusSwitch1{
+		height: 350rpx;
+	}
+	.first-box{
+		/* height: 120rpx; */
+	}
+	.scroll-operate-box{
+		height: 370rpx;
+	}
+	.unfold-box{
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.unfold-text{
+		font-size: 26rpx;
+		padding: 20rpx;
+		color: #FF7D4A;
+	}
+	.detail-operate{
+		padding: 20rpx 0 40rpx 0;
+		flex-direction: row;
+		align-items: center;
+	}
+	.switch-box{
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-right: 72rpx;
+	}
+	.switchImg{
+		width: 40rpx;
+		height: 38rpx;
+	}
+	.reportImg{
+		width: 42rpx;
+		height: 38rpx;
+	}
+	.switch-text{
+		font-size: 26rpx;
+		color: #333;
+		margin-top: 10rpx;
+	}
+	.operate-box{
+		flex-direction: row;
+		padding-bottom: 12rpx;
+	}
+	.dot-box{
+		width: 32rpx;
+		height: 32rpx;
+		border-radius: 8rpx;
+		background-color: #306FF0;
+		margin-right: 36rpx;
+		margin-top: 10rpx;
+	}
+	.dot-box1{
+		width: 32rpx;
+		height: 32rpx;
+		border-radius: 8rpx;
+		background-color: #CECECE;
+		margin-right: 36rpx;
+		margin-top: 10rpx;
+	}
+	.status-body{
+		width: 530rpx;
+	}
+	.status-box{
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.status-text{
+		font-size: 32rpx;
+		font-weight: 500;
+		color: #0171F9;
+	}
+	.status-text1{
+		font-size: 32rpx;
+		font-weight: 500;
+		color: #777;
+	}
+	.detail-text{
+		color: #0171F9;
+		font-size: 26rpx;
+	}
+	.detail-time{
+		color: #333;
+		font-size: 26rpx;
+	}
+</style>

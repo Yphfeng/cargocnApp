@@ -1,0 +1,700 @@
+<template>
+<view>
+<view class="map_container">
+		<map class="map" :style="{height: windowHeight}" id="map" :longitude="longitude" :latitude="latitude" :scale="scale" @markertap="makertap" :markers="markers" @regionchange="bindregionchange">
+			<cover-image class="controls" src="/static/images/jym/locationself.png" @tap="controltap">
+			</cover-image>
+		</map>
+</view> 
+<view class="map_text">
+	<view class="oilInfoView1"> 
+		<view class="oilInfoView">
+			<text class="address-title">{{textData.name}}</text>
+			<text class="addres">距离位置{{textData.distance}}km | {{textData.address}}</text>
+			<view class="prictView">
+					<view v-for="(item, index) in fuelsList1" :key="index">
+						<view class="prictView_box">
+							<text class="prictView_type">{{item.type}}</text>
+							<text class="price">{{item.price}}元/升</text>
+						</view>
+					</view>
+			</view>
+		</view>
+	</view>
+	<view class="map_text">
+		<view class="oilInfoView1">
+			<view class="oilInfoView">
+				<text class="address-title">{{textData.name}}</text>
+				<text class="addres-num">距离位置{{textData.distance}}km | {{textData.address}}</text>
+				<view class="prictView">
+					<view v-for="(item, index) in fuelsList1" :key="index">
+						<view class="prictView_box">
+							<text class="prictView_type">{{item.type}}</text>
+							<text class="price">{{item.price}}元/升</text>
+						</view>
+					</view>
+	
+				</view>
+			</view>
+		</view>
+		<view class="addOilBtn" @tap="clickBtn">
+			<image style="width: 50rpx; height: 50rpx; margin-right: 10rpx;" src="/static/images/jym/icon_scan.png"></image>
+			<text class="btn-text" style="color: #fff; height: 90rpx; line-height: 90rpx; font-size: 36rpx;">我要加油</text>
+		</view>
+	</view>
+</view>
+
+<view class="mask" @tap="preventTouchMove" v-if="showModal"></view>
+</view>
+</template>
+
+<script>
+var amapFile = require("@/utils/jym-utils/amap-wx.js"); //如：..­/..­/libs/amap-wx.js
+//如：..­/..­/libs/amap-wx.js
+var api = require("@/config/api.js");
+var util = require("@/utils/jym-utils/util.js");
+var myAmapFun = new amapFile.AMapWX({
+  key: 'fba40fd880fdba6ad7cfa0df040a30ed'
+});
+var QQMapWX = require("@/utils/jym-utils/qqmap-wx-jssdk.min.js");
+var qqmapsdk = new QQMapWX({
+  key: api.tentCentMapKey
+});
+var EARTH_RADIUS = 6378.137; //地球半径
+//地球半径
+var willLocation = null; //手动定位的点;
+//手动定位的点;
+function rad(d) {
+  return d * Math.PI / 180.0;
+}
+function getDistance(lng1, lat1, lng2, lat2) {
+  var radLat1 = rad(lat1);
+  var radLat2 = rad(lat2);
+  var a = radLat1 - radLat2;
+  var b = rad(lng1) - rad(lng2);
+  var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+  s = s * EARTH_RADIUS;
+  s = Math.round(s * 10000) / 10000;
+  return s; //返回数值单位：公里
+}
+var noStationType = "";
+
+export default {
+  data() {
+    return {
+	  timeout: null,	
+	  isClicking: false,
+      searchText: '',
+      pointPosition: 0,
+      showModal: false,
+      tips: {},
+      markers: [],
+      textData: {},
+      fuelsList: [1, 2, 3],
+      fuelsList1: [],
+      userId: "0",
+      circles: [],
+      drawingnumber: 50000,
+      drawingnumberKM: 50,
+      scale: 10,
+      nowradius: 0,
+      show2: false,
+      //控制下拉列表的显示隐藏，false隐藏、true显示
+      show3: false,
+      //控制下拉列表的显示隐藏，false隐藏、true显示
+      item3Arr: [{
+        type: "6km内",
+        value: 6
+      }, {
+        type: "10km内",
+        value: 10
+      }, {
+        type: "15km内",
+        value: 15
+      }, {
+        type: "20km内",
+        value: 20
+      }, {
+        type: "50km内",
+        value: 50
+      }],
+      item3Color: "#696969",
+      item3SelectedColor: "#696969",
+      item3Status: 4,
+      item3SelectText: "50km内",
+      item3SelectImg: "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png",
+      item2Arr: ["5#柴油", "0#柴油", "-10#柴油", "-20#柴油"],
+      item2Color: "#696969",
+      item2SelectedColor: "#696969",
+      item2Status: 1,
+      item2SelectText: "0#柴油",
+      item2ShowText: '0#',
+      item2SelectImg: "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png",
+      item2Id: '',
+      params: {},
+	  longitude: 116.405285,
+	  latitude: 39.904989,
+      markersDataNotShow: "",
+      show1: false,
+      show4: false,
+      item1SelectedColor: "",
+      item1SelectImg: "",
+      listData: [],
+      item3Id: "",
+	  windowHeight: '755px',
+	  timer: null,
+	  userLocation: {
+		  latitude:"",
+		  longitude: ""
+	  },
+	  tapMarker:null
+    };
+  },
+
+  components: {},
+  props: {},
+  onLoad: function (options) {
+    var that = this;
+	that.params = {};
+    that.mapCtx = uni.createMapContext('map');
+    var driverInfo = uni.getStorageSync('driverInfo');
+	that.windowHeight = (uni.getSystemInfoSync().windowHeight - 150) + 'px';
+	console.log(that.windowHeight);
+
+    if (driverInfo) {
+      that.userId = driverInfo.userId
+    }
+
+    var stationType = options.noStationType;
+
+    if (stationType) {
+      noStationType = [1, 4];
+    } else {
+      noStationType = null;
+    } // scope:'1000',
+	uni.getLocation({
+		type: 'gcj02',
+		geocode: true,
+		success: function(res) {
+			that.userLocation.latitude = res.latitude;
+			that.userLocation.longitude = res.longitude;
+			console.log(that.userLocation)
+		},
+		fail: function() {
+			uni.showToast({
+				title: "请打开定位"
+			})
+		},
+		complete:function(){
+		}
+	})
+	
+  //   qqmapsdk.reverseGeocoder({
+  //     success: function (res) {
+  //       var params = that.params;
+  //       params.latitude = res.result.address_reference.landmark_l2.location.lat;
+  //       params.longitude = res.result.address_reference.landmark_l2.location.lng;
+  //       willLocation = res;
+  //       that.params = params;
+  //         that.latitude = res.result.address_reference.landmark_l2.location.lat;
+  //         that.longitude = res.result.address_reference.landmark_l2.location.lng;
+		// // that.getCrlcle();
+		// console.log(that.latitude, that.longitude);
+		// //获取地图中心点坐标
+		// // that.debounce(that.moveToGetData, 1000);
+  //     }
+  //   });
+
+    if (uni.getStorageSync('token') == "") {
+      uni.showModal({
+        title: "当前为未登录状态，请登录后操作,跳转登录页",
+        // content:"跳转登录页？",
+        icon: 'none',
+
+        success(res) {
+          if (res.confirm) {
+            uni.reLaunch({
+              url: '/pages/login/login/loginSelect/loginSelect'
+            });
+          }
+        }
+
+      });
+    }
+  },
+  methods: {
+    makertap: function (e) {
+      console.log(e);
+      var id = e.detail.markerId;
+      var that = this;
+	  var markers = that.markers;
+	  console.log(markers[0])
+	  if(!that.tapMarker){
+		markers.some(item => {
+				  if(item.id == id){
+					 that.tapMarker = {
+						id: item.id,
+						longitude: item.longitude,
+						latitude: item.latitude,
+						iconPath: item.iconPath,
+						width: 30,
+						height: 50,
+					  }
+					  console.log('放大图标')
+					  return true
+				  }
+		})
+		that.markers = that.markers.push(that.tapMarker)
+	  }else{
+		  markers.some((item,index) => {
+			  if(item.id == that.tapMarker.id && item.width == 30){
+				  // console.log('找到了')
+				  markers.splice(index,1)
+				  return true
+			  }
+		  })
+		  markers.some(item => {
+			  if(item.id == id){
+				  that.tapMarker = {
+					id: item.id,
+					longitude: item.longitude,
+					latitude: item.latitude,
+					iconPath: item.iconPath,
+					width: 30,
+					height: 50,
+				}
+				   console.log('放大图标')
+				   return true
+			  }
+		  })
+		  that.markers = that.markers.push(that.tapMarker)
+	  }
+	  
+      that.showMarkerInfo(id, markers); // that.changeMarkerColor(markersData, id);
+    },
+
+    getList(listParams) {
+      var that = this;
+      var parm = this.params; // if (noStationType) {
+      //     parm.noStationType = [1, 4];
+      // }
+
+      var driverInfo = uni.getStorageSync('driverInfo');
+
+      if (driverInfo) {
+        parm.userId = driverInfo.userId;
+      } else {
+        delete parm.userId;
+      }
+	  parm = {
+		  ...parm,
+		  ...listParams
+	  }
+      console.log('parmparmparmparmparmparmparm', parm);
+      util.postRequest(api.oilstationList, parm).then(function (res) {
+		  console.log(res.rspBody.items.length, '列表数据')
+		  console.log(res.rspBody.items[0], '列表数据')
+        if (res.retCode == '0000000') {
+          if (res.rspBody.items.length > 0) {
+            var data = res.rspBody.items;
+            var markersData = [],
+                markers = [];
+            markersData = markersData.concat(data);
+            markersData.forEach(item => {
+              if (item.stationProperties == 1) {
+                item.iconPath = "/static/images/jym/icon_33.png";
+              } else if (item.stationProperties == 2) {
+                item.iconPath = "/static/images/jym/icon_oil_yqdw.png";
+              } else if (item.stationProperties == 3) {
+                item.iconPath = "/static/images/jym/icon_blend.png";
+              } else {
+                item.iconPath = "/static/images/jym/icon_33.png";
+              }
+
+              item.width = 15;
+              item.height = 25;
+            });
+			that.showMarkerInfo(markersData[0].id, markersData);
+    //         that.mapCtx.getRegion({
+    //           success: function (res) {
+    //             console.log(res);
+    //             var northeast = res.northeast;
+    //             var southwest = res.southwest;
+    //             var markersDataNotShow = markersData;
+
+    //             for (var i = 0; i < markersDataNotShow.length; i++) {
+    //               if (southwest.latitude < markersDataNotShow[i].latitude && northeast.latitude > markersDataNotShow[i].latitude & southwest.longitude < markersDataNotShow[i].longitude && northeast.longitude > markersDataNotShow[i].longitude) {
+    //                 markers.push(markersDataNotShow[i]);
+    //                 markersDataNotShow.splice(i, 1);
+    //               }
+    //             }
+				// console.log(markers,"显示的加油站")
+    //             console.log(markersData[0]);
+    //             that.markers = markers;
+				// console.log(that.markers.length,'油站点位个数')
+				// that.$forceUpdate();
+    //               that.markersDataNotShow = markersDataNotShow;
+				// // that.showMarkerInfo(markersDataNotShow[0].id);
+
+    //             that.showMarkerInfo(data[0].id);
+    //           }, 
+			 //  fail(err) {
+			 //  	console.log(err)
+			 //  }
+    //         }); 
+          }
+        } else {
+			uni.hideLoading();
+          uni.showToast({
+            title: res.retDesc,
+            icon: 'none'
+          });
+        }
+      }).catch(err => {
+		  uni.hideLoading();
+	  });
+    },
+
+    showMarkerInfo: function (i, markersData) {
+      var that = this;
+      var parm = {
+        id: i,
+        userId: that.userId,
+        latitude: that.latitude,
+        longitude: that.longitude
+      };
+	  console.log('显示油站信息')
+      util.postRequest(api.oilstationDetail, parm).then(function (res) {
+        console.log('油站信息', res);
+        if (res.retCode == '0000000') {
+			that.fuelsList = res.rspBody.fuelsList;
+            that.textData = {
+              name: res.rspBody.stationDetail.compSecondName != '' ? res.rspBody.stationDetail.compSecondName : res.rspBody.stationDetail.compName,
+              address: res.rspBody.stationDetail.compAddress,
+              latitude: res.rspBody.stationDetail.latitude,
+              longitude: res.rspBody.stationDetail.longitude,
+              id: res.rspBody.stationDetail.id,
+              distance: res.rspBody.stationDetail.distance,
+              stationType: res.rspBody.stationDetail.stationType
+            };
+			
+			var dataArr = [];
+			for (let i = 0; i < res.rspBody.fuelsList.length; i++) {
+				if (i < 2) {
+				  var data = {
+					'type': res.rspBody.fuelsList[i]["fuelName"].split("#")[0] + '#',
+					'price': res.rspBody.fuelsList[i]["fuelPrice"]
+				  };
+				  dataArr.push(data)
+				  
+				}
+			}
+			// that.fuelsList1 = that.fuelsList1.concat(dataArr);
+			that.fuelsList1 = dataArr;
+			let userLocation = {
+				longitude: that.userLocation.longitude,
+				latitude: that.userLocation.latitude,
+				iconPath: '/static/images/locationMy.png',
+				width: 30,
+				height: 30
+				// addressPoint: `POINT(121.317620 31.202831)`
+			}
+			console.log(markersData[0])
+			markersData.push(userLocation)
+			that.markers = markersData;
+			// setTimeout(() => {
+			// 	that.markers = markersData;
+			// },1000)
+			// that.markers.push(userLocation)
+			
+			
+		  
+        } else {
+			console.log("获取油站信息失败")
+			that.markers = markersData;
+			uni.hideLoading();
+			uni.showToast({
+				title: res.retDesc
+			});
+        }
+      });
+    },
+    changeMarkerColor: function (data, i) {
+      console.log("changeMarkerColor");
+      var that = this;
+      var markers = [];
+
+      for (var j = 0; j < data.length; j++) {
+        if (j == i) {
+          data[j].iconPath = "/static/images/jym/icon_oil_selected.png"; //如：..­/..­/img/marker_checked.png
+        } else {
+          data[j].iconPath = "/static/images/jym/icon_oil_nomal.png"; //如：..­/..­/img/marker.png
+        }
+
+        markers.push(data[j]);
+      }
+		let userLocation = {
+			longitude: that.userLocation.longitude,
+			latitude: that.userLocation.latitude,
+			// iconPath: '/static/images/locationMy.png',https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/locationMy.png
+			iconPath: '/static/images/locationMy.png',
+			width: 30,
+			height: 30
+			// addressPoint: `POINT(121.317620 31.202831)`
+		}
+		markers.push(userLocation)
+      that.markers = markers;
+	  console.log(markers)
+    },
+    clickBtn: function () {
+      if (uni.getStorageSync('token') == "") {
+        uni.showModal({
+          title: "当前为未登录状态，请登录后操作,跳转登录页",
+          // content:"跳转登录页？",
+          icon: 'none',
+
+          success(res) {
+            if (res.confirm) {
+              uni.reLaunch({
+                url: '/pages/login/login/loginSelect/loginSelect'
+              });
+            }
+          }
+
+        });
+        return;
+      }
+
+      if (!this.textData.id) {
+        return;
+      }
+
+      uni.navigateTo({
+        url: '../oilstationDetail/oilstationDetail?id=' + this.textData.id + '&stationType=' + this.textData.stationType
+      });
+    },
+
+    controltap() {
+      var maps = uni.createMapContext('map');
+      maps.moveToLocation({
+		  longitude: this.longitude,
+		  latitude: this.latitude
+	  });
+    },
+
+    // 点击下拉显示框
+    selectTap(e) {
+      var flag = e.currentTarget.dataset.flag;
+
+      if (flag == 2) {
+        this.show1 = false;
+          this.show2 = !this.show2;
+          this.show3 = false;
+          this.show4 = false;
+          this.item1SelectedColor = "#666666";
+          this.item2SelectedColor = "#469DFC";
+          this.item3SelectedColor = '#666666';
+          this.item2SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_blue.png";
+          this.item1SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png";
+          this.item3SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png";
+      } else if (flag == 4) {
+        this.show1 = false;
+          this.show2 = false;
+          this.show3 = false;
+          this.show4 = !this.show4;
+          this.item1SelectedColor = "#666666";
+          this.item2SelectedColor = "#666666";
+          this.item3SelectedColor = '#469DFC';
+          this.item2SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png";
+          this.item1SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_grey.png";
+          this.item3SelectImg = "https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/icon/icon_oil_more_blue.png";
+      }
+    },
+
+    clickOilItem: function (e) {
+      var flag = e.currentTarget.dataset.flag;
+      var that = this;
+      that.item2Status = flag;
+        that.item2SelectText = this.item2Arr[flag];
+        that.show2 = !this.show2;
+        that.item2Id = this.item2Arr[flag].id;
+        that.listData = [];
+      that.getList();
+    },
+
+    clickKMItem(e) {
+      var flag = e.currentTarget.dataset.flag;
+      var that = this;
+      that.item3Status = flag;
+        that.item3SelectText = this.item3Arr[flag].type;
+        that.show4 = !this.show4;
+        that.item3Id = this.item3Arr[flag].id;
+        that.listData = [];
+        that.drawingnumber = this.item3Arr[flag].value * 1000;
+        that.drawingnumberKM = this.item3Arr[flag].value;
+      that.getList();
+    },
+
+    search(e) {
+      var that = this;
+      var keywords = e.detail.value;
+      console.log(e);
+
+      if (!keywords) {
+        this.showModal = false
+        return;
+      }
+
+      myAmapFun.getInputtips({
+        keywords: keywords,
+        location: '',
+        success: function (data) {
+          if (data && data.tips) {
+            that.tips = data.tips;
+              that.showModal = true;
+          }
+        }
+      });
+    },
+
+    bindSearch(e) {
+      console.log(e);
+      var item = e.currentTarget.dataset.item;
+      var location = item.location;
+      var longitude = location.split(',')[0];
+      var latitude = location.split(',')[1];
+      this.longitude = longitude;
+        this.latitude = latitude;
+        this.showModal = false;
+        this.searchText = item.name;
+        this.pointPosition = item.name.length;
+    },
+
+    preventTouchMove() {
+      this.showModal = false;
+    },
+	
+	//函数防抖
+	debounce(fn, wait) {
+	  if (this.timer !== null) {
+		clearTimeout(this.timer)
+	  }
+	  this.timer = setTimeout(() => {
+		  fn()
+	  }, wait)
+	},
+	moveToGetData() {
+		var that = this;
+		  //获取中心点
+		  uni.showLoading({
+		  	title: '加载中...'
+		  })
+		  that.mapCtx.getRegion({
+		  	success: function(res) {
+		  		console.log(res, '坐标')
+		  		var northeast = res.northeast;
+		  		var southwest = res.southwest;
+		  		var centerLongitude = (northeast.longitude + southwest.longitude) / 2;
+		  		var centerLatitude = (southwest.latitude + northeast.latitude) / 2;
+		  		//获取比例尺
+		  		that.mapCtx.getScale({
+		  			success: function(res) {
+		  				console.log(res, '缩放级别')
+		  				var params = {
+		  					centerLongitude: centerLongitude.toFixed(6),
+		  					centerLatitude: centerLatitude.toFixed(6),
+		  					mapScale: res.scale.toFixed(2)
+		  				}
+						that.scale = res.scale.toFixed(2);
+						if (res.scale <= 5) {
+							uni.hideLoading();
+							return
+						};
+						that.markers = [];
+						that.textData = {};
+						that.fuelsList1 = [];
+		  				that.getList(params);
+		  			}
+		  		})
+		  	}
+		  })  
+		
+		
+		//   that.mapCtx.getRegion({
+		//     success: function (res) {
+		//       console.log(res);
+		//       var northeast = res.northeast;
+		//       var southwest = res.southwest;
+		
+		//       for (var i = 0; i < markersDataNotShow.length; i++) {
+		//         if (southwest.latitude < markersDataNotShow[i].latitude && northeast.latitude > markersDataNotShow[i].latitude & southwest.longitude < markersDataNotShow[i].longitude && northeast.longitude > markersDataNotShow[i].longitude) {
+		//           markers.push(markersDataNotShow[i]);
+		//           markersDataNotShow.splice(i, 1);
+		//         }
+		//       }
+		
+		//       that.markers = markers;
+		//       that.markers = [];
+			  // if(that.timer) return
+			  //  that.timer = setTimeout(() => {
+				 //  that.markers = JSON.parse(JSON.stringify(markers))
+				 //  console.log(that.markers.length,'油站点位个数')
+				 //  that.markersDataNotShow = markersDataNotShow;
+				 //  clearTimeout(that.timer);
+				 //  that.timer = null;
+			  // },1000)
+			  
+		//     }
+		//   });
+	},
+
+
+    bindregionchange(e) {
+		console.log('变化1111', this.params);
+		var that = this;
+		if (this.isClicking) {
+			return
+		}
+		this.isClicking = true;
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+		}
+		this.timeout = setTimeout(() => {
+			this.isClicking = false;
+		}, 1500)
+		var params = this.params;
+		if (params.latitude) {
+			setTimeout(() => {
+			that.moveToGetData();
+				
+			},100)
+		} else {
+			qqmapsdk.reverseGeocoder({
+			  success: function (res) {
+			    var params = that.params;
+			    params.latitude = res.result.address_reference.landmark_l2.location.lat;
+			    params.longitude = res.result.address_reference.landmark_l2.location.lng;
+			    willLocation = res;
+			    that.params = params;
+				that.latitude = res.result.address_reference.landmark_l2.location.lat;
+				that.longitude = res.result.address_reference.landmark_l2.location.lng;
+				// that.getCrlcle();
+				console.log(that.latitude, that.longitude);
+				//获取地图中心点坐标
+				setTimeout(() => {
+				that.moveToGetData();
+					
+				},100)
+			  }
+			});
+		}
+		
+	
+    }
+
+  }
+};
+</script>
+<style>
+@import "./mapView.css";
+</style>

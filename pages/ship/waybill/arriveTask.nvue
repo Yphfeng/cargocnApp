@@ -1,0 +1,1139 @@
+<template>
+	<view class="content">
+		<view class="content-title">
+			<view class="img-box">
+				<view class="imgs imgs-first-child">
+					<view class="bg-default" v-if="!params.unloadPoundImg" @click="upFile(1)">
+						<view class="bg">
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/loadBgImg.png" class="loadBgImg"></image>
+							<view class="btn"><text class="btn-text">去上传</text></view>
+						</view>
+					</view>
+					<image :src="params.unloadPoundImg" v-else class="img" @click="upFile(1)"></image>
+					<view class="row"><text class="red" v-if="isSync == 1">*</text><text class="text">卸车磅单</text></view>
+				</view>
+				<view class="imgs">
+					<view class="bg-default" v-if="!params.unloadImg" @click="upFile(0)">
+						<view class="bg">
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/loadBgImg.png" class="loadBgImg"></image>
+							<view class="btn"><text class="btn-text">去上传</text></view>
+						</view>
+					</view>
+					<image :src="params.unloadImg" v-else class="img" @click="upFile(0)"></image>
+					<text class="text">卸车现场照片</text>
+				</view>
+				<view class="imgs" style="margin-left: 18rpx;">
+					<view class="bg-default" v-if="!params.receiptImg" @click="upFile(2)">
+						<view class="bg">
+							<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/loadBgImg.png" class="loadBgImg"></image>
+							<view class="btn"><text class="btn-text">去上传</text></view>
+						</view>
+					</view>
+					<image :src="params.receiptImg" v-else class="img" @click="upFile(2)"></image>
+					<view class="row"><text class="text">卸车回单图片</text></view>
+				</view>
+			
+			</view>
+			
+			<view class="input-whole">
+				<text style="font-size: 28rpx;font-weight: 500;">卸车量：</text>
+				<input v-model="params.unloadAmount" type="digit" @input="input" @blur="blur" class="input" placeholder="请填写"  />
+				<text class="dun">吨</text>
+			</view>
+			<view class="input-whole">
+				<text style="font-size: 28rpx;font-weight: 500;">到达时间：</text>
+				<view class='lableBox' @click="openDatePicker(1)">
+					<text class="choose-value">{{params.receiverDt}}</text>
+				</view> 
+			<!-- 	<picker class="picker" mode="multiSelector" :value="dateTime" @change="changeDateTime" :range="dateTimeArray">
+					<view class='lableBox'>
+						<text class="choose-value">{{params.receiverDt}}</text>
+					</view> 
+				</picker> -->
+			</view>
+		</view>
+		<view class="electricity" v-if="electronInfo">
+			<text class="electricity-title">电子围栏：半径{{radioName}}</text>
+			<map id="map1" class="map" :style="{height: mapHeight}" :latitude="latitude" :longitude="longitude" :markers="markers" :circles="circles" :scale="scale"></map>
+		</view>
+		<view class="fix-bottom" :class="{'fix-bottom-active': allowClick}"  @click="loadPanAndAddr">
+			<text class="fix-bottom-text">到达</text>
+		</view>
+		<popDate
+			title="到达时间"
+			type="yy-mm-dd hh:mm:ss"
+			minDate="1999-01-01 00:00:00"
+			:maxDate="startInitDate"
+			:initDate="params.receiverDt"
+			ref="startDatePicker"
+			@confirm="confirmFunction($event)"
+			mpWeixinConfirm="confirmFunction"
+		>
+		</popDate>
+		<popDate
+			title="到达时间"
+			type="yy-mm-dd hh:mm:ss"
+			minDate="1999-01-01 00:00:00"
+			:maxDate="startInitDate"
+			:initDate="senderDt"
+			ref="startDatePicker1"
+			@confirm="confirmFunction1($event)"
+			mpWeixinConfirm="confirmFunction1"
+		>
+		</popDate>
+		<uni-popup ref="popDate" type="center">
+			<view class="date-content">
+				<view class="date-title"><text class="date-title-text">修改起运时间</text></view>
+				<view class="date-conte">
+					<view class="sub-title"><text class="sub-title-text">起运时间:</text></view>
+					<view class='date-lableBox' @click="openDatePicker1(1)">
+						<text class="choose-value">{{senderDt}}</text>
+					</view> 
+				</view>
+				<view class="date-footer">
+					<view class="date-footer-item-cancel" @click="cancelStart"><text class="opt-text">取消</text></view>
+					<view class="date-footer-item-confirm" @click="confirmStart"><text class="opt-text">确定</text></view>
+				</view>
+			</view>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	const dateTimePicker = require('./dateTimePicker.js')
+	import * as ship from "@/utils/ship";
+	var transportModule = uni.requireNativePlugin("TransportModule")
+	import popDate from "./popDate.vue"
+	export default {
+		components: {
+			popDate
+		},
+		data() {
+			return {
+				noCheckWeightCoNames: '',
+				isUpdateSenderDt: false,
+				startInitDate:'',			//初始化默认开始时间
+				endInitDate:'',				//初始化默认结束时间
+				timeFilterEndTime: '', 		//初始化筛选时间结束时间
+				open:'',                    //判断时间选择器类型
+				userRole: 1,
+				allowClick: true,
+				electronInfo: null,
+				mapHeight: 0,
+				eleRadio: 50000,
+				scale: 16,
+				markers: [],
+				circles: [],
+				latitude: '',
+				longitude: '',
+				selfLatitude: '',
+				selfLongitude: '',
+				dateTime: null,
+				dateTimeArray: null,
+				startYear: 2000,
+				senderDt: '',
+				params: {
+					receiverDt: '',
+					unloadImg: '',
+					unloadPoundImg: '',
+					receiptImg: '',
+					sid: '',
+					unloadAmount: '',
+					latitude: '',
+					longitude: '',
+				},
+				radioArr: [
+					{name: '不设置电子围栏', value: 0},
+					{name: '500米', value: '500'},
+					{name: '1公里', value: '1000'},
+					{name: '5公里', value: '5000'},
+					{name: '10公里', value: '10000'},
+					{name: '20公里', value: '20000'},
+					{name: '50公里', value: '50000'},
+					
+				],
+				radioName: 0,
+				nowDatt: '',
+			}
+		},
+		onLoad(options) {
+			var _this = this;
+			this.userRole = uni.getStorageSync("userRole");
+			var system = uni.getSystemInfoSync();
+			var mapHeight = system.windowHeight -240
+			this.mapHeight = mapHeight*2 + 'rpx' 
+			this.sid = options.sid;
+			this.pageFrom = options.pageFrom;
+			this.isSync = options.isSync;
+			
+			this.waybillDetail = JSON.parse(options.waybillDetail);
+			console.log("waybillDetail", this.waybillDetail);
+			var senderDt = this.waybillDetail.senderDt;
+			this.senderDt = senderDt;
+			var orderFenceVOS = this.waybillDetail.orderFenceVOS;
+			if (orderFenceVOS && orderFenceVOS.length > 0) {
+				var electronInfo = orderFenceVOS.find(atem => {
+					return atem.fenceType == 2
+				})
+				if (electronInfo) {
+					var radioArr = this.radioArr;
+					var fenceRadius = electronInfo.fenceRadius;
+					var find = radioArr.find(atem => {
+						return atem.value == fenceRadius
+					})
+					if (find) {
+						this.radioName = find.name;
+					}
+				}
+				this.electronInfo = electronInfo;
+			}
+			var senderAddress = this.waybillDetail.senderProvince +  this.waybillDetail.senderCity + this.waybillDetail.senderArea;
+			var receiverAddress = this.waybillDetail.receiverProvince + this.waybillDetail.receiverCity + this.waybillDetail.receiverArea;
+			this.senderAddress = senderAddress;
+			this.receiverAddress = receiverAddress;
+			var platForm = uni.getSystemInfoSync().platform;
+			var env = ship.env;
+			console.log(platForm, env, this.waybillDetail.isSync,  '平台',);
+			
+			if (platForm == "android" && this.waybillDetail.isSync && env == 'pro') {
+				//根据装卸地获取区划代码和经纬度
+				ship.getForjw("https://restapi.amap.com/v3/config/district", {
+					key: '3c6b5445909b3e5df1aeb885a98023c7',
+					keywords: this.waybillDetail.senderArea,
+					subdistrict: 0,
+				}).then(res => {
+					console.log(res, '行政区划信息')
+					var adcode = res.districts[0].adcode;
+					_this.sendAddrCode = adcode
+				})
+				
+				ship.getForjw("https://restapi.amap.com/v3/config/district", {
+					key: '3c6b5445909b3e5df1aeb885a98023c7',
+					keywords: this.waybillDetail.receiverArea,
+					subdistrict: 0,
+				}).then(res => {
+					console.log(res, '行政区划信息')
+					var adcode = res.districts[0].adcode;
+					_this.receiveAddrCode = adcode
+				})
+				
+				//地理编码
+				ship.getForjw('https://restapi.amap.com/v3/geocode/geo', {
+					key: '3c6b5445909b3e5df1aeb885a98023c7',
+					address: senderAddress,
+					
+				}).then(res => {
+					console.log(res, '起点位置')
+					var location = res.geocodes[0].location;
+					_this.startLongitude = location.split(',')[0];
+					_this.startLatitude = location.split(',')[1];
+					
+				})
+				ship.getForjw('https://restapi.amap.com/v3/geocode/geo', {
+					key: '3c6b5445909b3e5df1aeb885a98023c7',
+					address: receiverAddress,
+					
+				}).then(res => {
+					console.log(res, '到达点位置')
+					var location = res.geocodes[0].location;
+					_this.endLongitude = location.split(',')[0];
+					_this.endLatitude = location.split(',')[1];
+				})
+		
+				this.initJW();
+				
+			}
+			
+			
+			this.initTime();
+			//获取某个公司是否需要放开重量判断
+			this.getAll(); 
+			
+		},
+		onReady() {
+			let _this = this;
+			if (this.electronInfo) {
+				var fenceRadius = _this.electronInfo.fenceRadius;
+				this.mapContext = uni.createMapContext("map1");
+				_this.longitude = Number(_this.electronInfo.longitude);
+				_this.latitude =  Number(_this.electronInfo.latitude);
+				
+				console.log(_this.electronInfo, "electronInfo")
+				_this.circles = [
+					{
+						longitude: Number(_this.electronInfo.longitude),
+						latitude: Number(_this.electronInfo.latitude),
+						fillColor: 'rgba(82,131,255,0.5)',
+						color: 'rgba(82,131,255,0.8)',
+						radius: Number(_this.electronInfo.fenceRadius),
+						strokeWidth: 1,
+					},
+				]
+				_this.mapContext.moveToLocation({
+					latitude: _this.electronInfo.latitude, 
+					longitude: _this.electronInfo.longitude
+				});
+				_this.renderScale();
+			}
+			
+		},
+		onShow() {
+			let _this = this;
+			if (!this.selfLatitude) {
+				uni.getLocation({
+					geocode: true,
+					type: 'gcj02',
+					success: function(res) {
+						console.log(res, "获取当前位置")
+						var latitude = res.latitude;
+						var longitude = res.longitude;
+						_this.selfLatitude = latitude.toFixed(6);
+						_this.selfLongitude = longitude.toFixed(6)
+						_this.markers = [
+							{
+								id: 1,
+								longitude: Number(longitude.toFixed(6)),
+								latitude: Number(latitude.toFixed(6)),
+								iconPath: '/static/images/center_location.png',
+								width: 25,
+								height: 25
+							}
+						]
+						if (_this.electronInfo) {
+							var start = {
+								longitude: longitude,
+								latitude: latitude,
+							}
+							var end = {
+								longitude: _this.electronInfo.longitude,
+								latitude: _this.electronInfo.latitude,
+							}
+							var distance = _this.calculateLineDistance(start, end);
+							console.log(distance, _this.electronInfo.fenceRadius, "距离1212")
+							if (distance < _this.electronInfo.fenceRadius) {
+								_this.allowClick = true
+							} else {
+								_this.allowClick = _this.userRole == 2 ? true : false
+							}
+						}
+					},
+					fail: function(err) {
+						console.log(err)
+						uni.showToast({
+							title: '未检测到您当前的定位,请先在手机设置中开启定位',
+							icon: 'none'
+						})
+					},
+				})
+			}
+		},
+		methods: {
+			async getAll() {
+				try{
+					var response = await ship.postRequestGetAll("/appText/getText", "noCheckWeightCoNames");
+					if (response.retCode == "0000000") {
+						this.noCheckWeightCoNames = response.rspBody;
+					}
+				}catch(e){
+					//TODO handle the exception
+				}
+			},
+			cancelStart() {
+				this.$refs.popDate.close();
+			},
+			confirmStart() {
+				this.$refs.popDate.close();
+				var senderDt = this.senderDt;
+				var waybillDetail = this.waybillDetail;
+				var sid = waybillDetail.sid;
+				console.log("修改参数", sid, senderDt);
+				uni.showLoading();
+				ship.postRequest("/yd/task/driver_edit_sender_dt", {
+					sid: sid,
+					senderDt: senderDt
+				}).then(res => {
+					uni.hideLoading();
+					var rspBody = res.rspBody;
+					if (rspBody == 1) {
+						uni.showToast({
+							title: '修改成功',
+							icon: 'none'
+						})					
+					} else {
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})	
+					}
+				}).catch(err => {
+					uni.hideLoading();
+					console.log(err)
+				})
+				
+			},
+			openDatePicker(type) {
+				this.open = type;
+				this.$refs.startDatePicker.open();
+			},
+			openDatePicker1(type) {
+				this.open = type
+				this.$refs.startDatePicker1.open();
+			},
+			// 时间选择器确认
+			confirmFunction($event){
+				console.log($event, "确定的")
+				
+				this.params.receiverDt = $event[0].value+"-"+$event[1].value+"-"+$event[2].value+" "+$event[3].value+":"+$event[4].value+":"+$event[5].value;
+			},
+			confirmFunction1($event){
+				console.log($event, "确定的")
+				this.senderDt = $event[0].value+"-"+$event[1].value+"-"+$event[2].value+" "+$event[3].value+":"+$event[4].value+":"+$event[5].value;
+			},
+		
+			calculateLineDistance(start, end) {
+				//计算两点之间的经纬度
+				var d1 = 0.01745329251994329;
+				var d2 = start.longitude;
+				var d3 = start.latitude;
+				var d4 = end.longitude;
+				var d5 = end.latitude;
+				d2 *= d1;
+				d3 *= d1;
+				d4 *= d1;
+				d5 *= d1;
+				var d6 = Math.sin(d2);
+				var d7 = Math.sin(d3);
+				var d8 = Math.cos(d2);
+				var d9 = Math.cos(d3);
+				var d10 = Math.sin(d4);
+				var d11 = Math.sin(d5);
+				var d12 = Math.cos(d4);
+				var d13 = Math.cos(d5);
+				var arrayOfDouble1 = [];
+				var arrayOfDouble2 = [];
+				arrayOfDouble1.push(d9 * d8);
+				arrayOfDouble1.push(d9 * d6);
+				arrayOfDouble1.push(d7);
+				arrayOfDouble2.push(d13 * d12);
+				arrayOfDouble2.push(d13 * d10);
+				arrayOfDouble2.push(d11);
+				var d14 = Math.sqrt((arrayOfDouble1[0] - arrayOfDouble2[0]) * (arrayOfDouble1[0] - arrayOfDouble2[0]) +
+					(arrayOfDouble1[1] - arrayOfDouble2[1]) * (arrayOfDouble1[1] - arrayOfDouble2[1]) +
+					(arrayOfDouble1[2] - arrayOfDouble2[2]) * (arrayOfDouble1[2] - arrayOfDouble2[2]));
+			
+				return(Math.asin(d14 / 2.0) * 12742001.579854401);
+			},
+			renderScale() {
+				var eleRadio = this.electronInfo.fenceRadius;
+				eleRadio = Number(eleRadio)
+				console.log(eleRadio, "eleRadio");
+				switch(eleRadio) {
+					case 500:
+					this.scale = 14
+					break;
+					case 1000:
+					this.scale = 13
+					break;
+					case 5000:
+					this.scale = 11
+					break;
+					case 10000:
+					this.scale = 10
+					break;
+					case 20000:
+					this.scale = 9
+					break;
+					case 50000:
+					this.scale = 8
+					break;
+				}
+			},
+			async initJW() {
+				var _this = this;
+				var shipperComName = _this.waybillDetail.shipperComName;
+				var comSender = await ship.postForhhy("/md/carrContract/get_comp2_name", {
+					comp1Name: shipperComName
+				});
+				console.log(comSender, '关联的公司');
+				if (comSender.retCode == "0000000") {
+					shipperComName = comSender.rspBody
+				}
+				if (shipperComName.indexOf("福建") > -1) {
+					transportModule.auth({
+						appId: 'uni.UNIWNQ0000',
+						appSecurity: 'c56052dba4c347389cfed2cf94623d47ddad91f99c484e909ee125fe8552c8e4',
+						enterpriseSenderCode: '350923921813c0398947',
+						environment: 'release'
+					}, res => {
+						
+					})
+				} else if (shipperComName.indexOf("观达") > -1) {
+					transportModule.auth({
+						appId: 'uni.UNIWNQ0000',
+						appSecurity: '810bedcc0ad347de9d1bf523384c4524fc6e7ee51d2c4c5babfcdb2ba88e729e9b333da5fb914df58cce8c34c18cf16a4c4a659e0a2142b7940b99d18fc1ca39',
+						enterpriseSenderCode: '3400000192',
+						environment: 'release'
+					}, res => {
+						
+					})
+				} else if (shipperComName.indexOf("货道") > -1) {
+					transportModule.auth({
+						appId: 'uni.UNIWNQ0000',
+						appSecurity: '8f3ab15146a543fe9cce90a7418a2f655d6ca199bdeb4e3aa61006d37bff0cffe8b0b20450e2434496d458f8b03e97109afbd8f426a44011841e7a772699942f',
+						enterpriseSenderCode: '3400000063',
+						environment: 'release'
+					}, res => {
+					
+					})
+				} else if (shipperComName.indexOf("榆林") > -1) {
+					transportModule.auth({
+						appId: 'uni.UNIWNQ0000',
+						appSecurity: '4fd0776dad0f4312a24075245b89028f41cbfb862f9642faa1ec488be9303419',
+						enterpriseSenderCode: '6110044',
+						environment: 'release'
+					}, res => {
+					
+					})
+				} else if (shipperComName.indexOf("诚兴") > -1) {
+					transportModule.auth({
+						appId: 'uni.UNIWNQ0000',
+						appSecurity: 'eb3a9cb917944d0fb041be17cd1ed1c9b2583a68c9a543edbb72f3e1043431e503315123a70d40d19326c89817d33bbcd266ed2a02954eb1aef72a84cae66ff2',
+						enterpriseSenderCode: '3400000333',
+						environment: 'release'
+					}, res => {
+					
+					})
+				}
+			},
+			input(e) {
+				if (e.detail.value.indexOf(".") < 0 && e.detail.value != "") {
+				  e.detail.value = e.detail.value.replace(/-/g, "");
+				  if(e.detail.value.length > 5){
+					let num  = Number(e.detail.value.length) - 5;
+					e.detail.value = e.detail.value.substring(0, e.detail.value.length - num);
+				  }else{
+					e.detail.value = parseFloat(e.detail.value);
+				  }
+				}else if (e.detail.value.indexOf(".") == 0) {
+				  // console.log('首位小数点情况')
+				  e.detail.value = e.detail.value.replace(/[^$#$]/g, "0.");
+				  e.detail.value = e.detail.value.replace(/\.{2,}/g, ".");
+				}else if(!(/^(\d?)+(\.\d{0,2})?$/.test(e.detail.value))){
+					//去掉最后一位
+				  let ary = e.detail.value.split('.');
+				  e.detail.value = ary[0] + '.' + ary[1];
+				}
+				this.params.unloadAmount = e.detail.value;
+			},
+			blur(e) {
+				//获取运单中的托运公司
+				var shipperComName = this.waybillDetail.shipperComName;
+				var noCheckWeightCoNames = this.noCheckWeightCoNames;
+				var val = e.detail.value;
+				var regs = /^-?\d+$/
+				var regs1 = /^(-?\d+)(\.\d+)?$/
+				
+				if (regs.test(val) || regs1.test(val)) {
+				  if (shipperComName && noCheckWeightCoNames && noCheckWeightCoNames.indexOf(shipperComName) > -1) {
+				  	if (val - 99 > 0) {
+				  	  this.params.unloadAmount =  "";
+				  	  uni.showToast({
+				  	  	title: ' 卸货重量不可以超过99吨',
+				  		icon: 'none'
+				  	  })
+				  	  this.$forceUpdate();
+				  	}
+				  } else {
+				  	if (val - 39 > 0) {
+				  	  this.params.unloadAmount =  "";
+				  	  uni.showToast({
+				  	  	title: ' 卸货重量不可以超过39吨',
+				  		icon: 'none'
+				  	  })
+				  	  this.$forceUpdate();
+				  	}
+				  }
+				} else {
+				  this.params.unloadAmount =  ""
+				  this.$forceUpdate();
+				}
+			}, 
+			async initTime(){
+				try{
+					var response = await ship.postRequest("/yd/task/get_new_date");
+					console.log(response, '飒飒')
+					var date = new Date();
+					var arr = date;
+					var nowDatt = "";
+					if (response.retCode == "0000000") {
+						var datt = response.rspBody;
+						nowDatt = datt;
+						datt = datt.replace(/-/g, '/');
+						this.nowDatt = datt;
+						var m = datt.split(" ")[0] + " 23:59:59";
+						console.log(m, "时间1212111");
+						this.datt = m;		
+					}
+					
+					let endYear = 2099;
+					this.endYear = endYear;
+					// 获取完整的年月日 时分秒，以及默认显示的数组
+					console.log(endYear, 'aaaaaa');
+					
+					let obj = dateTimePicker.dateTimePicker(this.startYear, this.endYear,datt, datt)
+					this.dateTimeArray = obj.dateTimeArray
+					this.dateTime = obj.dateTime
+					console.log(obj, '时间1212')
+					this.params.receiverDt = nowDatt;
+					this.startInitDate = nowDatt;
+					setTimeout(() => {
+						this.$refs.startDatePicker.init();
+					}, 500)
+					setTimeout(() => {
+						this.$refs.startDatePicker1.init();
+					}, 1000)
+				}catch(e){
+					//TODO handle the exception
+				}
+				
+			},
+			
+			changeDateTime(e) {
+				this.dateTime = e.detail.value;
+				this.params.receiverDt= this.createTimeStr(this.dateTimeArray,this.dateTime);
+				//ios时间不能用'-'解析成时间戳
+			 },
+			 
+			/*年,月切换时重新更新计算*/
+			changeDateTimeColumn(e) {
+				//let {id} = e.target;
+				let dateArr = this.dateTimeArray
+				var arr = this.dateTime;
+				var datt = this.datt;
+				//滑动所在列的数据并对其值进行更新
+				arr[e.detail.column] = e.detail.value
+				
+				var nowYear = new Date(datt).getFullYear();
+				var yearVal = dateArr[0][arr[0]];
+				var nowMonth = (new Date(datt).getMonth() + 1) < 10 ? '0' + (new Date(datt).getMonth() + 1) : (new Date(datt).getMonth() + 1)
+				var monthVal = dateArr[1][arr[1]] || '01'
+				var nowDay = new Date(datt).getDate()
+				var dayVal = dateArr[2][arr[2]];
+				var nowHour = new Date(datt).getHours();
+				var hourVal = dateArr[3][arr[3]];
+				var nowMinute = new Date(datt).getMinutes();
+				var minuteVal = dateArr[4][arr[4]];
+				var nowArr = datt;
+				console.log(nowYear, yearVal, nowMonth, monthVal, dayVal, nowDay, 'asa1')
+				if (nowYear == yearVal) {
+					
+					var obj = dateTimePicker.dateTimePicker(this.startYear, this.endYear,nowArr, datt)
+					this.dateTimeArray = obj.dateTimeArray
+					this.dateTime = obj.dateTime
+					console.log(dateArr, arr, e, '擦飒飒');
+				
+					//更新展示月份对应的天数（28 or 29 or 30 or 31）
+					dateArr[1] = dateTimePicker.getLoopArray(1, new Date(datt).getMonth() + 1)
+					if (monthVal == nowMonth) {
+						dateArr[2] = dateTimePicker.getLoopArray(1, nowDay);
+						if (dayVal == nowDay) {
+							dateArr[3] = dateTimePicker.getLoopArray(0, new Date(datt).getHours());
+							if (nowHour == hourVal) {
+								dateArr[4] = dateTimePicker.getLoopArray(0, new Date(datt).getMinutes());
+								if (minuteVal == nowMinute) {
+									dateArr[5] = dateTimePicker.getLoopArray(0, new Date(datt).getSeconds());
+								} else {
+									dateArr[5] = dateTimePicker.getLoopArray(0, 59);
+								}
+							} else {
+								dateArr[4] = dateTimePicker.getLoopArray(0, 59);
+								dateArr[5] = dateTimePicker.getLoopArray(0, 59);
+							}
+						} else {
+							dateArr[3] = dateTimePicker.getLoopArray(0, 23);
+							dateArr[4] = dateTimePicker.getLoopArray(0, 59);
+							dateArr[5] = dateTimePicker.getLoopArray(0, 59);
+						}
+					} else {
+						
+						//月份不一致，重新获取天数
+						if (monthVal > nowMonth) {
+							dateArr[2] = dateTimePicker.getMonthDay(dateArr[0][arr[0]], nowMonth)
+						} else {
+							dateArr[2] = dateTimePicker.getMonthDay(dateArr[0][arr[0]], dateArr[1][arr[1]])
+						}
+						dateArr[3] = dateTimePicker.getLoopArray(0, 23);
+						dateArr[4] = dateTimePicker.getLoopArray(0, 59);
+						dateArr[5] = dateTimePicker.getLoopArray(0, 59);
+					}
+					
+				}  else {
+					var obj = dateTimePicker.dateTimePicker(this.startYear, this.endYear, nowArr, datt)
+					this.dateTimeArray = obj.dateTimeArray
+					this.dateTime = obj.dateTime
+					console.log(dateArr, arr, e, '擦飒飒');
+					//更新展示月份对应的天数（28 or 29 or 30 or 31）
+					dateArr[1] = dateTimePicker.getLoopArray(1, 12)
+					dateArr[2] = dateTimePicker.getMonthDay(dateArr[0][arr[0]], dateArr[1][arr[1]])
+					dateArr[3] = dateTimePicker.getLoopArray(0, 23);
+					dateArr[4] = dateTimePicker.getLoopArray(0, 59);
+					dateArr[5] = dateTimePicker.getLoopArray(0, 59);
+					
+				}
+							
+							
+				//最后把最新的数值赋值到dateTimeArray
+				this.$nextTick(() => {
+					this.dateTimeArray = dateArr
+					this.dateTime = arr
+				})
+			},
+			
+			createTimeStr(dateTimeArray,dateTime){
+				let timeStr = dateTimeArray[0][dateTime[0]]+'-'+dateTimeArray[1][dateTime[1]]+'-'+dateTimeArray[2][dateTime[2]]+' '+dateTimeArray[3][dateTime[3]]+":"+dateTimeArray[4][dateTime[4]]+":"+dateTimeArray[5][dateTime[5]];
+				console.log(timeStr)
+				return timeStr
+			},
+			upFile(flag) {
+				//文件上传
+				var that = this;
+				uni.chooseImage({
+					count: 1, // 默认9  
+					sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有  
+					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有  
+					success: function(res) {
+						console.log(res, '驾驶证')
+						var tempFiles = res.tempFiles;
+						var size = tempFiles[0].size;
+						if (size - 1024*1024*2 > 0) {
+							uni.showToast({
+								title:"上传文件过大，请重新上传！",
+								icon: 'none'
+							})
+							return;
+						}
+						// 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片  
+						var tempFilePaths = res.tempFilePaths
+					
+						that.uploadIdcard(tempFilePaths[0], flag);
+						
+						
+					},
+					fail: function(err) {
+						console.log(err, 'asd')
+					}
+				})
+			},
+			uploadIdcard(file, flag) {
+				var that = this;
+				uni.showLoading({
+					title: '请稍候...',
+				})
+				ship.upLoadFile("/file/upload", file)
+				.then(res => {
+					console.log(res);
+					uni.hideLoading();
+					if (res.retCode == "0000000") {
+						if (flag == 0) {
+							that.params.unloadImg = res.rspBody[0].url
+						} else if(flag == 1) {
+							that.params.unloadPoundImg = res.rspBody[0].url
+						} else {
+							that.params.receiptImg = res.rspBody[0].url
+						}
+						
+					} else {
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none',
+						})
+					}
+				})
+				.catch(err => {
+					uni.hideLoading();
+				})
+			},
+			
+			loadPanAndAddr() {
+				var _this = this;
+				// this.$refs.popDate.open();
+				// return;
+				if (!this.allowClick) {
+					uni.showToast({
+						title: '您不在电子围栏范围内，无法点击到达',
+						icon: 'none'
+					})
+					return;
+				};
+				
+				//判断起运时间是否在当前时间之前
+				var receiverDt = this.params.receiverDt;
+				var nowDatt = this.nowDatt;
+				var timePares = new Date(nowDatt).getTime();
+				var receiverDt1 = receiverDt.replace(/-/g, '/');
+				var timePares1 =  new Date(receiverDt1).getTime();
+				if (parseInt(timePares1) - parseInt(timePares) > 0) {
+					uni.showToast({
+						title: '到达时间不能超过当前时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (!ship.btnRepeat()) return;
+				//存在则是网络货运的单子，需获取经纬度
+				uni.getLocation({
+					type: 'gcj02',
+					success(res) {
+						_this.params.latitude = res.latitude;
+						_this.params.longitude = res.longitude;
+						_this.loadPan();
+					},
+					fail() {
+						uni.showToast({
+							title: '获取定位信息失败',
+							icon: 'none'
+						})
+					},
+				})
+				
+			},
+			async loadPan() {
+				var _this = this;
+				var params = this.params;
+				if (this.isSync == 1) {
+					if (!params.unloadPoundImg) {
+						uni.showToast({
+							title: '请上传卸车磅单',
+							icon: 'none'
+						})
+						return;
+					}
+				}
+				if (!params.latitude) {
+					uni.showToast({
+						title: '请打开定位权限',
+						icon: 'none'
+					})
+					return;
+				}
+				
+				if (!params.unloadAmount) {
+					uni.showToast({
+						title: '请输入卸车量',
+						icon: 'none'
+					})
+					return;
+				}
+				if (!params.receiverDt) {
+					uni.showToast({
+						title: '请选择卸货完成时间',
+						icon: 'none'
+					})
+					return;
+				}
+				//卸货时间必须大于起运时间
+				
+				var senderDt = this.waybillDetail.senderDt;
+				var receiverDt = params.receiverDt;
+				senderDt = senderDt.replace(/-/g, '/');
+				receiverDt = receiverDt.replace(/-/g, '/');
+				var receiverTime = new Date(receiverDt).getTime();
+				var senderTime = new Date(senderDt).getTime();
+				console.log(Number(receiverTime) < Number(senderTime), receiverTime,senderTime, "时间111")
+				if (Number(receiverTime) < Number(senderTime)) {
+					uni.showToast({
+						title: '卸货完成时间必须大于起运时间',
+						icon: 'none'
+					})
+					return;
+				}
+				uni.showLoading();
+				var userRole = uni.getStorageSync('userRole'); // 1为司机2为货主
+				try{
+					var sid = this.sid;
+					params.shipperUserId = this.waybillDetail.shipperUserId;
+					params.orderSid = this.waybillDetail.orderSid,
+					params.orderNumber = this.waybillDetail.orderNumber;
+					params.sid = sid;
+					console.log(params, '参数')
+					var res = await ship.postRequest("/yd/task/receiver", params)
+					uni.hideLoading();
+					if (res.retCode == "0000000") {
+						uni.showToast({
+							title: '到达成功',
+							icon: 'none'
+						})
+						
+						//起运成功调用交委接口
+						var platform = uni.getSystemInfoSync().platform;
+						console.log(platform, '平台');
+						var env = ship.env;
+						if (platform == "android" && env == 'pro' && this.waybillDetail.isSync && userRole == 1) {
+							//表示是网络货运的单子
+							var jiaoweiParams = uni.getStorageSync("jiaoweiParams");
+							if (jiaoweiParams) {
+								var jiaoweiObj = JSON.parse(jiaoweiParams)
+								transportModule.stop(jiaoweiObj, respp => {
+								})
+								uni.removeStorageSync("jiaoweiParams");
+								uni.removeStorageSync("shipperComName");
+							}
+						}
+						
+						setTimeout(() => {
+							if (this.pageFrom == 'detail') {
+								uni.navigateBack({
+									delta: 2
+								})
+							} else {
+								uni.$emit("refreshData_waybill", {
+									"status": 3,
+									"receiverDt": params.receiverDt,
+									"unloadAmount": params.unloadAmount,
+									"unloadImg": params.unloadImg,
+									"unloadPoundImg": params.unloadPoundImg,
+								});
+								uni.navigateBack({
+									delta: 1
+								})
+							}
+						}, 1000)
+						
+					} else {
+						if (res.retCode == 502) {
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none',
+								duration: 2500
+							})
+							setTimeout(() => {
+								this.$refs.popDate.open();
+							}, 3000)
+						} else {
+							console.log(res)
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+						
+					}
+				}catch(e){
+					uni.hideLoading();
+					//TODO handle the exception
+				}
+				
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.img-box {
+		display: flex;
+		flex-direction: row;
+		padding: 0 30rpx;
+		width: 750rpx;
+	}
+	.imgs {
+		width: 218rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}	
+	.text {
+		padding: 16rpx 0 28rpx;
+	
+		font-size: 28rpx;
+	}
+	.imgs-first-child {
+		margin-right: 18rpx;
+	}
+	.img {
+		width: 218rpx;
+		height: 228rpx;
+		border: 1px solid #0171F9;
+		border-radius: 12rpx;
+	}
+	.input-whole {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin: 0 30rpx;
+		border-top: 1px solid #F1F1F1;
+		padding: 24rpx 0;
+		font-size: 32rpx;
+		color: #333333;
+		font-weight: 500;
+	}	
+	.input {
+		flex: 1;
+		text-align: right;
+		font-size: 28rpx;
+	}
+	.picker {
+		flex: 1;
+	}	
+	.lableBox {
+		flex: 1;
+	}
+	.choose-value {
+		font-size: 28rpx;
+		color: #333333;
+		text-align: right;
+		font-weight: 400;
+	}
+	
+	.map {
+		width: 750rpx;
+		margin-top: 10rpx;
+	}
+	.fix-bottom {
+		position: fixed;
+		bottom: 24rpx;
+		left: 70rpx;
+		width: 610rpx;
+		height: 84rpx;
+		border-radius: 42rpx;
+		background-color: #4EADF1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.fix-bottom-active {
+		background-color: #0171F9;
+	}
+	.fix-bottom-text {
+		color: #FFFFFF;
+	}
+	.bg-default {
+		width: 344rpx;
+		height: 228rpx;
+		background-color: #F1F6FF;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}	
+	.bg {
+		width: 198rpx;
+		height: 172rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+	.loadBgImg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 198rpx;
+		height: 172rpx;
+	}
+	.btn {
+		width: 132rpx;
+		height: 68rpx;
+		background-color: #0171F9;
+		border-radius: 34rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		
+	}
+	.btn-text {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+	
+	.dun {
+		padding-left: 20rpx;
+		font-size: 28rpx;
+		color: #707071;
+	}
+	.electricity-title {
+		padding: 0 30rpx;
+		font-size: 32rpx;
+		font-weight: 500;
+	}
+	.content-title {
+		height: 480rpx;
+	}
+	.red {
+		color: red;
+	}
+	.date-content {
+		background-color: #FFFFFF;
+		width: 618rpx;
+		height: 400rpx;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}
+	.date-title {
+		text-align: center;
+		margin-top: 34rpx;
+	}
+	.date-conte {
+		flex: 1;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.date-title-text {
+		font-weight: 500;
+		color: #000000;
+		font-size: 44rpx;
+	}
+	.sub-title-text {
+		font-size: 28rpx;
+		font-weight: 500;
+	}
+	.date-lableBox {
+		margin-left: 20rpx;
+		border: 1px solid #dddddd;
+		border-radius: 8rpx;
+		padding: 16rpx 20rpx;
+		flex-direction: row;
+		justify-content: center;
+	}
+	.date-footer {
+		flex-direction: row;
+		margin-bottom: 38rpx;
+	}
+	.date-footer-item-cancel {
+		width: 208rpx;
+		height: 80rpx;
+		border-radius: 16rpx;
+		background-color: RGBA(200, 200, 200, 1);
+		margin-right: 64rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.date-footer-item-confirm {
+		width: 270rpx;
+		height: 80rpx;
+		border-radius: 16rpx;
+		background-color: RGBA(252, 92, 6, 1);
+		justify-content: center;
+		align-items: center;
+		
+	}
+	.opt-text {
+		color: #FFFFFF;
+		font-weight: 500;
+		font-size: 32rpx;
+	}
+	
+	
+</style>

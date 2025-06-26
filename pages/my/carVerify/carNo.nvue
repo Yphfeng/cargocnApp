@@ -1,0 +1,234 @@
+<template>
+	<view class="container">
+	    <view class="container-top">
+	        <text class="container-top-text">请输入车牌号码：</text>
+	        <view class="chepai">
+	            <text class="tel" bindtap="d1">{{plateNo}}</text>
+	        </view>
+	    </view>
+		
+	    <view class="container-bottom">
+	        <!-- 省 -->
+	        <view class="provinces" v-if="!hidden1">
+	            <text class="pro_li lf" v-for="(item,index) in item1" @click='sheng(item)'>{{item}}</text>
+	            <text class="pro_close lf" @click='close'>关闭</text>
+	        </view>
+	        <!-- 号码  -->
+	        <view class="keyNums" v-if="!hidden2">
+	            <text class="pro_li lf" v-for="(item,index) in item2" @click='other(item)'>{{item}}</text>
+	            <text class="pro_ok lf" @click='ok'>确认</text>
+	            <text class="pro_del lf" @click='del'>删除</text>
+	        </view>
+	    </view>
+	</view>
+</template>
+
+<script>
+	
+	export default {
+		data() {
+			return {
+				tipsMsg: '',
+				tipsType: 'error',
+				item1: ["京", "冀", "浙", "苏", "粤", "鲁", "晋", "沪",
+				    "豫", "川", "渝", "辽", "吉", "黑", "皖", "鄂",
+				    "津", "贵", "云", "桂", "琼", "青", "新", "藏",
+				    "蒙", "宁", "甘", "陕", "闽", "赣", "湘"
+				],
+				item2: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+				    "A", "B", "C", "D", "E", "F", "J", "H", "I", "G",
+				    "K", "M", "L", "N", "O", "P", "Q", "R", "S",
+				    "T", "U", "V", "W", "X", "Y", "Z", "挂"
+				],
+				hidden1: true,
+				hidden2: true,
+				plateNo: '',
+				flag:''
+			}
+		},
+		onLoad(option) {
+			console.log(option,'option')
+			var _this = this;
+			_this.flag = option.flag;
+			if (_this.plateNo) {
+				_this.hidden1 = true;
+				_this.hidden2 = false;
+			} else {
+				_this.hidden1 = false;
+				_this.hidden2 = true;
+			}
+		},
+		methods: {
+			onHide() {
+				this.tipsMsg = '';
+			},
+			//获取车牌省份  
+			sheng(data) {
+				var _this = this;
+				_this.plateNo = data;
+				if (_this.plateNo) {
+					_this.hidden1 = true;
+					_this.hidden2 = false;
+				}
+			},
+			//获取车牌号码  
+			other(data) {
+				var _this = this;
+				var plateNo = _this.plateNo + data;
+				_this.plateNo = plateNo;
+			},
+			//回删车牌  
+			del() {
+				var _this = this;
+				var ss = _this.plateNo;
+				var s = ss.split('');
+				if (s.slice(0, -1).length == 0) {
+					_this.hidden1 = false;
+					_this.hidden2 = true;
+				}
+				var s = s.join('').slice(0, -1);
+				_this.plateNo = s;
+			},
+			//确认输入  
+			ok() {
+				var _this = this;
+				if (!_this.pattenCheck(_this.plateNo, 'plateNo')) {
+					uni.showToast({
+						title: '请填写正确的车牌号',
+						icon: 'none'
+					})
+					return;
+				}
+				if(this.flag == 1) {
+					uni.$emit('acceptSelectedPlateNo', _this.plateNo);
+				}else {
+					uni.$emit('acceptSelectedPlateNoGua', _this.plateNo);
+				}
+				
+				
+
+				uni.navigateBack();
+
+			},
+			close(){
+				uni.navigateBack();
+			},
+			//校验
+			pattenCheck(str, type){
+			  if (!str) {
+			    return false;
+			  }
+			  switch (type) {
+			    case 'plateNo': //车牌号
+			      var xreg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$))/;
+			      var creg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$/;
+			      if (str.length == 7) {
+			        return creg.test(str);
+			      } else if (str.length == 8) {
+			        return xreg.test(str);
+			      } else {
+			        return false;
+			      }
+			    case 'phone': //手机号码
+			      return /^1\d{10}$/.test(str);
+			    case 'tel': //座机
+			      return /^(0\d{2,3}-\d{7,8})(-\d{1,4})?$/.test(str);
+			    case 'idCard': //身份证
+			       return /^(\d{18,18}|\d{15,15}|\d{17,17}X)$/.test(str);
+				case 'account': //银行卡号
+				      return /^([1-9]{1})(\d{14}|\d{18})$/.test(str); 
+			    case 'loginId': //4~16位字母、数字组合
+			      return /^[a-zA-Z][a-zA-Z0-9_]{3,15}$/.test(str)
+			    case 'password': //6—12位，至少包含数字、字母、特殊字符中2种
+			      // return /^[,\.#%'\+\*\-:;^_`0-9A-Za-z]{6,12}$/.test(str)
+			      return /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)])+$)^.{6,12}$/.test(str)
+			    case 'email': //邮箱
+			      return /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/.test(str);
+			    case 'money': //金额(小数点2位)
+			      return /^\d*(?:\.\d{0,2})?$/.test(str);
+			    case 'date': //日期时间
+			      return /^(\d{4})\-(\d{2})\-(\d{2}) (\d{2})(?:\:\d{2}|:(\d{2}):(\d{2}))$/.test(str) || /^(\d{4})\-(\d{2})\-(\d{2})$/.test(str)
+			
+			    default:
+			      return true;
+			  }
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.flex-1 {
+		flex: 1;
+	}
+
+	.container {
+		flex-direction: column;
+		flex: 1;
+	}
+
+	.container-top {
+		flex: 1;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background-color: #FFFFFF;
+	}
+
+	.provinces,
+	.keyNums {
+		background-color: #ced3d9;
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding-left: 9rpx;
+		padding-right: 9rpx;
+		padding-top: 15rpx;
+		padding-bottom: 60rpx;
+	}
+
+	.pro_li {
+		font-size: 48rpx;
+		height: 100rpx;
+		line-height: 100rpx;
+		width: 110rpx;
+		line-height: 100rpx;
+		text-align: center;
+		background-color: #fff;
+		margin-top: 6rpx;
+		margin-bottom: 6rpx;
+		margin-left: 6rpx;
+		margin-right: 6rpx;
+	}
+
+	.pro_ok,
+	.pro_del,
+	.pro_close {
+		width: 232rpx;
+		height: 100rpx;
+		line-height: 100rpx;
+		font-size: 48rpx;
+		text-align: center;
+		background-color: #fff;
+		margin-top: 6rpx;
+		margin-bottom: 6rpx;
+		margin-left: 6rpx;
+		margin-right: 6rpx;
+	}
+	.container-top-text{
+		font-size: 32rpx;
+	}
+	
+	.tel {
+	  border-bottom-color: #DDDDDD;
+	  border-bottom-width: 2rpx;
+	  height: 100rpx;
+	  line-height: 100rpx;
+	  font-size: 40rpx;
+	}
+	
+	.chepai {
+	  height: 200rpx;
+	  line-height: 200rpx;
+	}
+</style>
+		

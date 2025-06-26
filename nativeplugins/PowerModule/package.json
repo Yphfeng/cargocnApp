@@ -1,0 +1,19 @@
+{
+    "name": "PowerModule",
+    "id": "PowerModule",
+    "version": "1.0.0",
+    "description": "权限判断",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "PowerModule",
+                    "class": "com.wnq.power.PowerModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}

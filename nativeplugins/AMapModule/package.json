@@ -1,0 +1,19 @@
+{
+    "name": "AMapModule",
+    "id": "AMapModule",
+    "version": "1.0.0",
+    "description": "权限判断",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "AMapModule",
+                    "class": "com.wxp.uniplugin_amap.AMapModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}

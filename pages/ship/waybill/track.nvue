@@ -1,0 +1,424 @@
+<template>
+	<view class="map" :style="{height: windowHeight + 'px'}">
+		<web-view
+			:style="{height: windowHeight + 'px'}"
+			class="map"
+			:src="trackUrl" 
+			@onPostMessage="recivePostMessage"
+			@message="reciveMessage"
+		></web-view>
+		
+		<uni-popup ref="popup" type="center">
+			<view class="popup_content">
+				<view class="popup_text">
+					<text class="popup_text_size">查询北斗轨迹 请充值查询四处，是否 充值？</text>
+				</view>
+				<view class="popup_bootom">
+					<view class="popup_bootom_item popup_bootom_item_left">
+						<text class="popup_bootom_item_text popup_bootom_item_left_color">否</text>
+					</view>
+					<view class="popup_bootom_item" @click="goCharge">
+						<text class="popup_bootom_item_text popup_bootom_item_right_color">是</text>
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+		
+		<!-- <view class="marker-info" v-if="params">
+			
+			<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_refresh_icon.png" class="track_icon" @click="refresh"></image>
+			
+			<view class="title"><text class="task">运单号:{{params.taskId}}</text></view>
+			<view class="user-info">
+				<text class="name">{{showName(params.driverName)}}</text>
+				<text class="name">{{showPlateNo(params.plateNo)}}</text>
+			</view>
+			<view class="marker-date">
+				<view class="selectWhole selectWholeFirst">
+					
+					<view>{{params.createdDtStart}}</view>
+					
+					<image src="/static/images/clear.png" class="clearIcon"></image>
+				</view>
+				<view class="selectWhole">
+			
+					<view>{{params.createdDtEnd}}</view>
+					
+					<image src="/static/images/clear.png" class="clearIcon"></image>
+				</view>
+			</view>
+			<view class="marker-btn">
+				<view class="btn-item" :class="{'btn-item-disabled': params.status == 3}" v-if="active == 1">北斗轨迹</view>
+				<view class="btn-item" v-else>app轨迹</view>
+			</view>
+			
+		</view> -->
+	</view>
+</template>
+
+<script>
+	import * as ship from "@/utils/ship"
+	import * as utils from "@/utils/utils"
+	export default {
+		data() {
+			return {
+				trackUrl: ship.trackMapUrl,
+				params: null,
+				active: 1,
+			}
+		},
+		onLoad(options) {
+			var that = this;
+			
+			this.windowHeight = uni.getSystemInfoSync().windowHeight;
+			
+			var waybillDetails = options.waybillDetails;
+			var userRole = uni.getStorageSync("userRole");
+			//传递起终点坐标给map
+			var orderAddressVOS = JSON.parse(waybillDetails).orderDetailVO.child.orderAddressVOS;
+			var params = new Object();
+			orderAddressVOS.forEach(item => {
+				if (item.serialnumber == 1) {
+					params.startLocation = [item.longitude, item.latitude]
+				} 
+				if (item.serialnumber == 4) {
+					params.endLocation = [item.longitude, item.latitude]
+				} else if (item.serialnumber == 3) {
+					params.endLocation = [item.longitude, item.latitude]
+				}
+			})
+			var userInfo = uni.getStorageSync("userInfo");
+			if (!userInfo) return;
+			var Authorization = JSON.parse(userInfo).attrs.token;
+			uni.showLoading({
+				title: '加载中...'
+			})
+			uni.getLocation({
+				altitude: true,
+				type: "gcj02",
+				success(res) {
+					params.latitude = res.latitude;
+					params.longitude = res.longitude;
+					params.Authorization = Authorization;
+					params.ApiRootUrl = ship.ApiRootUrl;
+					params.RegisterApiRootUrl = ship.RegisterApiRootUrl;
+					params.taskId = JSON.parse(waybillDetails).taskId;
+					params.driverName = JSON.parse(waybillDetails).ydTaskDriverVO.userName;
+					params.driverPhone = JSON.parse(waybillDetails).ydTaskDriverVO.phone;
+					params.plateNo = JSON.parse(waybillDetails).ydTaskDriverVO.vehicleNo;
+					params.status = JSON.parse(waybillDetails).status; //运单状态
+					params.createdDtStart = JSON.parse(waybillDetails).senderDt ? JSON.parse(waybillDetails).senderDt : JSON.parse(waybillDetails).createdDt;
+					if (params.status == 3) {
+						params.createdDtEnd = JSON.parse(waybillDetails).receiverDt;
+					} else {
+						var now = new Date();
+						var nowDt = utils.dateFormat("YYYY-mm-dd HH:MM:SS", now);
+						params.createdDtEnd = nowDt;
+					}
+					params.userCode = userRole == 1 ?  JSON.parse(userInfo).attrs.userCode : options.driverUserCode;
+					that.params = params;
+					var urlString = that.getParams(params);
+					that.trackUrl = ship.trackMapUrl + '?' + urlString
+					console.log(that.trackUrl, 'aaa');
+				},
+				fail() {
+					uni.hideLoading();
+				}
+			})
+			
+		},
+		methods: {
+			getParams(params) {
+				let paramStr = '';
+				Object.keys(params)
+					.forEach((item) => {
+						if (paramStr === '') {
+							paramStr = `${item}=${params[item]}`;
+						} else {
+							paramStr = `${paramStr}&${item}=${params[item]}`;
+						}
+					});
+				return paramStr;
+			},
+			showName(name) {
+				return name.substr(0, 1) + '**'
+			},
+			showPlateNo(plateNo) {
+				return plateNo.substr(0, 3) + '***' +  plateNo.substr(-1) 
+			},
+			recivePostMessage(e) {
+				console.log(e)
+				let obj = e.detail.data[0];
+				if (obj.type == "back") {
+					uni.navigateBack({
+						delta: 1
+					})
+					return;
+				}
+				if (obj.type == "loadComplete") {
+					uni.hideLoading();
+					return;
+				}
+				if (obj.type == "loadError") {
+					uni.hideLoading();
+					uni.showToast({
+						title: obj.message,
+						icon: 'none'
+					})
+					if (obj.message == "暂无查询次数") {
+						//提醒去充值
+						// this.$refs.popup.open();
+					}
+					return;
+				}
+				if (obj.type == "startLoad") {
+					uni.showLoading({
+						title: '加载中...'
+					})
+					return;
+				}
+				
+				
+				if (obj.type == "call") {
+					//打电话
+					var mobile = obj.data.mobile;
+					var driverInfo = obj.data;
+					let userData = uni.getStorageSync("userInfo");
+					var userInfo = userData ? JSON.parse(userData) : {};
+					let currentUserCode = userInfo.attrs.userCode;
+					
+					
+					if(currentUserCode == driverInfo.userCode){
+						uni.showToast({
+							title: '您不能给自己打电话',
+							icon: 'none'
+						})
+						return
+					}
+					uni.makePhoneCall({
+						phoneNumber: mobile
+					})
+					return;
+				}
+				
+				if (obj.type == "toGoEasy") {
+					//跳转goEasy
+					var driverInfo = obj.data;
+					console.log(this.goEasy, '啊啊啊啊');
+					let userData = uni.getStorageSync("userInfo");
+					var userInfo = userData ? JSON.parse(userData) : {};
+					let currentUserCode = userInfo.attrs.userCode;
+					
+					
+					if(currentUserCode == driverInfo.userCode){
+						uni.showToast({
+							title: '您不能给自己发私信',
+							icon: 'none'
+						})
+						return
+					}
+				
+					let avatarObj = JSON.parse(userData);
+					userInfo.attrs.avatar = avatarObj.attrs.avatar;
+								   
+					let userName = driverInfo.userName ? driverInfo.userName.substr(0, 1) + '**' : '';
+					let avatar = driverInfo.avatar ? driverInfo.avatar : '/static/images/goodsDelivery/shipUserLogo.png';
+					if(this.goEasy.getConnectionStatus() == 'disconnected') {
+						getApp().globalData.imService = new IMService(this.goEasy,this.GoEasy);
+						getApp().globalData.imService.connect(userInfo);
+						uni.hideLoading();
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/userMessage/chatDetails?receiverId=' + driverInfo.userCode + '&avatar=' + avatar + '&nickname=' + userName + '&userId=' + driverInfo.userId
+						})
+					}else {
+						uni.hideLoading();
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/userMessage/chatDetails?receiverId=' + driverInfo.userCode + '&avatar=' + avatar + '&nickname=' + userName + '&userId=' + driverInfo.userId
+						})
+					}
+					return;
+				}
+				
+				if(e.detail.data[0].selectData){
+					var selectedMapItem = e.detail.data[0].selectData;
+					var updateDt = selectedMapItem.locationUpdatedDt;
+					if (updateDt) {
+						var dateDesc = util.findDateDesc(updateDt);
+						selectedMapItem.dateDesc = dateDesc;
+					}
+					this.selectedMapItem = selectedMapItem;
+					
+				}
+				this.showMapLoading = false;
+				uni.hideLoading();
+			}, 
+			reciveMessage(e){ // 地图传递参数
+				console.log('地图传递参数', e.detail);
+				
+			},
+			goCharge() {
+				console.log("goCharge")
+				//跳转充值页面
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/userCenter/userWallet/trackTopUp?type=' + 'map'
+				})
+				
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.map {
+		width: 750rpx;
+	}
+	.marker-Content {
+		width: 81px;
+		height: 81px;
+		border-radius: 81px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.marker-Content-first {
+		background-color: rgba(212, 94, 222, 0.32);
+	}
+	.marker-Content-second {
+		background-color: rgba(151, 222, 94, 0.32);
+	}
+	.marker-Content-three {
+		background-color: rgba(94, 99, 222, 0.32);
+	}
+	.marker-Content-four {
+		background-color: rgba(222, 102, 94, 0.32);
+	}
+	.marker-marker {
+		height: 45px;
+		width: 45px;
+		border-radius: 45px;
+		line-height: 45px;
+		margin: 0 auto;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 16px;
+		font-weight: 600;
+	}
+	.marker-marker-first {
+		background-color: rgba(212, 94, 222, 1);
+	}
+	.marker-marker-second {
+		background-color: rgba(151, 222, 94, 1);
+	}
+	.marker-marker-three {
+		background-color: rgba(94, 99, 222, 1);
+	}
+	.marker-marker-four {
+		background-color: rgba(222, 102, 94, 1);
+	}
+	.marker-info {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 750rpx;
+		background-color: #FFFFFF;
+		border-radius: 24rpx 24rpx 0 0;
+		display: flex;
+		flex-direction: column;
+		height: 446rpx;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16px;
+	}
+	.track_icon {
+		position: fixed;
+		left: 22rpx;
+		bottom: 378rpx;
+		width: 60rpx;
+		height: 60rpx;
+	}
+	.user-info {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.marker-date {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.selectWhole {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items:  center;
+	}
+	.selectWholeFirst {
+		margin-right: 40rpx;
+	}
+	.clearIcon {
+		width: 40rpx;
+		height: 40rpx;
+	}
+	.btn-item {
+		width: 400rpx;
+		height: 80rpx;
+		border-radius: 24rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.btn-item-disabled {
+		background-color: #CCCCCC;
+	}
+	.popup_content {
+		width: 480rpx;
+		height: 282rpx;
+		background-color: #FFFFFF;
+		border-radius: 24rpx;
+		display: flex;
+	}
+	.popup_text {
+		flex: 1;
+		width: 480rpx;
+		padding: 0 36rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.popup_text_size {
+		color: #333333;
+		font-size: 28rpx;
+		line-height: 33rpx;
+		font-weight: 500;
+		text-align: center;
+	}
+	.popup_bootom {
+		display: flex;
+		flex-direction: row;
+		width: 480rpx;
+		height: 90rpx;
+		border-top: 1px solid #F1F1F1;
+	}
+	.popup_bootom_item {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.popup_bootom_item_text {
+		font-size: 28rpx;
+	}
+	.popup_bootom_item_left {
+		border-right: 1px solid #F1F1F1;
+	}
+	.popup_bootom_item_left_color {
+		color: #666666;
+	}
+	.popup_bootom_item_right_color {
+		color: #4EADF1;
+	}
+</style>

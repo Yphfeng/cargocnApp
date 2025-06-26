@@ -1,0 +1,2751 @@
+<template>
+	<view class="mutual">
+		<web-view
+		 :webview-styles="webviewStyles"
+			id="myMap"
+		  :src="srcUrl"
+		  style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;"
+		  :style="webViewHeight"
+		  class="mapView"
+		  @message="reciveMessage"
+		  @onPostMessage="recivePostMessage"
+		>
+		</web-view>
+		<view class="header">
+			<view class="backContent">
+				<view class="backer" @click="backToFromPage"><image src="../../../static/images/back.png" class="back"></image></view>
+				<view class="title-view"><text class="title-text" v-if="fleetDetail">{{fleetDetail.name}}</text></view>
+				<view />
+				<!-- <image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/share.png" class="share" @click="generate"></image> -->
+			</view>
+		</view>
+		
+		<view class="marker-info">
+			<!-- <view class="marker-content" v-if="isShowPoints">
+				<view class="alertJoin" :class="{'alertJoin-hidden': isShowPoints}">
+					<view class="join-item join-left" @click="batchToMyFleet">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/join-left-bg.png" class="join-img"></image>
+						<view class="join-text-inner">
+							<text class="join-text">加入我的车队</text>
+						</view>
+					</view>
+					<view class="join-item join-right" @click="toContact">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/join-right-bg.png" class="join-img"></image>
+						<view class="join-text-inner">
+							<text class="join-text">查看车辆详情</text>
+						</view>
+					</view>
+				</view>
+			</view> -->
+			<view v-if="!isShowPoints">
+				<view class="marker-content" v-if="isShowSelectedMapItem">
+					<!--isAlertJoin == 2-->
+					<view class="alertJoin_1" v-if="selectedMapItem.serviceType == 10" :class="{'alertJoin-hidden': isShowSelectedMapItem}">
+						<view class="info">
+							<view class="avatar-content">
+								<!-- <view class="avatar-icon" v-if="selectedMapItem.isBindDevice == 1">
+									<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/box-avatar-first-1.png" class="box-avatar"></image>
+									<view class="avatar-content-abs">
+										<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar"></image>
+										<view class="avatar-tips">
+											<view class="avatar-tips-content">
+												<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/jingxuan-btn-icon.png" class="jingxuan-btn-icon"></image>
+												<view class="avatar-tips-content-text">
+													<text class="avatar-tips-text">精选</text>
+												</view>
+											</view>
+										</view>							
+									</view>
+								</view>
+								<view class="avatar-icon" v-else-if="selectedMapItem.isBindZj == 1">
+									<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/box-bold-avatar.png" class="box-avatar"></image>
+									<view class="avatar-content-abs">
+										<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-bold"></image>
+										<view class="avatar-tips">
+											<view class="avatar-tips-content bold">
+												<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/bold-btn-icon.png" class="jingxuan-btn-icon"></image>
+												<view class="avatar-tips-content-text">
+													<text class="avatar-tips-text">黄金</text>
+												</view>
+											</view>
+										</view>							
+									</view>
+									
+								</view> -->
+								<view class="avatar-icon-other">
+									<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-other"></image>
+									<image class="vipIcon" src="/static/images/newFleetDetails/redVip.png" v-if="selectedMapItem.isBindDevice == 1"></image>
+									<image class="vipIcon" src="/static/images/newFleetDetails/blueVip.png" v-if="selectedMapItem.isBindDevice != 1 && selectedMapItem.isBindZj == 1"></image>
+								</view>
+								
+								<view class="status">
+									<view class="dot" :class="{dotActive: selectedMapItem.taskStatus == 2}" />
+									<text class="status-text" :class="{statusTextActive: selectedMapItem.taskStatus == 2}">{{selectedMapItem.taskStatus != 2 ? '可接单' : '忙碌'}}</text>
+								</view>
+							</view>
+							
+							<view class="info-content">
+								<view class="user-info">
+									<view class="user-info-content">
+										<text class="name">{{showName(selectedMapItem)}}</text>
+										<text class="nameType" v-if="selectedMapItem.isOwner || selectedMapItem.isAdmin">{{selectedMapItem.isOwner ?'(车队长)':'(管理员)'}}</text>
+										<text class="lenAndType">{{selectedMapItem.model?setModel(selectedMapItem.model):''}}</text>
+									</view>		
+									<image class="markerCloseIcon" @click="closeMarkerPopup()" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/close-white.png"></image>
+									
+								</view>
+								<view class="info-content-between">
+									<view class="info-content-left">
+										<view class="info-item mt-9" v-if="selectedMapItem.circuitCombo">
+											<view class="changp">
+												<text class="changp-label">常跑：</text>
+												<text class="changp-text">{{selectedMapItem.circuitCombo}}</text>
+											</view>
+										</view>
+										<view class="info-item addr_content mt-9">
+											<view class="addr">
+												<view class="addr_icon">
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_beidou.png" class="beidou_icon" v-if="selectedMapItem.dataSrc == 4"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_wx.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 3"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_box.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 1"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_app.png" class="beidou_icon" v-else></image>
+												</view>
+												<text class="addr-text">{{showAddr(selectedMapItem)}}</text>
+											</view>
+											
+										</view>
+										<view class="info-item info-labels" v-if="selectedMapItem.tagShowArr.length">
+											
+											<view class="btn-item" v-for="atem in selectedMapItem.tagShowArr">
+												<text class="btn-item-text">{{atem.tagName}}</text>
+											</view>
+											
+										</view>
+									</view>
+									<view class="info-content-right">
+										<view class="detail" @click="jumpToDriverDetails(selectedMapItem.userId, (fleetDetail.isOwner || fleetDetail.isAdmin) ? 1 : 0, (fleetDetail.isOwner || fleetDetail.isAdmin) ? 1 : 0)"  v-if="isShowDetailBtn">
+											<text class="detail-label">详情</text>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/arrow_right_blue_icon.png" class="arrow_black_right"></image>
+										</view>
+										<text class="date">{{showDate(selectedMapItem)}}</text>
+										<view class="isContact" v-if="selectedMapItem.isContact"><text class="isContact-text">您今天查看过</text></view>
+									</view>
+								</view>
+								
+							</view>
+						</view>
+						<!-- <view class="line" :style="{opacity: isAlertJoin == 5 ? 0 : 1}" />
+						<view class="opt-content" v-if="isAlertJoin == 3">
+								<view />
+								<view class="opt-item opt-item-1" @click="toTrack">
+									<text class="opt-item-text">查轨迹</text>
+								</view>
+						</view> -->
+						<!-- <view class="opt-content" v-if="isAlertJoin == 4">
+								<view class="opt-item opt-item-1" @click="toTrack">
+									<text class="opt-item-text">查轨迹</text>
+								</view>
+								<view class="opt-item opt-item-5" style="margin-left: 50px;" @click="toChatDetails(selectedMapItem)">
+									<text class="opt-item-text">私信</text>
+								</view>
+						</view> -->
+						<!-- <view class="opt-content opt-between" v-if="isAlertJoin == 1 || isAlertJoin == 2 || isAlertJoin == 8">	
+							<view class="opt-item opt-item-1" @click="toTrack">
+								<text class="opt-item-text">查轨迹</text>
+							</view>
+							<view class="opt-item opt-item-4" @click="toMyFleet">
+								<text class="opt-item-text">加入我的车队</text>
+							</view>
+							<view class="opt-item opt-item-5" style="width: 94px;" @click="toSimpleContact">
+								<text class="opt-item-text">联系车辆</text>
+							</view>
+						</view>
+						<view class="opt-content" v-if="isAlertJoin == 6">
+							<view class="opt-item opt-item-5" @click="toChatDetails(selectedMapItem)">
+								<text class="opt-item-text">私信</text>
+							</view>	
+						</view>
+						<view class="opt-content opt-between opt-7" v-if="isAlertJoin == 7">
+							<view class="opt-item opt-item-1" @click="toTrack">
+								<text class="opt-item-text">查轨迹</text>
+							</view>
+							<view class="opt-item opt-item-5" @click="toChatDetails(selectedMapItem)">
+								<text class="opt-item-text">私信</text>
+							</view>	
+							<view class="opt-item opt-item-6" @click="makePhoneCall(selectedMapItem)">
+								<text class="opt-item-text">电话</text>
+							</view>
+							
+						</view> -->
+						<view class="listBtnBox" v-if="trajectoryPermissions || collectionPermissions || callDriverPermissions">
+							<view class="groupLine"></view>
+							<view class="userListBtnGroup">
+								<view class="btnBox" v-if="trajectoryPermissions" @click="toTrack()">
+									<image class="btnIcon" src="/static/images/newFleetDetails/trajectory.png"></image>
+									<text class="btnMsg">轨迹</text>
+								</view>
+								<view class="btnBox" style="margin-left: 80rpx;" v-if="collectionPermissions && !selectedMapItem.isCollect" @click="checkCollectNum(selectedMapItem)">
+									<image class="btnIcon" src="/static/images/newFleetDetails/collection.png"></image>
+									<text class="btnMsg">收藏TA</text>
+								</view>
+								<view class="btnBox" style="margin-left: 80rpx;" v-if="collectionPermissions && selectedMapItem.isCollect == 1">
+									<image class="btnIcon" src="/static/images/newFleetDetails/collectioned.png"></image>
+									<text class="btnMsg">已收藏</text>
+								</view>
+								<view class="btnBox" style="margin-left: 80rpx;" @click="toCallUser(selectedMapItem)" v-if="callDriverPermissions">
+									<image class="btnIcon" src="/static/images/newFleetDetails/mobile.png"></image>
+									<text class="btnMsg">联系TA</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="alertJoin_1" v-else :class="{'alertJoin-hidden': isShowSelectedMapItem}">
+						<view class="info info-ship">
+							<view class="avatar-content">
+								<view class="avatar-icon-other">
+									<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-other"></image>
+								</view>
+							</view>
+							
+							<view class="info-content">
+								<view class="user-info">
+									<view class="user-info-content">
+										<text class="name">{{showName(selectedMapItem)}}</text>
+										<text class="nameType">{{selectedMapItem.isAdmin ?'(管理员-货主)':'(货主)'}}</text>
+									</view>		
+									<image class="markerCloseIcon markerCloseIcon-ship" @click="closeMarkerPopup()" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/close-white.png"></image>
+								</view>
+								<view class="info-content-between">
+									<view class="info-content-left">
+										<view class="info-item addr_content addr_ship mt-9">
+											<view class="addr addr-ship-content">
+												<view class="addr_icon">
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_beidou.png" class="beidou_icon" v-if="selectedMapItem.dataSrc == 4"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_wx.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 3"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_box.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 1"></image>
+													<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_app.png" class="beidou_icon" v-else></image>
+												</view>
+												<text class="addr-text">{{showAddr(selectedMapItem)}}</text>
+											</view>
+											<text class="date-ship">{{showDate(selectedMapItem)}}</text>
+										</view>
+
+									</view>
+		
+								</view>
+								
+							</view>
+						</view>
+						
+					</view>
+				</view>
+			</view>
+		
+		</view>
+		
+		<uni-popup ref="myFleetPopup" type="center">
+			<view class="myFleetBox">
+				<image class="popupCloseIcon" @click="closeFleetPopup()" src="/static/images/vehicleOptions/closePopupBtn.png"></image>
+				<view class="popupTitle"><text class="popupTitle-text">选择您的车队</text></view>
+				<scroll-view class="popupList" :scroll-y="true" :show-scrollbar="false">
+					<view class="myFleetInfoBox" v-for="(item, fIndex) in myFleetData" :key="fIndex" @click="item.checked = !item.checked">
+						<image class="checkIcon" :src="item.checked ? '/static/images/vehicleOptions/checkedIcon.png' : '/static/images/vehicleOptions/nCheck.png'"></image>
+						<view class="fleetName"><text class="fleetName-text">{{item.name}}</text></view>
+					</view>
+				</scroll-view>
+				<view class="popupBtn" @click="toAddUserInFleet()"><text class="popupBtn-text">确定</text></view>
+			</view>
+		</uni-popup>
+		
+		<uni-popup ref="fleetHintPopup" type="center">
+			<view class="fleetHintBox">
+				<image class="popupCloseIcon" @click="closeFleetHintPopup()" src="/static/images/vehicleOptions/closePopupBtn.png"></image>
+				<view class="popupTitle"><text class="popupTitle-text">提示</text></view>
+				<view class="hintMsg"><text class="hintMsg-text">您还没有创建车队</text></view>
+				<view class="popupBtn" @click="jumpToCreatFleet()"><text class="popupBtn-text">去新建车队</text></view>
+			</view>
+		</uni-popup>
+		<uni-popup ref="mainRspMsgPopup" type="center">
+			<view class="rspMsgBox">
+				<view class="msgText"><text class="msgText-text">{{rspMsg}}</text></view>
+			</view>
+		</uni-popup>
+		<uni-popup ref="noSourceNumPopupFleet" type="center">
+			<view class="noSourceNumBox">
+				<image @click="closeNoNumPopup()" class="closeIcon" src="/static/images/vehicleOptions/noSourceNumClose.png"></image>
+				<view class="msgBox">
+					<view class="mainTitle"><text class="mainTitle-noSource-text">提示</text></view>
+					<view class="mainContent"><text class="mainContent-noSource-text">您车队人数已经达到上限啦～，快点击下面了解详情吧</text></view>
+					<view class="memberTouUpBtn" @click="jumpToUserMember()">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-2.png" class="car-source-nvue-bf-2"></image>
+						<view class="memberTouUpBtn-content">
+							<view class="msgFleet">
+								<text class="msg-btn-text"  v-if="isRoleMember">升级会员，享{{mealBaseInfo ? mealBaseInfo : 0}}位司机加入您的车队</text>
+								<text class="msg-btn-text"  v-else>开通会员，享{{mealBaseInfo ? mealBaseInfo : 0}}位司机加入您的车队</text>
+							</view>
+							<view class="toBuyBtn">
+								<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-btn-1.png" class="car-source-nvue-btn-1"></image>
+								<view class="toBuyBtn-content">
+									<view class="btnText"><text class="btnText-text">去购买</text></view>
+									<image class="membersRightIcon" src="/static/images/vehicleOptions/membersRight.png"></image>
+																
+								</view>
+								
+							</view>
+						</view>
+						
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+		<uni-popup ref="noSourceNumPopup" type="center">
+			<view class="noSourceNumBox">
+				<image @click="closeNoNumPopup()" class="closeIcon" src="/static/images/vehicleOptions/noSourceNumClose.png"></image>
+				<view class="msgBox">
+					<view class="mainTitle"><text class="mainTitle-noSource-text">提示</text></view>
+					<view class="mainContent"><text class="mainContent-noSource-text">您今天剩余可查询车辆条数为{{remainingNum}}条，可点击下面了解详情</text></view>
+					<view class="singleTouUpBtn" @click="jumpToSingleTopup()">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-1.png" class="car-source-nvue-bf-1"></image>
+						<view class="singleTouUpBtn-content">
+							<view class="msg" v-if="firstTouUp == 1"><text class="msg-text">充值{{couponAccountObj.pointFirstPrice ? couponAccountObj.pointFirstPrice / 1000 : 0}}元，查看{{couponAccountObj.pointNum ? couponAccountObj.pointNum : 0}}条最新车源，去充值</text></view>
+							<view class="msg" v-if="!firstTouUp"><text class="msg-text">充值{{couponAccountObj.pointPrice ? couponAccountObj.pointPrice / 1000 : 0}}元，查看{{couponAccountObj.pointNum ? couponAccountObj.pointNum : 0}}条最新车源，去充值</text></view>
+							<image class="sigleRightIcon" src="/static/images/vehicleOptions/sigleRight.png"></image>
+						</view>
+					
+					</view>
+					<view class="memberTouUpBtn" @click="jumpToUserMember()">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-2.png" class="car-source-nvue-bf-2"></image>
+						<view class="memberTouUpBtn-content">
+							<view class="msg"><text class="msg-btn-text">开通会员，享{{mealBaseInfo ? mealBaseInfo : 0}}条车源/天推荐</text></view>
+							<view class="toBuyBtn">
+								<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-btn-1.png" class="car-source-nvue-btn-1"></image>
+								<view class="toBuyBtn-content">
+									<view class="btnText"><text class="btnText-text">去购买</text></view>
+									<image class="membersRightIcon" src="/static/images/vehicleOptions/membersRight.png"></image>
+																
+								</view>
+								
+							</view>
+						</view>
+						
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+		
+		<uni-popup ref="noFleetNumPopup" type="center">
+			<view class="noSourceNumBox">
+				<image @click="closeNoFleetNumPopup()" class="closeIcon" src="/static/images/vehicleOptions/noSourceNumClose.png"></image>
+				<view class="msgBox">
+					<view class="mainTitle"><text class="mainTitle-noSource-text">提示</text></view>
+					<view class="mainContent"><text class="mainContent-noSource-text">您车队人数已经达到上限啦，快来点击下面了解详情吧</text></view>
+					
+					<view class="memberTouUpBtn" @click="jumpToUserMember()">
+						<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-2.png" class="car-source-nvue-bf-2"></image>
+						<view class="memberTouUpBtn-content">
+							<view class="msg" style="width: 410rpx;"><text class="msg-btn-text">开通会员，可邀请{{fleetBaseInfo ? fleetBaseInfo : 0}}位司机加入您的车队</text></view>
+							<view class="toBuyBtn">
+								<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-btn-1.png" class="car-source-nvue-btn-1"></image>
+								<view class="toBuyBtn-content">
+									<view class="btnText"><text class="btnText-text">去购买</text></view>
+									<image class="membersRightIcon" src="/static/images/vehicleOptions/membersRight.png"></image>
+																
+								</view>
+								
+							</view>
+						</view>
+						
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/ship.js";
+	import * as util from "@/utils/utils";
+	import * as publicData from "@/utils/publicData.js";
+	const { dateTimePicker,getMonthDay} = require('@/utils/date.js');
+	var app = getApp();
+	export default {
+		data() {
+			return {
+				userRole: 1,
+				isAlertJoin: 0, //弹框如何显示
+				isShare: false,
+                webviewStyles: {
+                    progress: false
+                },
+				latitude: '',
+				longitude: '',
+				// srcUrl: utils.fleetMap,
+				srcUrl: "",
+				webViewHeight: '',
+				searchData: {},
+				repeatLoad: true,
+				showMapLoading: true,
+				fleetDetail: {},
+				selectedMapItem: null,
+				selectArr: [
+					{name: "今天", isSelected: true},
+					{name: "昨天", isSelected: false},
+					{name: "前天", isSelected: false},
+				],
+				dateTime: null,
+				endTime: null,
+				dateTimeArray: null,
+				endTimeArray: null,
+				startYear: 2000,
+				params: {
+					startTime: "",
+					endTime: '',
+				},
+				todaySelected: true,
+				yestodaySelected: false,
+				lastSelected: false,
+				nowDateStr: '',
+				longitude: '',
+				latitude: '',
+				provinceLocal: null,
+				userInfo: null,
+				GoEasy: '',
+				goEasy: '',
+				isShowSelectedMapItem: false,
+				myFleetData: [],
+				rspMsg: '',
+				willJoinFleetArr: [], //将要加入车队的司机
+				isShowPoints: false,
+				isShowDetailBtn: true,
+				couponAccountObj: {},
+				trajectoryPermissions: false,
+				collectionPermissions: false,
+				callDriverPermissions: false,
+				fleetmemsize: '',
+				fleetBaseInfo: 0
+			}
+		},
+		onLoad(option){
+			this.userRole = uni.getStorageSync("userRole");
+			this.GoEasy = getApp().globalData.nvueGoeasy;
+			this.goEasy = getApp().globalData.nvuegoeasy;
+			var fleetDetail = JSON.parse(option.fleetDetail);
+			this.longitude = option.longitude;
+			this.latitude = option.latitude;
+			console.log("超级车队",fleetDetail)
+			var statusBarHeight = uni.getSystemInfoSync().statusBarHeight;
+			this.statusBarHeight = statusBarHeight;
+			console.log(fleetDetail);
+			var nowDateDay = util.GetDateStr(0);
+			var yesDateDay = util.GetDateStr(-1);
+			var beforeDateDay = util.GetDateStr(-2);
+			this.nowDateDay = nowDateDay;
+			this.yesDateDay = yesDateDay;
+			this.beforeDateDay = beforeDateDay;
+			
+			var ApiRootUrl = utils.ApiRootUrl;
+			var QueryApiRootUrl = utils.QueryApiRootUrl;
+			
+			var userInfo = uni.getStorageSync("userInfo");
+			
+			this.userInfo = JSON.parse(userInfo);
+			var longitude = this.longitude;
+			var latitude = this.latitude;
+			var userCode = JSON.parse(userInfo).attrs.userCode;
+			var Authorization = JSON.parse(userInfo).attrs.token;
+			var fleetId = fleetDetail.id;
+			var selfCode = option.selfCode;
+			this.srcUrl = utils.fleetLocationMap + '?ApiRootUrl=' + ApiRootUrl + '&QueryApiRootUrl=' + QueryApiRootUrl + '&Authorization=' + Authorization + '&userCode=' + userCode + '&longitude=' + longitude + '&latitude=' + latitude + '&fleetId=' + fleetId + '&selfCode=' + selfCode + '&pageSource=detail';
+			
+			console.log(this.srcUrl, 'asas');
+			
+			var provinceLocal = uni.getStorageSync("provinceLocal");
+			if (!provinceLocal) {
+				this.getProvince();
+			} else {
+				this.provinceLocal = JSON.parse(provinceLocal);
+			}
+			var userRole = uni.getStorageSync("userRole");
+			
+			
+			//判断车队是否是平台车队
+			if (fleetDetail.fleetAttributes == "车型" || fleetDetail.fleetAttributes == "线路" || fleetDetail.fleetAttributes == "行业") {
+				fleetDetail.ext3 = "SUPER_FLEET"
+			}
+			this.fleetDetail = fleetDetail;
+			
+			if(this.fleetDetail.ext3 == "SUPER_FLEET") { // 超级车队
+				if(userRole == 2) {
+					this.trajectoryPermissions = true;
+					this.collectionPermissions = true;
+					this.callDriverPermissions = true;
+				}
+				if(this.fleetDetail.isAdmin || this.fleetDetail.isOwner) {
+					this.trajectoryPermissions = true;
+					this.collectionPermissions = true;
+					this.callDriverPermissions = true;
+				}
+			}else { // 一般车队
+				if(this.fleetDetail.isAdmin || this.fleetDetail.isOwner) {
+					this.trajectoryPermissions = true;
+					this.callDriverPermissions = true;
+				}else if(userRole == 2) {
+					this.trajectoryPermissions = true;
+				}
+			}
+			
+			//判断用户身份
+			if (!fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+				this.isAlertJoin = 1 ;//游客-货主购买了套餐访问超级车队
+			}
+			if (fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+				this.isAlertJoin = 2 ;//成员-货主购买了套餐访问超级车队
+			}
+			if (!fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 != "SUPER_FLEET") {
+				this.isAlertJoin = 3 ;//游客-货主看别人的普通车队
+			}
+			if (fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 != "SUPER_FLEET") {
+				this.isAlertJoin = 4 ;//成员-货主看别人的普通车队
+			}
+			if (!fleetDetail.isMember && userRole == 1) {
+				this.isAlertJoin = 5 ;//游客-司机看车队
+			}
+			if (fleetDetail.isMember && !fleetDetail.isOwner && userRole == 1) {
+				this.isAlertJoin = 6 ;//成员-司机看别人的车队
+			}
+			if ((fleetDetail.isOwner  || fleetDetail.isAdmin)  && fleetDetail.ext3 != "SUPER_FLEET") {
+				this.isAlertJoin = 7 ;//货主/司机看自建的普通车队
+				if (userRole == 1) {
+					this.isShowDetailBtn = false;
+				}
+			}
+			if ((fleetDetail.isOwner || fleetDetail.isAdmin) && fleetDetail.ext3 == "SUPER_FLEET") {
+				this.isAlertJoin = 8 ;//车队长/管理员看超级车队
+			}
+			if ((!fleetDetail.isOwner && !fleetDetail.isAdmin) && userRole == 1) {
+				this.isShowDetailBtn = false ;//游客，成员司机看车队不能查看详情
+			}
+			
+			uni.$on("signleTopupDone", (data) => {
+				this.openRspMsgPopup('充值成功～', 1);
+			});
+			this.getFleetMealBaseList();
+		},
+		onShow() {
+			this.getMyFleetInfo();
+		},
+		methods: {
+			makePhoneCall(item) {
+				if (!utils.btnRepeat()) return;
+				uni.makePhoneCall({
+				    phoneNumber: item.displayMobile ? item.displayMobile : item.mobile //仅为示例
+				});
+				publicData.addBuried("超级车队拨打电话");
+			},
+			toChatDetails(item) {
+				var userInfo = uni.getStorageSync("userInfo");
+				var currentUserCode = JSON.parse(userInfo).attrs.userCode;
+				if(this.currentUserCode == item.userCode){
+					uni.showToast({
+						title: '您不能给自己发私信',
+						icon: 'none'
+					})
+					return
+				}
+				uni.showLoading({
+					title: '加载中'
+				})
+				console.log('车队详情', this.info);
+				let userRole = uni.getStorageSync('userRole'); // 1为司机2为货主1
+				let userData = uni.getStorageSync("userInfo");
+				console.log('用户信息', JSON.parse(userData));
+				if(Number(userRole) == 1) {
+					userInfo = userData ? JSON.parse(userData) : {};
+					let avatarObj = JSON.parse(userData);
+					userInfo.attrs.avatar = avatarObj.attrs.avatar;
+				}else {
+					userInfo = userData ? JSON.parse(userData) : {};
+				}
+				let userName = item.userName ? item.userName.substr(0, 1) + '**' : '';
+				if(this.goEasy.getConnectionStatus() == 'disconnected') {
+					getApp().globalData.imService = new IMService(this.goEasy,this.GoEasy);
+					getApp().globalData.imService.connect(userInfo);
+					uni.hideLoading();
+					let avatar = item.avatar ? item.avatar : '../../../static/images/goodsDelivery/shipUserLogo.png';
+					uni.navigateTo({
+						url: '../userMessage/chatDetails?receiverId=' + item.userCode + '&avatar=' + avatar + '&nickname=' + userName + '&userId=' + item.userId
+					})
+				}else {
+					uni.hideLoading();
+					let avatar = item.avatar ? item.avatar : '../../../static/images/goodsDelivery/shipUserLogo.png';
+					uni.navigateTo({
+						url: '../userMessage/chatDetails?receiverId=' + item.userCode + '&avatar=' + avatar + '&nickname=' + userName + '&userId=' + item.userId
+					})
+				}
+			},
+			toTrack() {
+				//跳转轨迹页面
+				var selectedMapItem = this.selectedMapItem;
+				var obj = this.getPickerArr();
+							 
+				var dateTimeArray=obj.dateTimeArray;
+				var endTimeArray = obj.dateTimeArray;
+				var dateTime = obj.dateTime;
+				var startTime = [dateTime[0], dateTime[1], dateTime[2], 0, 0];
+				var endTime = [dateTime[0], dateTime[1], dateTime[2], 23, 59];
+				//获取当前日期
+				
+				var dateTime = this.createTimeStr(dateTimeArray,startTime);
+				var endTime= this.createTimeStr(endTimeArray,endTime);
+				var platform = uni.getSystemInfoSync().platform;
+				if (platform == "ios") {
+					uni.navigateTo({
+						url: './map?index=0&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+					return;
+				}
+				if (plus.navigator.checkPermission('android.permission.ACCESS_FINE_LOCATION') === 'undetermined') {
+					uni.showModal({
+						title: '提示',
+						content: '将获取您的定位权限以查看轨迹',
+						success: function(res) {
+							if (res.confirm) {
+								uni.navigateTo({
+									url: './map?index=0&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+								})
+							}
+						}
+					})
+				} else {
+					uni.navigateTo({
+						url: './map?index=0&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+				}
+			
+			
+			},
+			//获取日期的picker显示
+			getPickerArr(date) {
+				// 获取完整的年月日 时分秒，以及默认显示的数组
+				let datenow = new Date();
+				let endYear = datenow.getFullYear();
+				let obj = dateTimePicker(this.startYear, endYear, date);
+				// 精确到分的处理，将数组的秒去掉
+				let lastArray = obj.dateTimeArray.pop();
+				let lastTime = obj.dateTime.pop();
+				return obj
+			},
+			createTimeStr(dateTimeArray,dateTime){
+				let timeStr = dateTimeArray[0][dateTime[0]]+'-'+dateTimeArray[1][dateTime[1]]+'-'+dateTimeArray[2][dateTime[2]]+' '+dateTimeArray[3][dateTime[3]]+":"+dateTimeArray[4][dateTime[4]];
+				console.log(timeStr)
+				return timeStr
+			},
+			showAddr(item) {
+				var address = item.address;
+				if (!address) return '';
+				var reg = /.+?(县|区)/g
+				var addrArr = address.match(reg);
+				var addr = "";
+				if (addrArr) {
+					addr = addrArr[0]
+				} else {
+					addr = address
+				}
+				return addr;
+				
+			},
+			showDate(item) {
+				var locationDate = item.locationUpdatedDt;
+				if (!locationDate) return '';
+				return util.findBeidouDateDesc(locationDate)
+			},
+			showName(item) {
+				var that = this;
+				var userName = item.userName;
+				var userCode = item.userCode;
+				if (userName) {
+					if(item.isOwner && that.fleetDetail.fleetAttributes == '平台') {
+						return '货运中国'
+					} else if (that.fleetDetail.isAdmin || that.fleetDetail.isOwner) {
+						return userName
+					} else {
+						return userName.slice(0, 1) + '*'
+					}
+				} else {
+					return "卡友号：" + userCode
+				}
+			},
+			setModel(str) {
+				if(str.indexOf(',')>-1){
+					str = str.split(",")[0];
+				}
+				return str
+			},
+			async getProvince() {
+				var res = await utils.postRequest("/ts/nationDict/getBasicData");
+				var provinceArr = res.rspBody;
+				this.provinceLocal = provinceArr;
+			},
+			popStyle() {
+				return "border-top-left-radius: 40rpx"
+				
+			},
+			backToFromPage() {
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			generate() {
+				let that = this;
+				that.isShare = true;
+			},
+			// 取消分享
+			cancelShare() {
+				let that = this;
+				that.isShare = false;
+				that.$forceUpdate();
+			},
+			reciveMessage(e){
+				console.log(e)
+			},
+			recivePostMessage(e){ // 地图传递参数
+				let that = this;
+				console.log('地图传递参数', e);
+				let obj = e.detail.data[0];
+				if (obj.type == "loadComplete") {
+					uni.hideLoading();
+					return;
+				}
+				if (obj.type == "loadError") {
+					uni.hideLoading();
+					uni.showToast({
+						title: obj.message,
+						icon: 'none'
+					})
+					return;
+				} 
+				if (obj.type == "back") {
+					uni.navigateBack({
+						delta: 1
+					})
+					return;
+				}
+				if (obj.type == "locationCenter") {
+					that.isShowSelectedMapItem = false;	
+					return;
+				}
+				if (obj.type == "pointClick") {
+					//点击聚合点后的返回
+					var userCode = obj.data.data.userCode;
+					console.log(obj, userCode, 'assaasas');
+					that.getMemberInfo(userCode);
+				}
+				if (obj.type == "hidePoints") {
+					that.isShowSelectedMapItem = false;
+				}
+				if (obj.type == "showPoints") {
+					//从点聚合显示具体的点时
+					if (that.isAlertJoin == 1 || that.isAlertJoin == 2 || that.isAlertJoin == 8) {
+						//游客/成员=》超级车队
+						that.isShowPoints = true;
+						var dataItems = obj.data;
+						if (dataItems.length > 0) {
+							var willJoinFleetArr = [];
+							dataItems.forEach(item => {
+								var dataItem = item.dataItem;
+								if (dataItem.serviceType == 10) {
+									willJoinFleetArr.push(dataItem)
+								}
+							})
+							that.willJoinFleetArr = willJoinFleetArr;
+						}
+					}
+					
+				} else {
+					that.isShowPoints = false;
+				}
+				if (obj.type == "showList") {
+					//点击车源地图聚合跳转车队列表
+					var data = e.detail.data[0].data;
+					var source = e.detail.data[0].source
+					var adCode = data.adcode;
+					adCode = adCode.toString();
+					var code2 = adCode.substr(4, 2);
+					var userCode = this.userInfo.attrs.userCode;
+					var senderName = data.name;
+					
+					var codePro = adCode.substr(0, 2) + '0000';
+					var codeCity = adCode.substr(0, 4) + '00';	
+					var provinceLocal = this.provinceLocal;
+					console.log(provinceLocal.length)
+					var findIndex = provinceLocal.findIndex(item => {
+						return item.code == codePro
+					})
+					
+					console.log(findIndex, 'aa');
+					if (findIndex < 0) return;
+					var provinceName = provinceLocal[findIndex].name;
+					var provinceName = provinceName;
+					var provinceCode = codePro;
+					
+					if (code2 == '00') {
+						//表示是市级别
+						
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + adCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+						})
+						
+						
+					} else {
+						//获取该区所属的市
+					
+						if (provinceName == "上海市" || provinceName == "北京市" || provinceName == "天津市" || provinceName == "重庆市") {
+							if (senderName == "上海市" || senderName == "北京市" || senderName == "天津市" || senderName == "重庆市") {
+								var senderName = provinceName;
+								var senderCode = codePro;
+								
+								uni.navigateTo({
+									url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+								})
+								
+								return;
+							} else {
+								var senderName = senderName;
+								var senderCode = data.adcode;
+								
+								uni.navigateTo({
+									url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+								})
+								
+								
+								return;
+							}
+							
+						}
+						
+						var cityArr = provinceLocal[findIndex].cities;
+						
+						var findCityIndex = cityArr.findIndex(atem => {
+							return atem.code == codeCity
+						})
+						console.log(findCityIndex, 'asz')
+						if (findCityIndex < 0) return; 
+						
+						var senderName = cityArr[findCityIndex].name;
+						var senderCode = cityArr[findCityIndex].code;
+						console.log(senderName, senderCode);
+						
+						
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=carSource'
+						})
+						
+						
+					}
+					that.isDriverInfoShow = false;
+				}
+				if (obj.type == "toFleetList") {
+					//定位地图点击跳转车队成员列表
+					var data = e.detail.data[0].data;
+					var provinceCode = data.provinceCode;
+					var senderCode = data.senderCode;
+					var isPro = data.isPro; //判断是否跳转到省或市
+					
+					var userCode = this.userInfo.attrs.userCode;
+					
+					var provinceLocal = this.provinceLocal;
+					console.log(provinceLocal.length)
+					var findIndex = provinceLocal.findIndex(item => {
+						return item.code == provinceCode
+					})
+					
+					console.log(findIndex, 'aa');
+					if (findIndex < 0) return;
+					var provinceName = provinceLocal[findIndex].name;
+					var cityArr = provinceLocal[findIndex].cities;
+					//获取该区所属的市
+					var source = obj.source;
+					if (isPro) {
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + provinceName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+						})
+						
+						that.isDriverInfoShow = false;	
+						return;
+					}
+					if (provinceName == "上海市" || provinceName == "北京市" || provinceName == "天津市" || provinceName == "重庆市") {
+						
+						var findCityIndex = cityArr.findIndex(atem => {
+							return atem.code == senderCode
+						})
+						var senderName;
+						var senderCode; //直辖市直接跳转市级
+						if (findCityIndex > -1) {
+							senderName = cityArr[findCityIndex].name;
+							senderCode = cityArr[findCityIndex].code;
+						} else {
+							senderName = provinceName;
+							senderCode = provinceCode; //直辖市直接跳转市级
+						}
+						
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+						})
+						
+						that.isDriverInfoShow = false;	
+						return;
+					}
+					
+					var findCityIndex = cityArr.findIndex(atem => {
+						return atem.code == senderCode
+					})
+					console.log(findCityIndex, 'asz')
+					if (findCityIndex < 0) return; 
+					
+					var senderName = cityArr[findCityIndex].name;
+					var senderCode = cityArr[findCityIndex].code;
+					console.log(senderName, senderCode);
+					console.log('跳转新页面')
+					
+				
+					uni.navigateTo({
+						url: '/pages/goodsDelivery/fleetIndex/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+					})
+					
+					that.isDriverInfoShow = false;	
+				}
+				if (obj.type == "isToFleetMap") {
+					uni.showLoading();
+				}				
+				this.showMapLoading = false;
+			},
+			async getMemberInfo(userCode) {
+				let that = this;
+				try{
+					var res = await utils.newQueryPostRequest("/cd/fleetWithUser/list", {
+						userCode: userCode,
+						fleetId: this.fleetDetail.id,
+						source: 1,
+						count: false
+					})
+					uni.hideLoading();
+					console.log(res, 'asas')
+					if (res.retCode == "0000000") {
+						var item = res.rspBody.items[0];
+						if (!item) return;
+						console.log("selectedMapItem", item)
+						var tagList = item.tagList;
+						var tagShowArr = []
+						if (tagList) {
+							tagList.forEach(item => {
+								if (item.tagTypeCode == "FAVORITE_CARGO") {
+									tagShowArr.push(item)
+								}
+								if (item.tagTypeCode == "OFTEN_AREA") {
+									tagShowArr.push(item)
+								}
+								if (item.tagTypeCode == "ROAD_TYPE") {
+									tagShowArr.push(item)
+								}
+							})
+						}
+						
+						item.tagShowArr = tagShowArr;
+						this.selectedMapItem = item;
+						this.isShowSelectedMapItem = true;
+						
+						
+					} else {
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				}catch(e){
+					console.log(e)
+					uni.hideLoading();
+					//TODO handle the exception
+				}
+			},
+			call(mobile) {
+				if (!mobile) return;
+				uni.makePhoneCall({
+				    phoneNumber: mobile //仅为示例
+				});
+			},
+			getMyFleetInfo() { // 获取车队列表
+				let that = this;
+				that.myFleetData = [];
+				utils.newQueryPostRequest('/cd/fleet/list', { pageNum: 1, pageSize: 999, isMyFleet: 1, isOwner: 1 })
+				.then(res=>{
+					console.log('我的车队', res);
+					if(res.retCode == '0000000') {
+						let items = res.rspBody.items;
+						if(items && items.length > 0) {
+							for(let i in items) {
+								items[i].checked = false;
+								// that.myFleetData.push(items[i]);
+							}
+							that.myFleetData = items;
+							
+						}else {
+							that.myFleetData = [];
+						}
+					}
+				})
+				.catch(err=>{
+					console.log(err);
+				})
+			},
+			toMyFleet() {
+				if (!utils.btnRepeat()) return;
+				var that = this;
+				//判断身份权限
+				var selectedMapItem = this.selectedMapItem;
+				this.newCheckedItem = [selectedMapItem];
+				var fleetDetail = this.fleetDetail;
+				var userRole = uni.getStorageSync("userRole");
+				
+				that.willJoinFleetArr = [selectedMapItem];
+				if (!fleetDetail.isAdmin && !fleetDetail.isOwner && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+					uni.showLoading();
+					this.determineView(1)
+					return;
+				}
+				//判断车队人数到达上限
+				this.getFleetUplimit(that.willJoinFleetArr);
+				
+			},
+			async getFleetMemberInfo() {
+				var that = this;
+				var userId = this.userInfo.userId;
+				console.log(userId, 'aa')
+				var res = await utils.postRequest("/cp/act/set/meal/queryByUser", {
+					usersid: userId,
+					setmchannel: "app",
+					setmfree: 0,
+				})
+				if (res.retCode == "0000000") {
+					var arr = res.rspBody;
+					return arr.length > 0 ? arr[0] : null;
+				} else {
+					return null;
+				}
+			},
+			async getFleetUplimit(newCheckedItem) {
+				try{
+					var userId = this.userInfo.userId;
+					var result = await this.getFleetMemberInfo();
+					console.log("会员套餐", result);
+					
+					await this.getFleetMealBaseList(); //获取会员套餐配置
+					this.isRoleMember = result ? true : false; //判断是否是会员
+					
+					var rsp = await utils.postRequest("/cp/member/queryByUser", {
+						"usersid": userId,
+						"setmchannel": "app"
+					})
+					if (rsp.retCode != "0000000") {
+						uni.showToast({
+							title: rsp.retDesc,
+							icon: 'none'
+						})
+						return;
+					}
+					var setmitems = rsp.rspBody.setmitems;
+					var fleetmemsize = JSON.parse(setmitems).fleetmemsize;
+					var nowsurnum = fleetmemsize.nowsurnum; //车队剩余条数
+					this.remainingNum = nowsurnum;
+					console.log(nowsurnum);
+					setTimeout(() => {
+						if (nowsurnum < newCheckedItem.length) {
+							//剩余条数不足，提醒去充值
+							this.$refs.noSourceNumPopupFleet.open();
+							return;
+						}
+						
+						if (this.myFleetData.length > 0) {
+							this.$refs.myFleetPopup.open();
+						} else {
+							this.$refs.fleetHintPopup.open();
+						}
+					}, 500)
+				}catch(e){
+					//TODO handle the exception
+				}
+			},
+			async batchToMyFleet() {
+				//批量加入我的车队
+				if (!utils.btnRepeat()) return;
+				var that = this;
+				var fleetDetail = this.fleetDetail;
+				var userRole = uni.getStorageSync("userRole");
+				var willJoinFleetArr = that.willJoinFleetArr;
+			
+				if (!fleetDetail.isAdmin && !fleetDetail.isOwner && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+					uni.showLoading();
+					
+					//批量获取司机信息
+					var userIds = [];
+					willJoinFleetArr.forEach(item => {
+						userIds.push(item.userId)
+					});
+					var res = await utils.newQueryPostRequest("/cd/fleetWithUser/list", {
+						source: 1,
+						status: 1,
+						fleetId: that.fleetDetail.id,
+						pageSize: 9999,
+						pageNum: 1,
+						userIdList: userIds,
+					});
+					console.log("车位", res, userIds)
+					if (res.retCode != "0000000") {
+						uni.hideLoading();
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+						return;
+					}
+					var items = res.rspBody.items;
+					this.newCheckedItem = items;
+					this.determineView(1)
+					return;
+				}
+				//判断车队人数是否有限制;
+				this.getFleetUplimit(willJoinFleetArr)
+			},
+			hasCheckedFleetChecked() {
+				for(let i in this.myFleetData) {
+					if(this.myFleetData[i].checked) {
+						return true;
+					}
+				}
+			},
+			closeFleetPopup() {
+				this.$refs.myFleetPopup.close();
+			},
+			closeFleetHintPopup() {
+				this.$refs.fleetHintPopup.close();
+			},
+			toAddUserInFleet() { // 邀请加入车队
+				if(this.hasCheckedFleetChecked()) {
+					this.checkedCarItem = [];
+					for(let c in this.willJoinFleetArr) {
+						this.checkedCarItem.push(this.willJoinFleetArr[c])
+					}
+					let checkedFleetItem = [];
+					for(let f in this.myFleetData) {
+						if(this.myFleetData[f].checked) {
+							checkedFleetItem.push(this.myFleetData[f])
+						}
+					}
+					console.log('选中的车源', this.checkedCarItem);
+					console.log('选中的车队', checkedFleetItem);
+					let paramsInfo = [];
+					for(let a in this.checkedCarItem) {
+						for(let b in checkedFleetItem) {
+							let obj = {
+								"commonUserId": this.userInfo.userId,
+								"commonUserName": this.userInfo.userName ? this.userInfo.userName : undefined,
+								"fleetId": checkedFleetItem[b].id,
+								"fleetName": checkedFleetItem[b].name,
+								"userCode": this.checkedCarItem[a].userCode
+							}
+							paramsInfo.push(obj);
+						}
+					}
+					
+					console.log('邀请参数', paramsInfo);
+					let that = this;
+					uni.showLoading();
+					utils.postRequest('/cd/fleetWithUser/invite', paramsInfo)
+					.then(function (res) {
+						uni.hideLoading();
+						console.log('加入车队结果', res);
+						if(res.retCode == '0000000'){
+							that.$refs.myFleetPopup.close();
+							setTimeout(()=>{
+								that.openRspMsgPopup('已经把司机加入您的车队请稍后在车队查看');
+							}, 700)
+						} else{
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+					})
+					.catch(err=>{
+						uni.hideLoading();
+						console.log(err);
+					})
+				}else {
+					uni.showToast({
+						title: '请选择车队',
+						icon: 'none'
+					})
+				}
+			},
+			jumpToCreatFleet() {
+				var userInfo = uni.getStorageSync("userInfo");
+				if (!userInfo) return;
+				var identityVerify = JSON.parse(userInfo).attrs.identityVerify;
+				var faceVerify = JSON.parse(userInfo).attrs.faceVerify;
+				if (identityVerify != 1 || faceVerify != 1) {
+					uni.showToast({
+						title: '请先实名认证',
+						icon: 'none'
+					})
+					return;
+				}
+				this.$refs.fleetHintPopup.close();
+				uni.navigateTo({
+					url: '/pages/my/fleet/fleetCreate/fleetCreate?type=create'
+				})
+			},
+			openRspMsgPopup(msg) {
+				this.rspMsg = msg;
+				this.$refs.mainRspMsgPopup.open();
+				setTimeout(()=>{
+					this.$refs.mainRspMsgPopup.close();
+				},3000)
+			},
+			async toSimpleContact() {
+				if (!utils.btnRepeat()) return;
+				//联系单人
+				try{
+					let that = this;
+					let isAlertJoin = this.isAlertJoin;
+					var selectedMapItem = this.selectedMapItem;
+					this.newCheckedItem = [selectedMapItem];
+					if (isAlertJoin == 8) {
+						//车队长管理员不消耗条数
+						that.totView();
+					} else {
+						uni.showLoading();
+						this.determineView();
+					}
+					
+					
+				}catch(e){
+					console.log(e)
+					//TODO handle the exception
+				}
+				
+			},
+			determineView(addFleetFlag) { // 确定查看
+				let that = this;
+				var fleetDetail = this.fleetDetail;
+				let params = [];
+				for(let i in this.newCheckedItem) {
+					params.push({
+						fleetId: fleetDetail.id,
+						userId: this.newCheckedItem[i].userId,
+						contactUserId: that.userInfo.userId,
+					});
+				}
+				console.log('消费参数', params);
+				utils.postRequest('/cd/contact/log/addBatch', params)
+				.then(function (res) {
+					uni.hideLoading();
+					console.log('消费结果', res);
+					if(res.retCode == '0000000'){
+						if(res.rspBody > 0) {
+							that.totView(addFleetFlag);
+						}else {
+							console.log('消费次数失败');
+							// uni.showLoading();
+							that.getRemainingPoint();
+						}
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					uni.hideLoading();
+					console.log('消费请求失败', res.retDesc);
+				})
+			},
+			closeNoNumPopup() { // 关闭充值弹窗
+				this.$refs.noSourceNumPopup.close();
+				this.$refs.noSourceNumPopupFleet.close();
+			},
+			closeNoFleetNumPopup() {
+				this.$refs.noSourceNumPopup.close();
+			},
+			jumpToUserMember() { // 跳转会员列表
+				this.$refs.noSourceNumPopup.close();
+				this.$refs.noSourceNumPopupFleet.close();
+				this.$refs.noSourceNumPopup.close();
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/userCenter/member/memberPage?pageName=sourceIndex'
+				})
+			},
+			getRemainingPoint() { // 消费次数失败则获取消费次数并打开弹窗
+				let params = {
+					"usersid": this.userInfo.userId,
+					"setmchannel": "app"
+				}
+				console.log('剩余条数费参数', params);
+				let that = this;
+				utils.postRequest('/cp/member/queryByUser', params)
+				.then(function (res) {
+					uni.hideLoading();
+					console.log('剩余条数结果', res);
+					if(res.retCode == '0000000'){
+						let noteStr = res.rspBody.setmitems;
+						noteStr = noteStr.replace(/\//g, '');
+						noteStr = JSON.parse(noteStr);
+						console.log('JSON剩余条数结果', noteStr);
+						that.remainingNum = Number(noteStr.carsourcenum.nowsurnum);
+						that.firstTouUp = Number(noteStr.carsourcenum.firstRecharge);
+						that.getCouponAccountType(); // 单次充值配置
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					uni.hideLoading();
+					console.log('剩余条数请求失败', res.retDesc);
+				})
+			},
+			totView(addFleetFlag) { // 展示选中几条后跳转车源详情
+				var fleetDetail = this.fleetDetail;
+				var newCheckedItem = this.newCheckedItem;
+				this.isShowSelectedMapItem = false;
+				uni.navigateTo({
+					url: './fleetContactList?selectedMapArr=' + JSON.stringify(newCheckedItem) + "&fleetDetail=" +  JSON.stringify(fleetDetail) + '&isFee=1&addFleetFlag=' + addFleetFlag
+				})
+			},
+			async toContact() {
+				//批量联系
+				if (!utils.btnRepeat()) return;
+				try{
+					let that = this;
+					var willJoinFleetArr = this.willJoinFleetArr;
+					var fleetDetail = this.fleetDetail;
+					var params = [], userIdList = [];
+					willJoinFleetArr.forEach(item => {
+						userIdList.push(item.userId);
+					})
+					console.log("联系记录", params);
+					uni.showLoading();
+					var rsp = await utils.newQueryPostRequest("/cd/fleetWithUser/list", {
+						fleetId: fleetDetail.id,
+						source: 1,
+						userIdList: userIdList,
+						count: false
+						
+					})
+					if (rsp.retCode != "0000000") {
+						uni.hideLoading();
+						uni.showToast({
+							title: rsp.retDesc,
+							icon: 'none'
+						})
+						return;
+					}
+					console.log("数据",rsp);
+					var selectedMapArr = rsp.rspBody.items;
+					this.newCheckedItem = selectedMapArr;
+					var isAlertJoin = this.isAlertJoin;
+					if (isAlertJoin == 8) {
+						uni.hideLoading();
+						this.totView();
+					} else {
+						this.determineView();
+					}
+					
+				}catch(e){
+					console.log(e)
+					//TODO handle the exception
+				}
+				
+			},
+			jumpToDriverDetails(id, checkStatus, showPriceSensitivity) { // 跳转司机详情
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/driverDetails/driverDetails?id=' + id + '&encryption=' + checkStatus + '&showPriceSensitivity=' + showPriceSensitivity
+				})
+			},
+			closeMarkerPopup() {
+				this.isShowSelectedMapItem = false;
+			},
+			getCouponAccountType() { // 单次充值配置
+				let params = {
+					"level1": "车源",
+				}
+				console.log('单次充值费参数', params);
+				let that = this;
+				utils.postRequest('/cp/couponAccountType/list', params)
+				.then(function (res) {
+					console.log('单次充值结果', res);
+					if(res.retCode == '0000000'){
+						that.couponAccountObj = {};
+						that.couponAccountObj = res.rspBody && res.rspBody.length > 0 ? res.rspBody['0'] : {};
+						uni.hideLoading();
+						that.$refs.noSourceNumPopup.open();
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					console.log('单次充值配置请求失败', res.retDesc);
+				})
+			},
+			getFleetMealBaseList() {
+				//车队套餐请求
+				let params = {
+					"setmfree": "0",
+					"setmrole": "cargo",
+					"setmchannel": "app",
+					setmdisp: 1,
+				}
+				// console.log('会员套餐参数', params);
+				let that = this;
+				utils.postRequest('/cp/set/meal/base/list', params)
+				.then(function (res) {
+					console.log('会员套餐结果', res);
+					if(res.retCode == '0000000'){
+						let rspBody = res.rspBody;
+						that.mealBaseInfo = 0;
+						that.fleetBaseInfo = 0;
+						if(rspBody && rspBody.length > 0) {
+							let items = rspBody[rspBody.length - 1];
+							let setmitemsJson = items.setmitems.replace(/\//g, '');
+							let obj = JSON.parse(setmitemsJson);
+							that.mealBaseInfo = Number(obj.carsourcenum.defval);
+							that.fleetBaseInfo = Number(obj.fleetmemsize.defval);
+						}
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					console.log('会员套餐请求失败', res.retDesc);
+				})
+			},
+			getMealBaseList() { // 会员套餐列表
+				let params = {
+					"setmfree": "0",
+					"setmrole": "cargo",
+					"setmchannel": "app",
+					setmdisp: 1,
+				}
+				// console.log('会员套餐参数', params);
+				let that = this;
+				utils.postRequest('/cp/set/meal/base/list', params)
+				.then(function (res) {
+					console.log('会员套餐结果', res);
+					if(res.retCode == '0000000'){
+						let rspBody = res.rspBody;
+						that.mealBaseInfo = 0;
+						let defvalAry = [];
+						if(rspBody && rspBody.length > 0) {
+							for(let i in rspBody) {
+								let setmitemsJson = rspBody[i].setmitems.replace(/\//g, '');
+								let obj = JSON.parse(setmitemsJson);
+								// console.log('测试参数' + i, obj);
+								defvalAry.push(Number(obj.carsourcenum.defval));
+							}
+							console.log(that.mealBaseInfo);
+							let newAry = that.toSorting(defvalAry);
+							that.mealBaseInfo = newAry && newAry.length > 0 ? newAry[newAry.length - 1] : 0;
+							that.$forceUpdate();
+							uni.hideLoading();
+							that.$refs.noSourceNumPopup.open();
+						}
+					} else{
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					console.log('会员套餐请求失败', res.retDesc);
+				})
+			},
+			toSorting(arr){
+			    var interval = parseInt(arr.length / 2);  //分组间隔设置
+			    while(interval > 0){
+			        for(var i = 0 ; i < arr.length ; i ++){
+			            var n = i;
+			            while(arr[n] < arr[n - interval] && n > 0){
+			                var temp = arr[n];
+			                arr[n] = arr[n - interval];
+			                arr[n - interval] = temp;
+			                n = n - interval;
+			            }
+			        }
+			        interval = parseInt(interval / 2);
+			    }
+			    return arr;
+			},
+			jumpToSingleTopup() { // 单次充值
+				getApp().globalData.smsObj = {
+					amount: this.firstTouUp == 1 ? this.couponAccountObj.pointFirstPrice / 1000 : this.couponAccountObj.pointPrice / 1000,
+					noteVOS: [],
+					point: Number(this.couponAccountObj.pointNum)
+				}
+				this.$refs.noSourceNumPopup.close();
+				uni.navigateTo({
+					url: '/pages/goodsDelivery/smsTopUp?typeNum=54'
+				})
+			},
+			toCallUser(item) { // 联系TA
+				if(item.isContact == 1 || this.fleetDetail.isOwner) {
+					this.checkCallPermissions(item);
+				}else {
+					uni.showLoading();
+					let params = {
+						fleetId: this.fleetDetail.id,
+						userId: item.userId,
+						contactUserId: this.userInfo.userId,
+					
+					}
+					console.log('消费参数', params);
+					let that = this;
+					utils.postRequest('/cd/contact/log/addBatch', [params])
+					.then(function (res) {
+						console.log('消费结果', res);
+						if(res.retCode == '0000000'){
+							uni.hideLoading();
+							if(res.rspBody > 0) {
+								that.checkCallPermissions(item);
+							}else {
+								console.log('消费次数失败');
+								that.getRemainingPoint();
+							}
+						} else{
+							uni.hideLoading();
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+					})
+					.catch(err=>{
+						uni.hideLoading();
+						console.log('消费请求失败', res.retDesc);
+					})
+				}
+			},
+			checkCallPermissions(item) {
+				let platformMsg = uni.getSystemInfoSync().platform;
+				if(platformMsg == 'android') {
+					let that = this;
+					uni.showModal({
+						title: '提示',
+						content: '将获取您的电话权限以拨打电话',
+						success: function(res) {
+							if (res.confirm) {
+								plus.android.requestPermissions(
+									['android.permission.CALL_PHONE'],
+									function(resultObj) {
+										var result = 0;
+										for(let i = 0; i < resultObj.granted.length; i++) {
+											var grantedPermission = resultObj.granted[i];
+											console.log('已获取的权限', grantedPermission);
+											result = 1;
+										}
+										for(let i = 0; i < resultObj.deniedPresent.length; i++) {
+											var deniedPresentPermission = resultObj.deniedPresent[i];
+											console.log('拒绝本次申请的权限', deniedPresentPermission);
+											result = 0;
+										}
+										for(let i = 0; i < resultObj.deniedAlways.length; i++) {
+											var deniedAlwaysPermission = resultObj.deniedAlways[i];
+											console.log('永久拒绝申请的权限', deniedAlwaysPermission);
+											result = -1;
+										}
+										console.log(result);
+										that.makePhoneCall(result, item);
+									}
+								)
+							}
+						}
+					})
+					
+				}else {
+					this.makePhoneCall(1, item);
+				}
+			},
+			makePhoneCall(result, item) {
+				console.log('触发');
+				this.selectedMapItem.isContact = 1;
+				if(result == 1) {
+					uni.makePhoneCall({
+					    phoneNumber: item.mobile,
+					});
+					publicData.addBuried("货主搜索车源拨打司机电话")
+				}else {
+					uni.showToast({
+						title: '请开启拨号权限',
+						icon: 'none'
+					})
+				}
+			},
+			toCollectUser(item) { // 收藏用户
+				uni.showLoading();
+				let cardFleetItem = getApp().globalData.cardFleetItem;
+				if(cardFleetItem.id) {
+					let params = {
+						"commonUserId": this.userInfo.userId,
+						"commonUserName": this.userInfo.userName ? this.userInfo.userName : this.userInfo.mobile,
+						"fleetId": cardFleetItem.id,
+						"fleetName": cardFleetItem.name,
+						"userId": item.userId,
+						"userCode": item.userCode
+					}
+					console.log('收藏', params);
+					let that = this;
+					utils.postRequest('/cd/fleetWithUser/invite', [params])
+					.then(function (res) {
+						console.log('收藏结果', res);
+						if(res.retCode == '0000000'){
+							uni.showToast({
+								title: '收藏成功',
+								icon: 'none'
+							})
+							that.selectedMapItem.isCollect = 1;
+							that.selectedMapItem.isContact = 1;
+							that.$forceUpdate();
+						} else{
+							uni.hideLoading();
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+					})
+					.catch(err=>{
+						uni.hideLoading();
+						console.log('收藏请求失败', res.retDesc);
+					})
+				}else {
+					this.getMyCardFleetInfo(item);
+				}
+			},
+			getMyCardFleetInfo(item) {
+				let params = {
+					"commonUserId": this.userInfo.userId,
+					"currentUserCode": this.userInfo.attrs.userCode,
+					"isOwner": 1,
+					"isMyFleet": 1,
+					"isCardFleet": 1
+				}
+				let that = this;
+				utils.postRequest('/cd/fleet/list', params)
+				.then(function (res) {
+					console.log('卡片车队结果', res);
+					if(res.retCode == '0000000'){
+						let items = res.rspBody.items;
+						if(items && items.length > 0) {
+							getApp().globalData.cardFleetItem = items[0];
+							that.toCollectUser(item);
+						}else {
+							uni.hideLoading();
+							uni.showToast({
+								title: '名片夹查询异常，请联系管理员',
+								icon: 'none'
+							})
+						}
+					} else{
+						uni.hideLoading();
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					uni.hideLoading();
+					console.log('卡片车队请求失败', res.retDesc);
+				})
+			},
+			checkCollectNum(item) { // 检查消费次数
+				if(item.isContact == 1 || this.fleetDetail.isOwner) {
+					this.checkFleetNumPopup(item);
+				}else {
+					uni.showLoading();
+					let params = {
+						fleetId: this.fleetDetail.id,
+						userId: item.userId,
+						contactUserId: this.userInfo.userId,
+					
+					}
+					console.log('消费参数', params);
+					let that = this;
+					utils.postRequest('/cd/contact/log/addBatch', [params])
+					.then(function (res) {
+						console.log('消费结果', res);
+						if(res.retCode == '0000000'){
+							if(res.rspBody > 0) {
+								that.checkFleetNumPopup(item);
+							}else {
+								uni.hideLoading();
+								console.log('消费次数失败');
+								that.getRemainingPoint();
+							}
+						} else{
+							uni.hideLoading();
+							uni.showToast({
+								title: res.retDesc,
+								icon: 'none'
+							})
+						}
+					})
+					.catch(err=>{
+						uni.hideLoading();
+						console.log('消费请求失败', res.retDesc);
+					})
+				}
+			},
+			checkFleetNumPopup(item) { // 检查车队人数
+				let params = {
+					"usersid": this.userInfo.userId,
+					"setmchannel": "app"
+				}
+				console.log('剩余条数费参数', params);
+				let that = this;
+				utils.postRequest('/cp/member/queryByUser', params)
+				.then(function (res) {
+					console.log('剩余条数结果', res);
+					if(res.retCode == '0000000'){
+						let noteStr = res.rspBody.setmitems;
+						noteStr = noteStr.replace(/\//g, '');
+						noteStr = JSON.parse(noteStr);
+						console.log('JSON剩余条数结果', noteStr);
+						that.fleetmemsize = Number(noteStr.fleetmemsize.nowsurnum);
+						if(that.fleetmemsize < 1) {
+							uni.hideLoading();
+							that.$refs.noFleetNumPopup.open();
+						}else {
+							that.toCollectUser(item);
+						}
+					} else{
+						uni.hideLoading();
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				})
+				.catch(err=>{
+					uni.hideLoading();
+					console.log('剩余条数请求失败', res.retDesc);
+				})
+			},
+		}
+	}
+</script>
+
+<style>
+	.pl-20 {
+		padding-left: 20rpx;
+	}
+	.mapLoadingBox {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index:999999;
+	}
+	.mt-9 {
+		margin-top: 9px;
+	}
+	.header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 88px;
+		width: 750rpx;
+		background-color: #FFFFFF;
+		justify-content: flex-end;
+		padding-bottom: 10px;
+	}
+	.alertJoin {
+		width: 750rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 29px 26px;
+		transform: translateY(100%);
+		transition-property: transform;  
+		transition-duration: 300ms;
+		transition-timing-function: ease-in-out;  
+		transition-delay: 0s;
+		background-color: #FFFFFF;
+		border-radius: 12px 12px 0 0;
+		box-shadow: 0 -3px 9px 1px rgba(0, 0, 0, 0.17);
+	}
+	.alertJoin_1 {
+		width: 750rpx;
+		align-items: center;
+		transform: translateY(100%);
+		transition-property: transform;  
+		transition-duration: 300ms;
+		transition-timing-function: ease-in-out;  
+		transition-delay: 0s;
+		background-color: #FFFFFF;
+		border-radius: 12px 12px 0 0;
+		box-shadow: 0 -3px 9px 1px rgba(0, 0, 0, 0.17);
+		
+	}
+	.alertJoin-hidden {
+		transform: translateY(0);
+	}
+	.join-img {
+		width: 141px;
+		height: 45px;
+	}
+	.join-item {
+		width: 141px;
+		height: 45px;
+		justify-content: center;
+		align-items: center;
+	}
+	.join-text-inner {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 141px;
+		height: 45px;
+		justify-content: center;
+		align-items: center;
+	}
+	.join-text {
+		color: #FFFFFF;
+		font-size: 18px;
+		font-weight: 500;
+		line-height: 19px;
+		letter-spacing: 3px;
+	}
+	
+	.addServiceBtn {
+		background: #FF7D4A;
+		height: 64rpx;
+		width:142rpx;
+		border-radius: 32rpx;
+		margin-left: 40rpx;
+		text-align: center;
+		flex-direction: row;
+		justify-content: flex-start;
+		padding: 0 20rpx;
+	}
+	.addServiceBtnMsg {
+		font-size:28rpx;
+		color: #fff;
+		line-height: 64rpx;
+	}
+	.add-img {
+		width: 30rpx;
+		height: 30rpx;
+		margin-top: 16rpx;
+		margin-right: 10rpx;
+	}
+	.title {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 28rpx;
+	}
+	.backContent {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		height: 66rpx;
+		width: 750rpx;
+		padding: 0 32rpx;
+	}
+	.backer {
+		width: 66rpx;
+		height: 66rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.back {
+		width: 22rpx;
+		height: 40rpx;
+	}
+	.share {
+		width: 36rpx;
+		height: 38rpx;
+	}
+	.title-view {
+		width: 500rpx;
+		justify-content: center;
+		align-items: center;
+		
+	}
+	.title-text {
+		lines:1;
+		text-overflow: ellipsis;
+		font-size: 40rpx;
+		color: #333333;
+		font-weight: 600;
+	}
+	
+	.line {
+		width: 686rpx;
+		margin: 0 32rpx;
+		border-top-width: 2rpx;
+		border-top-color: rgba(242, 242, 242, 1);
+		border-style: solid;
+	}
+	.contentLeft {
+		width: 750rpx;
+		padding: 0 32rpx;
+		justify-content: center;
+	}
+	.contentRight {
+		flex: 1;
+		width: 750rpx;
+		padding: 28rpx 32rpx 0;
+	}
+	.item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		
+	}
+	.first {
+		padding-bottom: 10rpx;
+	}
+	.name {
+		font-size: 32rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		font-weight: 600;
+	}
+	.dateDesc {
+		font-size: 26rpx;
+		color: #777777;
+	}
+	.plateNo {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+	}
+	.address {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		width: 500rpx;
+	}
+	.btn {
+		background-color: #0171F9;
+		border-radius: 16rpx;
+		width: 138rpx;
+		height: 52rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.text {
+		color: #FFFFFF;
+		font-size: 26rpx;
+	}
+	.select-time {
+		flex-direction: row;
+	}
+	.select-item {
+		width: 136rpx;
+		height: 52rpx;
+		border: 2rpx solid #D9D9D9;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.select-item-text {
+		color: #D9D9D9;
+		font-size: 28rpx;
+	}
+	.select-item-second {
+		margin-left: 24rpx;
+	}
+	.select-item-active {
+		border: 2rpx solid #0171F9;
+		background-color: #D9EAFF;
+	}
+	.select-item-text-active {
+		color: #0171F9;
+	}
+	.select-self {
+		flex-direction: row;
+		margin-top: 22rpx;
+	}
+	.select-self-item {
+		width: 248rpx;
+		height: 82rpx;
+		border: 2rpx solid #D9D9D9;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16rpx;
+		border-radius: 8rpx;
+	}
+	.select-self-item-last {
+		margin-left: 32rpx;
+	}
+	.dateSelect {
+		width: 24rpx;
+		height: 20rpx;
+	}
+	.picker {
+		flex: 1;
+	}
+	.select-self-item-text {
+		flex: 1;
+		color: rgba(0, 0, 0, 0.25);
+		font-size: 28rpx;
+	}
+	.select-self-item-has-text {
+		flex: 1;
+		color: #333333;
+		font-size: 28rpx;
+	}
+	.btnContent {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 36rpx;
+	}
+	.boot-item {
+		width: 296rpx;
+		height: 106rpx;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}
+	.boot-item-first {
+		background-color: rgba(1, 113, 249, 1);
+		margin-right: 54rpx;
+	}
+	.boot-item-second {
+		background-color: rgba(255, 119, 0, 1);
+	}
+	.boot-item-title {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+	.boot-item-sub {
+		color: #FFFFFF;
+		font-size: 24rpx;
+	}
+	.title-btnWhole {
+		flex-direction: row;
+	}
+	.title {
+		color: #333333;
+		font-size: 32rpx;
+		font-weight: 600;
+		margin-right: 22rpx;
+	}
+	.hintBox {
+		background: #FFFFFF;
+		border-radius: 12rpx;
+		margin: 0 32rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 560rpx;
+		height: 320rpx;
+	}
+	.msgIcon {
+		margin-left: 32rpx;
+		height: 28rpx;
+		width: 28rpx;
+	}
+	.marker-info {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.info {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		margin-top: 13px;
+		width: 750rpx;
+		padding-bottom: 24rpx;
+	}
+	.info-ship {
+		height: 256rpx;
+		justify-content: center;
+		align-items: center;
+		margin-top: 0;
+	}
+	.avatar-content {
+		width: 80px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.avatar-icon {
+		width: 130rpx;
+		height: 102rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.avatar-icon-other {
+		margin-top: 5px;
+	}
+	.avatar-other {
+		width: 40px;
+		height: 40px;
+		border-radius: 100%;
+	}
+	.vipIcon {
+		width: 34rpx;
+		height: 34rpx;
+		position: absolute;
+		z-index: 1;
+		margin: 52rpx 0 0 46rpx;
+	}
+	.box-avatar {
+		width: 130rpx;
+		height: 102rpx;
+	}
+	.status {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 4px;
+	}
+	.dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 7px;
+		background-color: rgba(74, 205, 27, 1);
+	}
+	.dotActive {
+		background-color: rgba(226, 99, 59, 1);
+	}
+	.statusTextActive {
+		color: rgba(226, 99, 59, 1);
+	}
+	.status-text {
+		color: rgba(74, 205, 27, 1);
+		font-size: 14px;
+		line-height: 33rpx;
+		padding-left: 2px;
+	}
+	
+	.info-content {
+		flex-direction: column;
+	}
+	.info-item {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.changp {
+		flex-direction: row;
+		align-items: center;
+	}
+	.changp-label {
+		color: rgba(51, 51, 51, 1);
+		font-size: 18px;
+		margin-right: 10rpx;
+	}
+
+	.changp-text {
+		color: rgba(52, 137, 233, 1);
+		font-size: 18px;
+		font-weight: bold;
+		lines: 1;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		width: 140px;
+	}
+	.avatar-content-abs {
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 2;
+		width: 130rpx;
+		height: 102rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.avatar {
+		width: 68rpx;
+		height: 68rpx;
+		border-radius: 100%;
+		margin-left: 3rpx;
+	}
+	.avatar-bold {
+		width: 68rpx;
+		height: 68rpx;
+		border-radius: 100%;
+		margin-bottom: 2rpx;
+	}
+	.avatar-tips {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 130rpx;
+		z-index: 2;
+		justify-content: center;
+		align-items: center;
+	}	
+	.avatar-tips-content {
+		width: 76rpx;
+		height: 28rpx;
+		border-radius: 70rpx;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+	}
+	.jingxuan-btn-icon {
+		width: 76rpx;
+		height: 28rpx;
+	}
+	.avatar-tips-content-text {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 76rpx;
+		height: 28rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	.avatar-tips-text {
+		font-size: 16rpx;
+		font-weight: 500;
+		color: #000;
+	}
+	.bold {
+		background-image: linear-gradient(to bottom, rgba(236, 147, 18, 1), rgba(245, 182, 23, 1));
+	}
+	
+	.user-info {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding-right: 19px;
+	}
+	.user-info-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.markerCloseIcon {
+		position: absolute;
+		top: -80rpx;
+		right: 36rpx;
+		width: 40rpx;
+		height: 40rpx;
+	}
+	.markerCloseIcon-ship {
+		top: -120rpx;
+	}
+	.info-content-between {
+		width: 590rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: flex-start;
+		padding-right: 20px;
+	}
+	.info-content-right {
+		align-items: flex-end;
+	}
+	.detail {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 6px;
+		height: 20px;
+	}
+	.arrow_black_right {
+		width: 5px;
+		height: 10px;
+	}
+	.detail-label {
+		margin-right: 5px;
+		font-size: 14px;
+		color: rgba(52, 137, 233, 1);
+		font-weight: 500;
+		line-height: 16px;
+	}
+	.name {
+		font-size: 16px;
+		color: #333333;
+		font-weight: 600;
+		line-height: 19px;
+	}
+	.nameType {
+		font-size: 12px;
+		color: rgba(102, 102, 102, 1);
+		margin-right: 8rpx;
+		line-height: 19px;
+	}
+	.lenAndType {
+		font-size: 16px;
+		color: #333333;
+		line-height: 19px;
+		
+	}
+	.addr_content {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+	.addr_ship {
+		justify-content: center;
+		align-items: center;
+	}
+	.addr {
+		width: 400rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+	.addr-ship-content {
+		width: 450rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+	.addr_icon {
+		line-height: 19px;
+	}
+	.beidou_icon {
+		width: 17px;
+		height: 17px;
+	}
+	.addr-text {
+		flex: 1;
+		color: rgba(51, 51, 51, 1);
+		font-size: 18px;
+		line-height: 19px;
+		padding-left: 2px;
+		text-overflow: ellipsis;
+		lines: 1;
+		overflow: hidden;
+	}
+	.date {
+		font-size: 14px;
+		color: rgba(102, 102, 102, 1);
+		padding-top: 15px;
+		line-height: 22px;
+	}
+	.date-ship {
+		font-size: 14px;
+		color: rgba(102, 102, 102, 1);
+		line-height: 22px;
+	}
+	.info-labels {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.isContact {
+		margin-top: 15px;
+		
+	}
+	.isContact-text {
+		color: rgba(232, 82, 13, 1);
+		font-size: 12px;
+	}
+	.btn-item {
+		padding: 0 13px;
+		height: 21px;
+		border: 1px solid rgba(82, 131, 255, 1);
+		justify-content: center;
+		align-items: center;
+		border-radius: 4px;
+		margin-right: 10px;
+		margin-top: 10px;
+	}
+	.btn-item-text {
+		color: rgba(82, 131, 255, 1);
+		font-size: 12px;
+		font-weight: 500;
+	}
+	.line {
+		width: 750rpx;
+		height: 1px;
+		background-color: rgba(0, 0, 0, 0.2);
+		margin: 13px 0 18px;
+	}
+	.opt-content {
+		width: 750rpx;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 0 18px 17px;
+		background-color: #FFFFFF;
+		box-sizing: border-box;
+	}
+	.opt-between {
+		justify-content: space-between;
+	}
+	.opt-7 {
+		padding: 0 38px 17px;
+	}
+	.opt-item {
+		border-radius: 45px;
+		height: 38px;
+		justify-content: center;
+		align-items: center;
+	}
+	.opt-item-1 {
+		background-color: rgba(56, 136, 255, 1);
+		width: 80px;
+	}
+	.opt-item-5 {
+		background-image: linear-gradient(to right, rgba(234, 142, 67, 1), rgba(234, 106, 58, 1));
+		width: 80px;
+	}
+	.opt-item-6 {
+		background-image: linear-gradient(to right, rgba(161, 234, 67, 1), rgba(58, 234, 97, 1));
+		width: 80px;
+	}
+	.opt-item-2 {
+		background-color: rgba(234, 167, 67, 1);
+		width: 80px;
+		
+	}
+	.opt-item-4 {
+		background-color: rgba(178, 90, 246, 1);
+		width: 130px;
+	}
+	.opt-item-text {
+		color: #FFFFFF;
+		font-weight: 500;
+		font-size: 18px;
+	}
+	.opt-item-text-second {
+		font-size: 16px;
+	}
+	.myFleetBox {
+		height: 590rpx;
+		justify-content: flex-start;
+		align-items: center;
+		background: #FFFFFF;
+		border-radius: 24rpx;
+	}	
+	.popupTitle {
+		padding-top: 30rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.popupTitle-text {
+		font-size: 18px;
+		font-weight: 500;
+	}
+	.fleetHintBox {
+		height: 290rpx;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	
+	.fleetHintBox{
+		width: 464rpx;
+		background: #FFFFFF;
+		border-radius: 24rpx;
+	}
+		.popupCloseIcon {
+			display: block;
+			position: absolute;
+			width: 40rpx;
+			height: 40rpx;
+			right: 18rpx;
+			top:12rpx;
+		}
+		.popupTitle {
+			text-align: center;
+			font-size: 36rpx;
+			font-weight: 500;
+			color: #000000;
+			line-height: 44rpx;
+		}
+		.popupList {
+			height: 348rpx;
+			margin-top: 34rpx;
+		}
+		.myFleetInfoBox {
+			margin-top:20rpx;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+		.myFleetInfoBox {
+			margin-left:42rpx;
+			margin-right:42rpx;
+			height: 72rpx;
+			background: #F2F2F2;
+			border-radius: 8rpx;
+			display: flex;
+			align-items: center;
+			padding: 0 0 0 24rpx;
+			width: 380rpx;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+		}
+		.checkIcon {
+			width: 28rpx;
+			height: 28rpx;
+			display: block;
+			flex-shrink: 0;
+			margin-right:56rpx;
+		}
+		.fleetName {
+			flex: 1;
+		}
+		.fleetName-text {
+			font-size: 28rpx;
+			font-weight: 400;
+			color: #333333;
+			line-height: 44rpx;
+		}
+		
+		.popupBtn {
+			margin: 34rpx auto 0 auto;
+			background-color: #3888FF;
+			width: 312rpx;
+			height: 62rpx;
+			border-radius: 16rpx;
+			justify-content: center;
+			align-items: center;
+		}
+		.popupBtn-text {
+			font-size: 14px;
+			font-weight: 500;
+			color: #FFFFFF;
+		}
+		.hintMsg {
+			font-size: 28rpx;
+			font-weight: 400;
+			color: #333333;
+			line-height: 33rpx;
+			margin-top: 16rpx;
+			text-align: center;
+		}
+		.rspMsgBox {
+			width: 674rpx;
+			padding: 62rpx 32rpx 60rpx;
+			height: 222rpx;
+			background: #FFFFFF;
+			box-shadow: 0px 0px 20rpx 2rpx rgba(56,136,255,0.18);
+			border-radius: 24rpx;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}	
+		.msgText-text {
+			text-align: center;
+			font-size: 40rpx;
+			font-weight: 500;
+			color: #000000;
+			line-height: 58rpx;
+			letter-spacing: 2rpx;
+		}
+		.msgBtn {
+			width: 344rpx;
+			height: 72rpx;
+			border-radius: 12rpx;
+			background-color: rgba(43, 114, 240, 1);
+			justify-content: center;
+			align-items: center;
+		}
+		.msgBtn-text {
+			color: #FFFFFF;
+			font-weight: 500;
+			font-size: 32rpx;
+		}
+		.noSourceNumBox {
+			width: 630rpx;
+		}	
+		.closeIcon {
+			width: 48rpx;
+			height: 48rpx;
+			display: block;
+			margin: 0 0 10rpx 582rpx;
+		}
+		.msgBox {
+			width: 630rpx;
+			background: #FFFFFF;
+			border-radius: 24rpx;
+			box-sizing: border-box;
+			padding: 38rpx 0;
+		}	
+		.mainTitle-noSource-text {
+			font-size: 40rpx;
+			font-weight: 500;
+			color: #333333;
+			line-height: 44rpx;
+			text-align: center;
+		}
+		.mainContent {
+			margin-top: 30rpx;
+			
+			padding: 0 54rpx;
+		}
+		.mainContent-noSource-text {
+			font-size: 32rpx;
+			font-weight: 500;
+			color: #333333;
+			line-height: 44rpx;
+			text-align: center;
+		}
+		.singleTouUpBtn {
+			height: 80rpx;
+			width: 578rpx;
+			margin: 44rpx 26rpx 0 26rpx;
+			border-radius: 16rpx;
+			overflow: hidden;
+		}	
+		.car-source-nvue-bf-1 {
+			height: 80rpx;
+			width: 578rpx;
+		}
+		.singleTouUpBtn-content {
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 80rpx;
+			width: 578rpx;
+			padding: 0 18rpx;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.msg-text {
+			font-size: 28rpx;
+			font-weight: 500;
+			color: #FFFFFF;
+			line-height: 44rpx;
+		}
+		.sigleRightIcon {
+			height: 30rpx;
+			width: 30rpx;
+			display: block;
+		}
+		
+		.memberTouUpBtn {
+			height: 92rpx;
+			width: 578rpx;
+			margin: 20rpx 26rpx 0 26rpx;
+			border-radius: 16rpx;
+			overflow: hidden;
+		
+		}
+		.car-source-nvue-bf-2 {
+			height: 92rpx;
+			width: 578rpx;
+		}
+		.memberTouUpBtn-content {
+			position: absolute;
+			left: 0;
+			top: 0;
+			min-height: 92rpx;
+			width: 578rpx;
+			padding: 0 18rpx;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.msgFleet {
+			width: 400rpx;
+			text-align: center;		
+		}
+		
+		.msg-btn-text {
+			font-size: 28rpx;
+			font-weight: 500;
+			color: #F0AB88;
+			line-height: 44rpx;
+			text-align: center;
+		}
+		.toBuyBtn {
+			width: 128rpx;
+			height: 48rpx;
+			border-radius: 228rpx;
+			overflow: hidden;
+		}
+		.car-source-nvue-btn-1 {
+			width: 128rpx;
+			height: 48rpx;
+		}
+		.toBuyBtn-content {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 128rpx;
+			height: 48rpx;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+		}
+		.btnText {
+			font-size: 28rpx;
+			font-weight: 500;
+			color: #422507;
+		}
+		.btnText-text {
+			font-size: 28rpx;
+			font-weight: 500;
+			color: #422507;
+		}
+		.membersRightIcon {
+			width: 28rpx;
+			height: 28rpx;
+			display: block;
+		}
+		
+		.groupLine {
+			margin: 0 28rpx 0 92rpx;
+			height: 2rpx;
+			background-color: #E0E0E0;
+		}
+		.userListBtnGroup {
+			padding: 30rpx 52rpx;
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+		.btnBox {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+		.btnIcon {
+			width: 48rpx;
+			height: 48rpx;
+		}
+		.btnMsg {
+			font-size: 28rpx;
+			color: #333333;
+			padding-left: 8rpx;
+		}
+</style>

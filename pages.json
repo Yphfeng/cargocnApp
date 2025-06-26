@@ -1,0 +1,3841 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path" : "pages/defaultMainIndex/defaultMainIndex",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+			
+		},
+		
+		{
+			"path": "pages/index/srevice/srevice",
+			"style": {
+				"navigationBarTitleText": "服务站",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/roadCondition/index/index",
+			"style": {
+				"navigationBarTitleText": "路况",
+				"enablePullDownRefresh": false,
+				"bounce":"none",
+				"navigationStyle": "custom",
+				"app-plus": {  
+					"nvueCompiler":"uni-app",
+					"bounce":"none",
+					// "softinputMode":"adjustResize",
+					// "titleNView": false,  //不启用系统导航
+					"subNVues":[{  
+						"id": "popup", // 唯一标识  
+						"path": "pages/roadCondition/index/subNVue/popup" // 页面路径  
+						// "type": "popup",  //原生子窗口内置样式，可取值：'popup',弹出层；"navigationBar",导航栏
+						// "style": {
+						// 	"position": "absolute", 
+						// 	"width": "100%",
+						// 	"top": "200px",
+						// 	"height": "8%",
+						// 	"background": "transparent"
+						// } 
+					}]  
+				} 
+			}
+		},
+		{
+			"path": "pages/roadCondition/index/newIndex",
+			"style": {
+				"navigationBarTitleText": "路况",
+				"enablePullDownRefresh": false,
+				"bounce":"none",
+				"navigationStyle": "custom",
+				"app-plus": {  
+					"nvueCompiler":"uni-app",
+					"bounce":"none"
+				} 
+			}
+		},
+		{
+			"path": "pages/mutual/index/newIndex",
+			"style": {
+				"navigationBarTitleText": "互助",
+				"enablePullDownRefresh": false,
+				"bounce":"none",
+				"navigationStyle": "custom",
+				"app-plus": {  
+					"nvueCompiler":"uni-app",
+					"bounce":"none"
+				} 
+			}
+		},
+		{
+			"path": "pages/mutual/detail/detail",
+			"style": {
+				"navigationBarTitleText": "互助详情",
+				"enablePullDownRefresh": false,
+				"bounce":"none",
+				"app-plus":{
+					"softinputMode":"adjustResize"
+				}
+			}
+		},
+		{
+			"path": "pages/mutual/publish/index",
+			"style": {
+				"navigationBarTitleText": "发布互助",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"bounce":"none"
+			}
+		},
+		{
+			"path": "pages/mutual/index/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff",
+				"bounce":"none",
+				"app-plus": {
+					"nvueCompiler":"uni-app",
+					"titleNView": false,  //不启用系统导航
+					"subNVues":[{  
+						"id": "popup2", // 唯一标识  
+						"path": "pages/mutual/index/subNVue/popup" // 页面路径  
+						//"type": "popup"  //原生子窗口内置样式，可取值：'popup',弹出层；"navigationBar",导航栏
+						// "style": {
+						// 	"position": "absolute", 
+						// 	"width": "100%",
+						// 	"top": "17%",
+						// 	"height": "8%",
+						// 	"background": "transparent"
+						// } 
+					}]  
+				} 
+			}
+		},
+		{
+			"path": "pages/mutual/index/newIndex",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff",
+				"bounce":"none",
+				"app-plus": {
+					"nvueCompiler":"uni-app",
+					"titleNView": false  //不启用系统导航 
+				} 
+			}
+		},
+		{
+			"path": "pages/my/index/index",
+			"style": {
+				 "enablePullDownRefresh": true,
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom",
+				"app-plus":{
+					"titleNView":false ,
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				},//关闭H5和APP原生导航栏
+				"navigationBarBackgroundColor": "#FFF"
+			}
+		},
+		{
+			"path": "pages/my/index/game",
+			"style": {
+				// "navigationBarTitleText": "游戏中心",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+    {
+			"path": "pages/my/index/treasureNav",
+			"style": {
+				"navigationBarTitleText": "宝藏箱",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		  {
+			"path": "pages/my/index/treasure",
+			"style": {
+				"navigationBarTitleText": "货先生宝藏箱",
+				// "navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/my/settings/SDKList/SDKList",
+			"style": {
+				"navigationBarTitleText": "第三方信息共享清单",
+				// "navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/my/settings/SDKList/SDKListDetails",
+			"style": {
+				"navigationBarTitleText": "第三方信息共享清单",
+				// "navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+            "path" : "pages/index/report/report",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "上报",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+		{
+            "path" : "pages/index/serviceDetails/serviceDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "服务站详情",
+                "enablePullDownRefresh": false,
+				"app-plus":{
+					"bounce":"none",
+					"softinputMode":"adjustResize"
+				}
+            }
+            
+        },
+		{
+            "path" : "pages/roadCondition/releaseRoad/releaseRoad",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "发布路况",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        },
+		{
+            "path" : "pages/roadCondition/roadDetails/roadDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "路况详情",
+                "enablePullDownRefresh": false,
+				"app-plus":{"bounce":"none"}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/mutualAssistance/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的互助",
+                "enablePullDownRefresh": false,
+				"app-plus":{"bounce":"none"}
+            }
+            
+        },
+		{
+            "path" : "pages/login/login/login",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "登录",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus":{
+					"bounce":"none",
+					"popGesture":"none",
+					"softinputMode": "adjustPan"
+				}
+            }
+        },
+		{
+            "path" : "pages/login/invite/invite",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        },
+		{
+            "path" : "pages/login/loginSelect/loginSelect",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        },
+		{
+            "path" : "pages/login/loginAlready/loginAlready",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        },
+		{
+		    "path" : "pages/my/userVerify/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "实名认证",
+				"enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+		    "path" : "pages/my/userVerify/indexNew",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "实名认证",
+				"enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+		    "path" : "pages/my/carVerify/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车辆认证"
+		    }
+		    
+		},
+		{
+		    "path" : "pages/my/serviceStationCertification/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "服务站认证"
+		    }
+		    
+		},{
+		    "path" : "pages/my/settings/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "设置",
+                "enablePullDownRefresh": false
+		    }
+		},{
+			"path" : "pages/my/settings/addressItems",
+			"style" :                                                                                    
+			{
+			    "navigationBarTitleText": "地址列表",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"scrollIndicator": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		},{
+			"path" : "pages/my/settings/newAddress",
+			"style" :                                                                                    
+			{
+			    "navigationBarTitleText": "新建收货地址"
+			}
+		},{
+            "path" : "pages/index/mapView/mapView",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "地图",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"nvueCompiler":"uni-app",
+					// "titleNView": false,  //不启用系统导航
+					"subNVues":[
+					// 	{  
+					// 	"id": "popup1", // 唯一标识  
+					// 	"path": "pages/index/mapView/subNVue/popup" // 页面路径   
+					// },
+					{  
+						"id": "card", // 唯一标识  
+						"path": "pages/index/mapView/subNVue/card", // 页面路径  
+						// "type": "popup",  //原生子窗口内置样式，可取值：'popup',弹出层；"navigationBar",导航栏
+						"style": {
+							"position": "absolute", 
+							"width": "70%",
+							"left": "15%",
+							"right": "15%",
+							"bottom": "3%",
+							"height": "400upx",
+							"background": "transparent"
+						} 
+					}]  
+				} 
+            }
+            
+        },
+		{
+		    "path" : "pages/index/mapView/mapView1",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "地图",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"nvueCompiler":"uni-app"
+				} 
+		    }
+		    
+		},{
+            "path" : "pages/my/settings/pwdManager",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "重置登录密码",
+                "enablePullDownRefresh": false
+            }
+            
+        },{
+            "path" : "pages/my/carVerify/carList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的车辆",
+                "enablePullDownRefresh": false,
+				"backgroundColor":"#F1F4F9",
+				"app-plus": {
+					"safearea": {  
+					    "bottom": {  
+					        "offset": "none"  
+					    }  
+					}
+				}
+            }
+            
+        },{
+            "path" : "pages/my/carVerify/carDetailNew",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车辆详情",
+                "enablePullDownRefresh": false
+            }
+            
+        },{
+            "path" : "pages/my/carVerify/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车辆认证",
+                "enablePullDownRefresh": false
+            }
+            
+        },{
+            "path" : "pages/my/driverVerify/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "驾驶证认证",
+                "enablePullDownRefresh": false
+            }
+            
+        },{
+            "path" : "pages/login/login/loginPwd",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "密码登录",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+				
+            }
+            
+        },{
+            "path" : "pages/my/index/contactUs",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "联系我们",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+		{
+		    "path" : "pages/my/index/onlineService",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "在线客服",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+		    }
+		    
+		},{
+		    "path" : "pages/guide/guide",
+		    "style" :                                                                                    
+		    {
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+		    }
+		    
+		},
+		{
+		    "path" : "pages/login/login/checkDetail",
+		    "style" :                                                                                    
+		    {
+		        "enablePullDownRefresh": false,
+				"navigationBarTitleText": "服务协议"
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/login/login/privacyPolicy",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/search/search",
+            "style" :                                                                                    
+            {
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+		,{
+		    "path" : "pages/search/searchService",
+		    "style" :                                                                                    
+		    {
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/settings/userInfo/userInfo",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "编辑资料",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/settings/userInfo/editNickName",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "昵称",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/settings/userInfo/userIntroduce",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "个人简介",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/index/serviceDetails/newServiceDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "服务站详情",
+                "enablePullDownRefresh": true,
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"softinputMode": "adjustResize",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/index/serviceDetails/detailsReply",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "发表评价",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/roadCondition/roadDetails/newRoadDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "路况详情",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"softinputMode": "adjustResize",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/mutual/detail/mutualDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "互助详情",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"softinputMode": "adjustResize",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        },{
+			"path" : "pages/my/helpService/index",
+			"style" :                                                                                    
+			{
+			        "navigationBarTitleText": "",
+			        "enablePullDownRefresh": false,
+			    	"navigationStyle": "custom",
+			    	"app-plus": {
+			    		"titleNView": false,  //不启用系统导航
+			    		"bounce": "none",
+			    		"popGesture":"none",
+			            "scrollIndicator": "none",
+			    		"pullToRefresh": {
+			    			"style": "circle"
+			    		}
+			    	}
+			}
+		},{
+			"path": "pages/my/helpService/details",
+			"style" :
+			{
+			    "navigationBarTitleText": "问题详情",
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		}
+        ,{
+            "path" : "pages/my/invite/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "邀请卡友",
+                "enablePullDownRefresh": false
+            }
+            
+        },{
+			"path":"pages/my/invite/inviteCode",
+			"style" :
+			{
+			    "navigationBarTitleText": "输入邀请码",
+			    "enablePullDownRefresh": false
+			}
+		},{
+			"path":"pages/my/invite/rankingList",
+			"style" :
+			{
+			    "navigationBarTitleText": "排行榜",
+                // "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},
+		{
+			"path":"pages/my/invite/invitationList",
+			"style" :
+			{
+			    "navigationBarTitleText": "我的邀请",
+                "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},
+		{
+			"path": "uni_modules/uni-upgrade-center-app/pages/upgrade-popup",
+			"style": {
+				"disableScroll": true,
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+	
+				}
+			}
+		},
+		{
+			"path": "pages/ship/index/newsAlert",
+			"style": {
+				"disableScroll": true,
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+			
+				}
+			}
+		}
+        ,{
+            "path" : "pages/my/myRelease/myRelease",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的发布",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+            }
+            
+        }, {
+			"path": "pages/jymPages/oilstation/oilstationIndex/oilstationIndex",
+			"style": {
+				"navigationBarTitleText": "加油",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},{
+			"path": "pages/index/luckDraw/index",
+			"style": {
+				"navigationBarTitleText": "幸运抽奖",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},{
+			"path": "pages/index/ChinaTravel/index",
+			"style": {
+				"navigationBarTitleText": "点亮中国行",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/index/ChinaTravel/medal",
+			"style": {
+				"navigationBarTitleText": "点亮中国行-勋章墙",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/index/ChinaTravel/map",
+			"style": {
+				"navigationBarTitleText": "点亮中国行",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+    {
+			"path": "pages/my/historyLocation/index",
+			"style": {
+				"navigationBarTitleText": "用户轨迹",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/index/fleetReport/index",
+			"style": {
+				"navigationBarTitleText": "车队报表",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+		},
+		{
+			"path": "pages/index/ChinaTravel/dialog",
+			"style": {
+				"disableScroll": true,
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+	
+				}
+			}
+		},
+		{
+			"path": "pages/index/AnnualBill/AnnualBill",
+			"style": {
+				"navigationBarTitleText": "年度账单",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}  
+			}
+			
+		},
+		{
+			"path": "pages/index/AnnualBill/dialog",
+			"style": {
+				"disableScroll": true,
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+	
+				}
+			}
+		},
+		{
+			"path": "pages/jymPages/order/orderIndex/orderIndex",
+			"style": {
+				"navigationBarTitleText": "订单",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}, {
+			"path": "pages/jymPages/oilcardPage/oilcardPage",
+			"style": {
+				"navigationBarTitleText": "加油卡"
+			}
+		}, {
+			"path": "pages/jymPages/coupon/coupon",
+			"style": {
+				"navigationBarTitleText": "优惠奖券",
+				"enablePullDownRefresh": true
+			}
+		}, {
+			"path": "pages/jymPages/coupon/market/market",
+			"style": {
+				"navigationBarTitleText": "券市场",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/oilstationDetail/oilstationDetail",
+			"style": {
+				"navigationBarTitleText": "",
+				"disableScroll": true,
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilcardPage/recharge/rechargeIndex/rechargeIndex",
+			"style": {
+				"navigationBarTitleText": "自助充值"
+			}
+		}, {
+			"path": "pages/jymPages/order/orderDetail/orderDetail",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "订单详情",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/mapView/mapView",
+			"style": {
+				"navigationBarTitleText": "附近加油站"
+			}
+		}, {
+			"path": "pages/jymPages/order/rechargeDetail/rechargeDetail",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "充值详情"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/addOilPage/payOil/payOil",
+			"style": {
+				"navigationBarTitleText": "确认支付",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/addOilPage/addOilIndex/addOilIndex",
+			"style": {
+				"navigationBarTitleText": "加油",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/addOilPage/addOilResult/addOilResult",
+			"style": {
+				"navigationBarTitleText": "支付结果",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/selectCoupon/selectCoupon",
+			"style": {
+				"navigationBarTitleText": "选择优惠券",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}, {
+			"path": "pages/jymPages/oilstation/cashCoupon/cashCoupon",
+			"style": {
+				"navigationBarTitleText": "选择现金券",
+				"navigationBarBackgroundColor": "#F7F7F7"
+			}
+		}
+        ,{
+            "path" : "pages/my/integralDetails/integralDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "贡献值明细",
+                "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"softinputMode": "adjustResize",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+			"path" : "pages/my/settings/otherSetting",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "其他设置",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+          "path" : "pages/my/settings/push",
+                "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "推送消息设置",
+                    "enablePullDownRefresh": false
+                }
+                
+            }
+        ,{
+          "path" : "pages/my/settings/vehicleRecord",
+                "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "车辆记录设置",
+                    "enablePullDownRefresh": false
+                }
+                
+            }
+        ,{
+            "path" : "pages/my/settings/pwdList/pwdList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "密码管理",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/settings/payPwd/payPwd",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "重置支付密码",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+            "path" : "pages/my/settings/firstSetPassword",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "首次设置支付密码",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/fleetCreate/fleetCreate",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "组建新车队",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"scrollIndicator": "none"
+				}
+				
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/fleetList/fleetList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的车队",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+            }
+            
+        }
+		,{
+		    "path" : "pages/my/fleet/fleetDriverList/fleetDriverList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "我组建的车队",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/fleet/fleetManager/fleetManager",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车队管理",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/fleetAddList/fleetAddList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "加入车队",
+                "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/fleetAdd/fleetAdd",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "加入车队",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/fleetMemberList/fleetMemberList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车队成员",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+		
+        ,{
+            "path" : "pages/my/fleet/memberVerify/memberVerify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "卡友审核",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/settings/payPwdSet/payPwdSet",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "设置支付密码",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+            
+        
+		,{
+		    "path" : "pages/my/fleet/rule/rule",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "规章制度",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/myHobby/myHobby",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的喜好",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"backgroundColor":"#F2F2F2"
+            }
+            
+        }
+		,{
+		    "path" : "pages/my/myHobby/myHoby_driver",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "我的喜好",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"backgroundColor":"#F2F2F2"
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/myLikeList/myLikeList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的喜好",
+                "enablePullDownRefresh": false,
+				"backgroundColor":"#F2F2F2",
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan"
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/fleet/locationView/locationView",
+            "style" :                                                                                    
+            {
+				"navigationBarTitleText": "地图",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"nvueCompiler":"uni-app"
+				} 
+            }
+            
+        }
+		,{
+			"path": "pages/ship/index/index1",
+			"style": {
+				"navigationBarTitleText": "",
+		        "enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode":"adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path": "pages/ship/index/index_car_source",
+			"style": {
+				"navigationBarTitleText": "",
+		        "enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode":"adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+        ,{
+            "path" : "pages/ship/quotedPrice/quotedPrice",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "去报价",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/ship/supplyDetails/supplyDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货源详情",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+            }
+        }
+		,{
+		    "path" : "pages/ship/supplyDetails/supplyGoods",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货源详情",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+		    }
+		}
+		,{
+		    "path" : "pages/ship/supplyDetails/supplySecondGoods",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货源详情",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+		    }
+		}
+        ,{
+            "path" : "pages/ship/routeList/routeList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车型车长",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/ship/frequentlyRunList/frequentlyRunList",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					},
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+		,{
+			"path": "pages/goodsDelivery/index/index",
+			"style": {
+				"navigationBarTitleText": "发货",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"animationType": "none",
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/waybill",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+			    "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/userCenter",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/member/memberPage",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/member/buyHistory",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "购买记录",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/creatOrder",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "发货",
+		  //       "enablePullDownRefresh": false,
+				// "app-plus": {
+				// 	"scrollIndicator": "none"
+				// },
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"animationType": "none",
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/valueAdded/valueAdded",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "增值服务",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/goodsDetails/goodsDetails",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货物信息",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"scrollIndicator": "none"
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/goodsDetails/searchGoods",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货物信息",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/carType/carType",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "用车需求",
+		        "enablePullDownRefresh": false
+				
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/my/carVerify/carType",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车型车长",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/orderDetails",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货源详情",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"titleNView": {
+						"buttons": [ //原生标题栏按钮配置,
+							{
+								"color": "#333333",
+								"fontSize": "32rpx",
+								"text": "分享"
+							}
+						]
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/manyCarsDetail",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货源详情",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/waybillDetails/waybillDetails",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "运单详情",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/waybillPay/waybillPay",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "支付运费",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/editWaybill/editWaybill",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "修改运费",
+		        "enablePullDownRefresh": false,
+				"app-plus":{
+				
+				    "bounce":"none" // 将回弹属性关掉
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/supplyDetails/supplyDetails",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货源详情",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/sendAbnormal/sendAbnormal",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "异议上报",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/waybill/comments/comments",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "服务评价",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/newAddress/newAddress",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "新增地址",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/newAddress/addressList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "地址列表",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/personContact/personContact",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "联系人信息",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/newAddress/searchAddress",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "选择详细地址",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"scrollIndicator": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"softinputMode": "adjustResize"
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/loadTime/loadTime",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "装载时间",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/index/onNewsService",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "在线消息",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsers",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "实名认证",
+                "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"popGesture":"none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsersEdit",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "实名认证",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"popGesture":"none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/identifyingUsers/identifyingNewUsers",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "实名认证",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/enterpriseCertification/enterpriseCertification",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "企业认证",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/orderGoods",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货源详情",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "custom",
+				"app-plus": {
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/ship/waybill/waybill",
+			"style" :
+			{
+			    "navigationBarTitleText": "",
+			    "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"disableSwipeBack": true,
+				"app-plus": {
+					"bounce": "none",
+					"popGesture": "none",
+					"softinputMode":"adjustResize",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+        },
+		{
+		    "path" : "pages/ship/waybill/waybillDetails",
+			"style" :
+			{
+			    "navigationBarTitleText": "运单详情",
+			    "enablePullDownRefresh": false
+			}
+		    
+		},
+		{
+		    "path" : "pages/ship/waybill/comments",
+			"style" :
+			{
+			    "navigationBarTitleText": "物流服务评价",
+			    "enablePullDownRefresh": false
+			}
+		    
+		},
+		{
+		    "path" : "pages/ship/waybill/waybillEdit",
+			"style" :
+			{
+			    "navigationBarTitleText": "运单修改",
+			    "enablePullDownRefresh": false
+			}
+		    
+		},
+		{
+		    "path" : "pages/ship/waybill/loadingTask",
+			"style" :
+			{
+			    "navigationBarTitleText": "装货完成",
+			    "enablePullDownRefresh": false
+			}
+		    
+		},
+		{
+		    "path" : "pages/ship/waybill/unLoadingTask",
+			"style" :
+			{
+			    "navigationBarTitleText": "卸货完成",
+			    "enablePullDownRefresh": false
+			}
+		    
+		},
+		{
+		    "path" : "pages/ship/waybill/beginTask",
+			"style" :
+			{
+			    "navigationBarTitleText": "起运",
+			    "enablePullDownRefresh": false
+			}
+		},
+		{
+		    "path" : "pages/ship/waybill/arriveTask",
+			"style" :
+			{
+			    "navigationBarTitleText": "到达",
+			    "enablePullDownRefresh": false
+			}
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/userWallet/userWallet",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+            } 
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/userWallet/topUp",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus":{
+					"softinputMode":"adjustResize"
+				}
+			}
+        }
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/userWallet/trackTopUp",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus":{
+					"softinputMode":"adjustResize"
+				}
+			}
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/userWallet/withdrawal",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false,
+				"app-plus":{
+					"softinputMode":"adjustResize"
+				}
+            }
+			
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/userWallet/priceSerial",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "资金流水",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+                    "scrollIndicator": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/complaintsRecord/complaintsRecord",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "投诉记录",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/complaintsRecord/chooseWaybill",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "投诉记录",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/complaintsRecord/complaintsDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "投诉记录",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/complaintsRecord/commentsWaybill",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "运单评价",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/ship/search/search",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "搜索",
+                "enablePullDownRefresh": false,
+				"safearea": { 
+				    "bottom": {  
+				        "offset": "auto"  
+				    }  
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/commonlyUsed/commonlyUsed",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "常发货源",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/identifyingUsers/personFace",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"popGesture":"none",
+                    "scrollIndicator": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/userCenter/userWallet/addBand",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "添加银行卡",
+				"enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/allAgreement/authorization",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生用户授权协议",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/allAgreement/privacy",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生隐私政策",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/allAgreement/service",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生平台服务协议",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/allAgreement/plateformService",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货先生用户服务协议",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/allAgreement/driverService",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "货先生平台服务协议",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/allAgreement/carrierSpecification",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生货物发布及承运规范公告",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/settings/cancellation",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "注销账号",
+                "enablePullDownRefresh": false
+			
+		    }
+		}
+		,{
+            "path" : "pages/ship/news/news",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "消息中心",
+                "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+				    "scrollIndicator": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userCenter/invite/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+		,{
+			"path":"pages/goodsDelivery/userCenter/invite/rankingList",
+			"style" :
+			{
+			    "navigationBarTitleText": "邀请记录",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		}
+		,{
+			"path":"pages/allAgreement/agreementItems/index",
+			"style" :
+			{
+			    "navigationBarTitleText": "货物运输协议",
+			    "enablePullDownRefresh": false
+			
+			}
+		}
+		,{
+			"path":"pages/allAgreement/agreementItems/transportAgreement",
+			"style" :
+			{
+			    "navigationBarTitleText": "运输合同",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+            "path" : "pages/allAgreement/cancellationA",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生平台账号注销须知",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/index/indexSearch",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "搜索",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/allAgreement/digitalCertificate",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "数字证书使用协议",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/goodsDetails/fuzzySearch",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/allAgreement/agreementItems/driverPlatform",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生平台服务协议（司机版）",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/allAgreement/agreementItems/shipPlatform",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生平台服务协议",
+                "enablePullDownRefresh": false
+            }
+        },
+		{
+			"path": "pages/my/helpService/search",
+			"style" :
+			{
+			    "navigationBarTitleText": "帮助与客服",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/face/index",
+			"style": {
+				"navigationBarTitleText": "人脸认证"
+			  }
+		},
+		{
+			"path": "pages/goodsDelivery/userCenter/identifyingUsers/face",
+			"style": {
+				"navigationBarTitleText": "人脸认证"
+			  }
+		},
+		{
+			"path": "pages/goodsDelivery/userCenter/identifyingUsers/faceResult",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+				
+			  }
+		}
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/costInformation/costInformation",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/creatScope/creatScope",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/handlingInstructions/handlingInstructions",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/fleetIndex/fleetIndex",
+			"style": {
+				"navigationBarTitleText": "车队",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+            
+        }
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/fleetDetails",
+			"style": {
+				"navigationBarTitleText": "车队详情",
+				"enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode":"adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/memberList",
+			"style": {
+				"navigationBarTitleText": "粉丝",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/memberAdd",
+			"style": {
+				"navigationBarTitleText": "邀请新成员",
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/fleetCarType",
+			"style" :
+			{
+			    "navigationBarTitleText": "车型车长",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/qrCode",
+			"style" :
+			{
+			    "navigationBarTitleText": "车型车长",
+			    "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/fleetIndex/advantageArea",
+			"style" :
+			{
+			    "navigationBarTitleText": "优势区域",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/advantageIndustry",
+			"style" :
+			{
+			    "navigationBarTitleText": "优势行业",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/fleetIndex/previewImg",
+			"style" :
+			{
+			    "navigationBarTitleText": "图片预览",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+		    "path" : "pages/ship/fleet/index",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"scrollIndicator":"none",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetMap",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": false,
+			   "navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/map",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": false,
+			   "navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/locationView",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": false,
+			   "navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/carSourceTrack",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": false,
+			   "navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetLocationView",
+		   "style" :
+		   {
+		       "navigationBarTitleText": "",
+		       "enablePullDownRefresh": false,
+			   "navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		   }
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/userMessage",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "消息",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        },
+		{
+		    "path":"pages/goodsDelivery/businessCard/businessCard",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "名片夹",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/partnerGroup/partnerGroup",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "伙伴圈",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/partnerGroup/partnerSearch/partnerSearch",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "搜索",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/choosePartner/choosePartner",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的托运人",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/chatDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"softinputMode": "adjustResize",
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"titleNView":{
+					    "buttons":[
+							{
+								"color": "#333333",
+								"fontSize": "28rpx",
+								"text":"投诉"
+							}
+					    ]
+					}
+				}
+            }
+        }
+		,{
+		    "path" : "pages/my/myBank/myBankList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "选择银行卡",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/my/myBank/bankChoose",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "选择银行卡",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/my/myBank/addBank",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "添加银行卡",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetSetting",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "设置",
+		        "enablePullDownRefresh": false,
+				"backgroundColor":"#F2F2F2",
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetUpImg",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "上传照片",
+		        "enablePullDownRefresh": false,
+				"backgroundColor":"#F2F2F2",
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/assignedDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "指派",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/assignedDriver",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "选择司机",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/assignedPlateNo",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "选择车辆",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/userGroupMembers",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"softinputMode": "adjustResize",
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/groupChat",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"softinputMode": "adjustResize",
+					"scrollIndicator": "none",  //不展示滚动条
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					},
+					"titleNView":{
+					    "buttons":[
+							{
+								"color": "#333333",
+								"fontSize": "28rpx",
+								"text":"投诉"
+							}
+					    ]
+					}
+				}
+            }
+            
+        }
+		,{
+			"path":"pages/goodsDelivery/transport/transport",
+			"style" :
+			{
+			    "navigationBarTitleText": "货先生.标签码",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/goodsCodeDetails",
+			"style" :
+			{
+			    "navigationBarTitleText": "货先生.标签码",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/scanCode",
+			"style" :
+			{
+			    "navigationBarTitleText": "货先生.标签码",
+			    "enablePullDownRefresh": false
+				// "app-plus": {
+				// 	"titleNView": false,  //不启用系统导航
+				// 	"bounce": "none",
+				// 	"pullToRefresh": {
+				// 		"style": "circle"
+				// 	}
+				// }
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/codeResult",
+			"style" :
+			{
+			    "navigationBarTitleText": "扫描结果",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/print",
+			"style" :
+			{
+			    "navigationBarTitleText": "打印",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/transportMap",
+			"style" :
+			{
+			    "navigationBarTitleText": "打印",
+			    "enablePullDownRefresh": false,
+			    "app-plus": {
+			    	"titleNView": false,  //不启用系统导航
+			    	"bounce": "none",
+			    	"pullToRefresh": {
+			    		"style": "circle"
+			    	}
+			    }
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/creatOrder",
+			"style" :
+			{
+			    "navigationBarTitleText": "完善货源信息",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none"
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/selectUser",
+			"style" :
+			{
+			    "navigationBarTitleText": "上游托运人",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none"
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/goodsDetails/goodsDetails",
+			"style" :
+			{
+			    "navigationBarTitleText": "货物信息",
+			    "enablePullDownRefresh": false,
+				"app-plus": {
+					"softinputMode": "adjustPan",
+					"scrollIndicator": "none"
+				}
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/goodsDetails/searchGoods",
+			"style" :
+			{
+			    "navigationBarTitleText": "货物信息",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path":"pages/goodsDelivery/transport/goodsDetails/fuzzySearch",
+			"style" :
+			{
+			    "navigationBarTitleText": "",
+			    "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,  //不启用系统导航
+					"safearea": {
+					    "bottom": {  
+					        "offset": "none" 
+					    }  
+					}
+				}
+			}
+		}
+		,{
+			"path": "pages/goodsDelivery/transport/costInfo",
+			"style" :
+			{
+			    "navigationBarTitleText": "",
+			    "enablePullDownRefresh": false
+			}
+		}
+		,{
+			"path":"pages/my/index/wssScan",
+			"style" :
+			{
+			    "navigationBarTitleText": "扫描测试",
+			    "enablePullDownRefresh": false
+			}
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/complaints",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "投诉",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/advertisingH5/advertisingH5",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "货先生",
+                "enablePullDownRefresh": false
+            }
+        },
+		{
+			"path" : "pages/dutalk/room/room",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle":"custom",
+				"navigationBarTextStyle": "white"
+				
+			}
+			
+		},
+		{
+			"path" : "pages/dutalk/room/blueth",
+			"style":                                                                                    
+			{
+				"navigationBarTitleText": "连接蓝牙",
+				"enablePullDownRefresh": false,
+				"navigationStyle":"default",
+				"navigationBarTextStyle": "black"
+			}
+			
+		}
+		,{
+			"path" : "pages/dutalk/room/bindBlueth",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle":"default",
+				"navigationBarTextStyle": "black"
+			}
+			
+		}
+		,{
+			"path" : "pages/dutalk/room/blueStatus",
+			"style" :                                                                                    
+			{
+			   "navigationBarTitleText": "",
+			   "enablePullDownRefresh": false,
+			   "navigationStyle":"default",
+			   "navigationBarTextStyle": "black"
+			}
+			
+		}
+		,{
+			"path" : "pages/dutalk/room/answer",
+			"style" :                                                                                    
+			{
+			   "navigationBarTitleText": "",
+			   "enablePullDownRefresh": false,
+			   "navigationStyle":"default",
+			   "navigationBarTextStyle": "black"
+			}
+			
+		},
+		{
+		   "path" : "pages/dutalk/room/bluethAdv",
+		   "style" :
+		   {
+		    "navigationBarTitleText": "",
+		    "enablePullDownRefresh": false,
+		    "navigationStyle":"custom",
+		    "navigationBarTextStyle": "white"
+		    
+		   }
+		}
+        ,{
+            "path" : "pages/goodsDelivery/waybill/waybillEdit/waybillEdit",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "修改运单",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+		{
+			"path": "pages/goodsDelivery/LtlOrder/bleManager/bleConnect",
+			"style": {
+				"navigationBarTitleText": "选择打印机",
+				"navigationBarBackgroundColor":"#F1F4F9"
+			}
+		}, {
+			"path": "pages/goodsDelivery/LtlOrder/bleManager/printCommand",
+			"style": {
+				"navigationBarTitleText": "打印"
+			}
+		}
+        ,{
+            "path" : "pages/goodsDelivery/fleetIndex/fleetSearch",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车队搜索",
+                "enablePullDownRefresh": true,
+                "onReachBottomDistance": 600,
+                "app-plus": {
+                	"scrollIndicator": "none",  //不展示滚动条
+                	"titleNView": false,  //不启用系统导航
+                	"bounce": "none",
+                	"pullToRefresh": {
+                		"style": "circle"
+                	}
+                }
+            }
+            
+        },
+		{
+			"path": "pages/goodsDelivery/transport/adjustmentStatus",
+			"style": {
+				"navigationBarTitleText": "调整状态",
+				"enablePullDownRefresh": false,
+				"backgroundColor":"#F1F4F9",
+				"navigationBarBackgroundColor":"#F1F4F9"
+			}
+		},
+		{
+			"path": "pages/goodsDelivery/transport/exception",
+			"style": {
+				"navigationBarTitleText": "上报异常",
+				"enablePullDownRefresh": false,
+				 "navigationStyle":"custom"
+				
+			}
+		},
+		{
+			"path": "pages/goodsDelivery/transport/scanDetail",
+			"style": {
+				"navigationBarTitleText": "扫码明细",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#F1F4F9"
+			}
+		},
+		{
+			"path": "pages/goodsDelivery/transport/scanGoodsDetail",
+			"style": {
+				"navigationBarTitleText": "扫码明细",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#F1F4F9"
+			}
+		},
+		{
+			"path": "pages/goodsDelivery/transport/freightDetails",
+			"style": {
+				"navigationBarTitleText": "费用明细",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/goodsDelivery/transport/inputCode",
+			"style": {
+				"navigationBarTitleText": "手动输入",
+				"enablePullDownRefresh": false
+			}
+		}
+        ,{
+            "path" : "pages/my/carVerify/newCarVerify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "行驶证认证",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/my/carVerify/newCarVerifyEdit",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "行驶证编辑",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/driverVerify/newDriverVerify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "驾驶证认证",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/my/driverVerify/newDriverVerifyEdit",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "驾驶证编辑",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/my/transportVerify/transportVerify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "承运资质认证",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/my/transportVerify/transportVerifyEdit",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "承运资质编辑",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+			"path" : "pages/my/carVerify/carNo",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "车牌号",
+				"enablePullDownRefresh": false
+			}
+			
+		},
+		{
+			"path" : "pages/ship/carSource/sourceDetail",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"navigationBarBackgroundColor":"#F1F4F9",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+			}
+			
+		},
+		{
+			"path" : "pages/ship/carSource/sourceSettings",
+			"style" :                                                                                    
+			{
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+			}
+			
+		}
+        ,{
+            "path" : "pages/goodsDelivery/userMessage/noticeMessage",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "消息通知",
+                "enablePullDownRefresh": true,
+                "app-plus": {
+                	"scrollIndicator": "none",  //不展示滚动条
+                	"bounce": "none",
+                	"pullToRefresh": {
+                		"style": "circle"
+                	}
+                }
+            }
+            
+        },
+		{
+		    "path" : "pages/ship/carSource/carSourceMap",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车源地图",
+		        "enablePullDownRefresh": false,
+				"navigationStyle":"custom",
+				"app-plus": {
+					"popGesture": "none"
+					
+				}
+				
+		    }
+		    
+		},
+		{
+		    "path" : "pages/ship/carSource/driverMap",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "司机地图",
+		        "enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+				
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/smsTopUp",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "充值",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/sourceIndex/sourceSetting",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/sourceIndex/sourceIndex",
+            "style" :                                                                                    
+            {
+            	"navigationBarTitleText": "发货",
+            	"enablePullDownRefresh": true,
+            	"onReachBottomDistance": 600,
+            	"app-plus": {
+            		"animationType": "none",
+            		"scrollIndicator": "none",  //不展示滚动条
+            		"titleNView": false,  //不启用系统导航
+            		"bounce": "none",
+            		"pullToRefresh": {
+            			"style": "circle"
+            		}
+            	}
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/sourceIndex/carSourceTips",
+		    "style" :                                                                                    
+		    {
+		    	"navigationBarTitleText": "",
+		    	"enablePullDownRefresh": false,
+		    	"disableScroll": true,
+		    	"app-plus": {
+		    	    "backgroundColorTop": "transparent",
+		    	    "background": "transparent",
+		    	    "titleNView": false,
+		    	    "scrollIndicator": false,
+		    	    "popGesture": "none",
+		    	    "animationType": "fade-in",
+		    	    "animationDuration": 200
+		    		
+		    	}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/commonlyOrder/commonlyOrder",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/historyOrder/historyOrder",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+        }
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/driverMap",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "地图",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/carSourceList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车源列表",
+		        "enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"animationType": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+				
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/orderDetails/carSourceNewList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车源列表",
+		        "enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"animationType": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+				
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetmemberList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "成员列表",
+		        "enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"animationType": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+				
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetPositionList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车辆定位列表",
+		        "enablePullDownRefresh": true,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/fleetContactList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "联系方式",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+		    }
+		}
+        ,{
+            "path" : "pages/goodsDelivery/sourceIndex/sourceDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "车源详情",
+				"enablePullDownRefresh": false,
+				"onReachBottomDistance": 600
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/sourceIndex/sourceHistory",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "已查看车辆",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 600,
+				"app-plus": {
+					"animationType": "none",
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+            }
+            
+        }
+		,{
+		    "path" : "pages/ship/waybill/track",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "app轨迹查询",
+				"enablePullDownRefresh": false,
+				 "navigationStyle":"custom"
+		    }
+		    
+		},
+		{
+			"path": "pages/ship/index/newsAlert",
+			"style": {
+			    "disableScroll": true,
+			    "app-plus": {
+			        "backgroundColorTop": "transparent",
+			        "background": "transparent",
+			        "titleNView": false,
+			        "scrollIndicator": false,
+			        "popGesture": "none",
+			        "animationType": "fade-in",
+			        "animationDuration": 200
+					
+			    }
+			}
+		}
+        ,{
+            "path" : "pages/goodsDelivery/newHobby/newHobby",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的喜好",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/allAgreement/memberPolicy",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "会员协议",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/spCarsDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+        }
+        ,{
+            "path" : "pages/loginHint/driverStatus",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+        ,{
+            "path" : "pages/loginHint/sendSource",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+					"scrollIndicator": "none",  //不展示滚动条
+					"titleNView": false  //不启用系统导航
+				}
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/newFleetDetails",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车队详情",
+		        "enablePullDownRefresh": true,
+		        "navigationStyle": "custom",
+		        "app-plus": {
+		        	"titleNView": false,  //不启用系统导航
+		        	"bounce": "none",
+		        	"pullToRefresh": {
+		        		"style": "circle"
+		        	}
+		        },
+				"backgroundColor": "#FAFAFA"
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/fleetIndex/elegantDemeanour",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "车队风采",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/goodsDelivery/testModelPage",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "组件测试页面",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/ship/index/recruitment",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false  ,//不启用系统导航
+					"autoBackButton": false
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/goodsDelivery/sourceIndex/carSettings",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/goodsDelivery/fleetIndex/alertDriverList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"backgroundColorTop": "transparent",
+					"background": "transparent",
+					"titleNView": false,
+					"scrollIndicator": false,
+					"popGesture": "none",
+					"animationType": "fade-in",
+					"animationDuration": 200
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/driverDetails/driverDetails",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "司机详情",
+                "enablePullDownRefresh": false,
+                "app-plus": {
+                	"scrollIndicator": "none",  //不展示滚动条
+                	"titleNView": false  //不启用系统导航
+                }
+            }
+            
+        },
+		{
+		    "path" : "pages/extension/extension_report/extension_report",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "硬件盒子上报",
+		        "enablePullDownRefresh": false,
+		        "navigationStyle": "custom"
+		    }
+		    
+		},
+		{
+		    "path" : "pages/extension/order_receiving_box/orderBoxBuy",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "会员购买上报",
+		        "enablePullDownRefresh": false,
+		        "navigationStyle": "custom",
+				"app-plus": {
+					"softinputMode": "adjustPan"
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/extension/order_receiving_box/orderBoxBuyList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "购买记录",
+				"enablePullDownRefresh": true,
+		       	"app-plus": {
+		       		"bounce": "none",
+		       		"pullToRefresh": {
+		       			"style": "circle"
+		       		}
+		       	}
+		    }
+		    
+		    
+		},
+		{
+		    "path" : "pages/extension/order_receiving_box/addressList",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "地址列表",
+				"enablePullDownRefresh": true,
+		       	"app-plus": {
+		       		"bounce": "none",
+		       		"pullToRefresh": {
+		       			"style": "circle"
+		       		}
+		       	}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/extension/extension_reported_list/extension_reported_list",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "上报记录",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/shipPromote/memberPromote",
+            "style" :
+            {
+                "navigationBarTitleText": "会员推广",
+                "enablePullDownRefresh": false,
+                "app-plus": {
+                	"scrollIndicator": "none",  //不展示滚动条
+                	"titleNView": false  //不启用系统导航
+                }
+            }
+        }
+		,{
+            "path" : "pages/chooseArea/chooseArea",
+		    "style" :
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+        }
+		,{
+		    "path" : "pages/chooseArea/chooseDriverArea",
+		    "style" :
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/extension/extension_report/activityRule",
+		    "style" :
+		    {
+		        "navigationBarTitleText": "活动规则",
+		        "enablePullDownRefresh": false
+		    }
+		}
+        ,{
+            "path" : "pages/ship/index/businessCard/businessCard",
+            "style" :
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+        },
+		{
+		    "path" : "pages/ship/index/businessCard/myCollect",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "更多",
+		        "enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none",
+					"pullToRefresh": {
+						"style": "circle"
+					}
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/ship/index/businessCard/intro",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "自我介绍",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+		    "path" : "pages/ship/index/businessCard/label",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "标签",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+        ,{
+            "path" : "pages/goodsDelivery/orderDetails/recommendDriver",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "智能推荐",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+		{
+			"path" : "pages/redPacket/index/index",
+			"style" :                                                                                    
+			{
+			    "navigationBarTitleText": "红包雨首页",
+			    "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/redPacket/shareAssist/shareAssist",
+			"style": {
+				"navigationBarTitleText": "红包雨分享",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/redPacket/winingRedPacket/winingRedPacket",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		}
+        ,{
+            "path" : "pages/redPacket/redPacketRain/redPacketRain",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        },{
+            "path" : "pages/redPacket/redPacketPoster/redPacketPoster",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/goodsDelivery/creatOrder/electron/electron",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "电子围栏",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/goodsDelivery/creatOrder/electron/choose-location",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "电子围栏选择",
+		        "enablePullDownRefresh": false,
+				"navigationStyle" : "custom",
+				"app-plus" : {
+				    "titleNView": false
+				}
+		    }
+		    
+		}
+    ],
+	"globalStyle": {
+		"backgroundTextStyle": "light",
+		"navigationBarBackgroundColor": "#ffffff",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarTextStyle": "black",
+		//手机软键盘升起不让其将页面上推
+		"app-plus": {
+			// "softinputMode": "adjustResize",
+			"bounce":"none"
+		}
+	},
+	"tabBar": {
+		"color": "#353535",
+		"selectedColor": "#4989C8",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"iconWidth": "30px",
+		"list": [
+			{
+				// "pagePath": "pages/goodsDelivery/index/index",
+				"pagePath": "pages/ship/index/index_car_source",
+				// "pagePath": "pages/defaultMainIndex/defaultMainIndex",
+				"iconPath": "static/images/ship/tab1.png",
+				"selectedIconPath": "static/images/ship/tab1_selected.png",
+				"text": "车源"
+			},
+			/* {
+				"pagePath": "pages/ship/index/businessCard/businessCard",
+				"iconPath": "static/images/ship/index.png",
+				"selectedIconPath": "static/images/ship/index_select.png",
+				"text": "名片"
+			}, */
+			{
+				"pagePath": "pages/ship/index/index1",
+				"iconPath": "static/images/ship/tab3.png",
+				"selectedIconPath": "static/images/ship/tab3_selected.png.png",
+				"text": "找货"
+			},
+			// {
+			// 	"pagePath": "pages/index/srevice/srevice",
+			// 	"iconPath": "static/images/ship/tab2.png",
+			// 	"selectedIconPath": "static/images/ship/tab2_selected.png",
+			// 	"text": "服务站"
+			// }
+			{
+				"pagePath": "pages/ship/fleet/index",
+				"iconPath": "static/images/ship/tab5.png",
+				"selectedIconPath": "static/images/ship/tab5_selected.png",
+				"text": "车队"
+			},
+			{
+				"pagePath": "pages/jymPages/oilstation/oilstationIndex/oilstationIndex",
+				"iconPath": "static/images/ship/tab2.png",
+				"selectedIconPath": "static/images/ship/tab2_selected.png",
+				"text": "加油"
+				
+			},
+			{
+				"pagePath": "pages/my/index/index",
+				"iconPath": "static/images/ship/tab4.png",
+				"selectedIconPath": "static/images/ship/tab4_selected.png",
+				"text": "我的"
+			}
+		]
+	}
+}

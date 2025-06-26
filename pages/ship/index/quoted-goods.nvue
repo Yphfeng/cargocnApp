@@ -1,0 +1,776 @@
+<template>
+    
+        <list ref="list" class="list" :offset-accuracy="5" :bounce="false" fixFreezing="true" @loadmore="loadmore">
+			<cell>
+				<swiper>
+					<swiper-item>
+						<view class="orderList" v-for="(item, index) in orderListInfo" :key="index" @click="goDetail(item, 1)">
+							<view class="orderSubList">
+								<view class="orderCode">
+									<view class="orderNumber">
+										<text>货源号：{{item.orderNumber}}</text>
+										<image class="orderNumberIcon" src="../../../static/images/goodsDelivery/mainListIcon.png" @click.stop="copy(item.orderNumber)"></image>
+									</view>
+									<view class="orderStatusBox" :class="item.frozenFlag ? 'isFrozen' : 'notFrozen'">
+										<text>{{item.fixPriceFlag == 1 ? '已接单' : '已报价'}}</text>
+									</view>
+								</view>
+								<view class="orderListHead">
+									<view class="orderAddress" @tap="jumpToOrderDetails()">
+										<text class="addressMsg">{{item.startAddr}}</text>
+										<image class="addressStatus" src="../../../static/images/notOngoing.png"></image>
+										<text class="addressMsg">{{item.endAddr}}</text>
+									</view>
+									
+								</view>
+							
+								<view class="orderBody">
+									<view class="orderContent" @tap="jumpToOrderDetails()">
+										<view class="contentMsg">
+											<view class="title">
+												<image src="../../../static/images/ship/box01.png" class="box08"></image>
+											</view>
+											<view class="msg">
+												<text class="pr-16">{{item.zhuanghuoDt}}</text> 
+												<text class="pr-16">{{item.zhuanghuoDtText}}</text> 
+												<text class="pr-16">{{item.goods}}</text> 
+												<text  v-if="item.weight" class="pr-16">{{item.weight}}吨</text> 
+												<text v-if="item.volume" class="pr-16">{{item.volume}}方</text> 
+												<text>{{item.LoadingAndUnloadingMethods}}</text></view>
+										</view>
+										<view class="contentMsg">
+											<view class="title">
+												<image src="../../../static/images/ship/car.png" class="box02"></image>
+											</view>
+											<view class="msg">
+												<text v-if="item.orderType == 2" class="pr-20">冷藏</text>
+												<text class="pr-20" v-if="item.orderType !== 2">{{item.orderVehicleModel}}</text> 
+												<text>{{item.orderVehicleLength}}米</text>
+											</view>
+										</view>
+										<view class="contentMsg">
+											
+											<view class="title">
+												<image src="../../../static/images/ship/box05.png" class="box05"></image>
+											</view>
+											<view class="msg" v-if="item.fixPriceFlag == 1">
+												<text>固价货源</text>
+												<text class="pl-20">单车</text>
+												<text class="pl-20">按{{item.quotePriceTypeName}}接单</text>
+											</view>
+											<view class="msg" v-else>
+												<text>询价货源</text>
+												<text class="pl-20">单车</text>
+												<text class="pl-20">按{{item.quotePriceTypeName}}询价</text>
+											</view>
+										</view>
+										<view class="contentMsg">
+											
+											<view class="title">
+												<image src="../../../static/images/ship/clock.png" class="time"></image>
+											</view>
+											<view class="msg">发布于
+											<text v-if="item.dateType == 1">明天</text>
+											<text v-if="item.dateType == 2">后天</text>
+											{{item.dateTime}}</view>
+										</view>
+										
+										<view class="user">
+											<view class="name">
+												{{item.goodsUserName}}
+											</view>
+										<!-- 	<image src="../../../static/images/star.png" class="star"></image>
+											<text>{{item.scoreValue}}</text>
+											<view class="status">银牌会员</view> -->
+										</view>	
+										
+									</view>
+								</view>
+							</view>
+						</view>
+					</swiper-item>
+					<swiper-item>
+						<view class="orderList" v-for="(item, index) in orderListCloseInfo" :key="index" @click="goDetail(item, 2)">
+							<view class="orderSubList">
+								<view class="orderCode">
+									<view class="orderNumber">
+										货源号：{{item.orderNumber}}
+										<image class="orderNumberIcon" src="../../../static/images/goodsDelivery/mainListIcon.png" @click.stop="copy(item.orderNumber)"></image>
+									</view>
+									<view class="orderStatusBox" :class="item.frozenFlag ? 'isFrozen' : 'notFrozen'" v-if="userId != item.driverSid">
+										未成交
+									</view>
+									<view class="orderStatusBox" :class="item.frozenFlag ? 'isFrozen' : 'notFrozen'" v-else>
+										{{item.orderState == 2 ? '未成交' : item.orderStateText}}
+									</view>
+								</view>
+								<view class="orderListHead">
+									
+									<view class="orderAddress" @tap="jumpToOrderDetails()">
+										<view class="addressMsg">{{item.startAddr}}</view>
+										<image class="addressStatus" src="../../../static/images/notOngoing.png"></image>
+										<view class="addressMsg">{{item.endAddr}}</view>
+									</view>
+									
+									
+								</view>
+							
+								<view class="orderBody">
+									<view class="orderContent" @tap="jumpToOrderDetails()">
+										<view class="contentMsg">
+											<view class="title">
+												<image src="../../../static/images/ship/box01.png" class="box08"></image>
+											</view>
+											<view class="msg">
+												<text class="pr-16">{{item.zhuanghuoDt}}</text>
+												<text class="pr-16">{{item.zhuanghuoDtText}}</text> 
+												<text class="pr-16">{{item.goods}}</text> 
+												<text  v-if="item.weight" class="pr-16">{{item.weight}}吨</text> 
+												<text v-if="item.volume" class="pr-16">{{item.volume}}方</text> 
+												<text>{{item.LoadingAndUnloadingMethods}}</text>
+											</view>
+										</view>
+										<view class="contentMsg">
+											<view class="title">
+												<image src="../../../static/images/ship/car.png" class="box02"></image>
+											</view>
+											<view class="msg">
+												<text v-if="item.orderType == 2" class="pr-20">冷藏</text>
+												<text  class="pr-20" v-if="item.orderType !== 2">{{item.orderVehicleModel}}</text>
+												<text>{{item.orderVehicleLength}}米</text>
+											</view>
+										</view>
+										<view class="contentMsg">
+											
+											<view class="title">
+												<image src="../../../static/images/ship/box05.png" class="box05"></image>
+											</view>
+											<view class="msg" v-if="item.fixPriceFlag == 1">
+												<text>固价货源</text>
+												<text class="pl-20">单车</text>
+												<text class="pl-20">按{{item.quotePriceTypeName}}接单</text>
+												
+											</view>
+											<view class="msg" v-else>
+												<text>询价货源</text>
+												<text class="pl-20">单车</text>
+												<text class="pl-20">按{{item.quotePriceTypeName}}询价</text>
+											</view>
+										</view>
+										<view class="contentMsg">
+											
+											<view class="title">
+												<image src="../../../static/images/ship/clock.png" class="time"></image>
+											</view>
+											<view class="msg">发布于
+											<text v-if="item.dateType == 1">明天</text>
+											<text v-if="item.dateType == 2">后天</text>
+											{{item.dateTime}}</view>
+										</view>
+										
+										<view class="user">
+											<view class="name">
+												{{item.goodsUserName}}
+											</view>
+										<!-- 	<image src="../../../static/images/star.png" class="star"></image>
+											<text>{{item.scoreValue}}</text>
+											<view class="status">银牌会员</view> -->
+										</view>	
+										
+									</view>
+								</view>
+							</view>
+						</view>
+					</swiper-item>
+				</swiper>
+			</cell>
+            <cell class="loading"></cell>
+        </list>
+    
+</template>
+
+<script>
+	const modal = weex.requireModule('modal')
+	import * as ship from "@/utils/ship"
+    export default {
+        props: {
+            pid: {
+                type: [Number, String],
+                default: ''
+            },
+            parentId: {
+                type: String,
+                default: ''
+            }
+        },
+        data() {
+            return {
+                scrollable: true,
+                dataList: [],
+				orderListCloseInfo: [],
+				orderListInfo: [],
+				dataParams: {
+					//已报价的列表参数
+					pageSize: 10,
+					pageNum: 1,
+				},
+				dataCloseParams: {
+					//已关闭的报价参数
+					pageSize: 10,
+					pageNum: 1,
+				},
+            }
+        },
+        created() {
+			uni.$on("search_index", (params, data) => {
+				//登录成功后刷新数据
+				console.log(params, 'searchParams11111111参数')
+				uni.showLoading({
+					title: '加载中'
+				})
+				that.searchParams = params;
+			
+				that.searchData = data;
+				that.searchResult(params); //初始化我的数据
+			})
+        },
+        methods: {
+            setScrollRef(height) {
+                if (this.$refs['list'].setSpecialEffects) {
+                    this.$refs['list'].setSpecialEffects({
+                        id: this.parentId,
+                        headerHeight: height
+                    });
+                }
+            },
+            loadData(params = 0) {
+                // 首次激活时被调用
+				this.getMainList("refresh", params)
+            },
+			//获取我的线路的货源信息type 是刷新还是加载， ref == 0已报价， == 1已关闭
+			async getMainList(type, ref) {
+				if (type == "refresh") {
+					if (ref == 0) {
+						//已报价
+							this.dataParams.pageNum = 1
+					} else {
+						//已关闭
+						this.dataCloseParams.pageNum  = 1
+					}
+				} else {
+					if (ref == 0) {
+						//已报价
+							this.dataParams.pageNum ++
+					} else {
+						
+						this.dataCloseParams.pageNum  ++
+					}
+					
+				}
+				
+				var url = "";
+				var params;
+				if (ref == 0) {
+					url  = '/td/circuit/getDriverHomeOrders';
+					params = this.dataParams
+				} else {
+					url = '/td/circuit/getDriverHomeCloseOrders'
+					params = this.dataCloseParams
+				}
+				var searchParams = this.searchParams;
+				console.log(searchParams, '我的平台参数111')
+				if (searchParams) {
+					params = Object.assign(params, searchParams)
+				}
+				console.log(params, '我的平台参数111')
+				ship.newQueryPostRequest(url, params)
+				.then(res => {
+					console.log(res, 'qwq1')
+					this.loadingFlag = false;
+					uni.stopPullDownRefresh();
+					uni.hideLoading();
+					if (res.retCode == "0000000") {
+						var dataList = res.rspBody.items;
+						if (type == "refresh") {
+							if (ref == 0) {
+								//已报价
+								if (dataList.length == 0) {
+									this.isNoData01 = true;
+									this.isNoMore01 = 'more';
+								} else if (dataList.length < 20)  {
+									this.isNoData01 = false;
+									this.isNoMore01 = 'noMore';
+								} else {
+									this.isNoData01 = false;
+									this.isNoMore01 = 'more';
+								}
+								this.formatPlatformQuoteList(dataList, 'list01', 'refresh');
+							} else {
+								//已关闭
+								if (dataList.length == 0) {
+									this.isNoData02 = true;
+									this.isNoMoreClose01 = 'more';
+								} else if (dataList.length < 20)  {
+									this.isNoData02 = false;
+									this.isNoMoreClose01 = 'noMore';
+								} else {
+									this.isNoData02 = false;
+									this.isNoMoreClose01 = 'more';
+									
+								}
+								this.formatPlatformQuoteList(dataList, 'close', 'refresh');
+							}
+						} else {
+							//加载更多
+							if (ref == 0) {
+								//已报价
+								if (dataList.length < 20)  {
+									this.isNoMore01 = 'noMore';
+								} else {
+									this.isNoMore01 = 'more';
+								}
+								this.formatPlatformQuoteList(dataList, 'list01', 'more');
+							} else {
+								//已关闭
+								if (dataList.length < 20)  {
+									this.isNoMoreClose01 = 'noMore';
+									
+								} else {
+									this.isNoMoreClose01 = 'more';
+									
+								}
+								this.formatPlatformQuoteList(dataList, 'close', 'more');
+							}
+						}
+						
+					} else {
+						this.isShow = true;
+						uni.stopPullDownRefresh();
+						uni.hideLoading();
+						
+						uni.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}	
+					
+				})
+				.catch(err => {
+					console.log(err)
+					this.loadingFlag = false;
+					uni.stopPullDownRefresh();
+					uni.hideLoading();
+					this.isShow = true;
+				})
+			},
+			formatPlatformQuoteList(list, type, ref) {
+				var platformQuoteList = [];
+				if (list.length < 1) {
+					platformQuoteList = list;
+				}
+				var dataArr = [];
+				try{
+					list.forEach(item => {
+						var startAddr = ''; //装货地址
+						var newStartAddr = ''; //省市区装货地址
+						var endAddr = ''; //卸货地址
+						var newEndAddr = ''; //省市区卸货地址
+						var LoadingAndUnloadingMethods = "";
+						var orderAddressVOS = item.child.orderAddressVOS;
+						
+						//装卸方式
+						var loadingMethods = "", unLoadingMethods = "";
+						orderAddressVOS.forEach(atem => {
+							if (atem.serialnumber == 1) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									startAddr = atem.province + '-' + atem.city
+									newStartAddr =  atem.province + '-' + atem.city
+								} else {
+									startAddr = atem.city + '-' + atem.area;
+									newStartAddr =  atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								loadingMethods = "一装"
+							} else if (atem.serialnumber == 2) {
+								loadingMethods = "二装"
+							} else if (atem.serialnumber == 4) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									endAddr = atem.province + '-' + atem.city
+									newEndAddr = atem.province + '-' + atem.city
+								} else {
+									endAddr = atem.city + '-' + atem.area;
+									newEndAddr = atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								unLoadingMethods = "两卸"
+							} else if (atem.serialnumber == 3) {
+								var province = atem.province;
+								if (province.indexOf('市') > -1) {
+									//直辖市
+									endAddr = atem.province + '-' + atem.city
+									newEndAddr = atem.province + '-' + atem.city
+								} else {
+									endAddr = atem.city + '-' + atem.area;
+									newEndAddr = atem.province + '-' + atem.city + '-' + atem.area;
+								}
+								unLoadingMethods = "一卸"
+							}
+						})
+						LoadingAndUnloadingMethods = loadingMethods + unLoadingMethods;
+						//货主发布货源的时间
+						var pushDt = item.pushDt;
+						pushDt = pushDt.replace(/-/g, "/");
+						var newDate = new Date();
+						var nowDataYear = new Date().getFullYear();
+						var nowDataMonth = new Date().getMonth() + 1;
+						var nowDataDay = new Date().getDate();
+						//明天的时间戳
+						var day2 = new Date();
+						day2.setTime(day2.getTime()+24*60*60*1000);
+						var will2Year = day2.getFullYear();
+						var will2Month = day2.getMonth() + 1;
+						var will2Day = day2.getDate();
+						//后天
+						var day3 = new Date();
+						day3.setTime(day3.getTime()+24*60*60*1000);
+						var will3Year = day3.getFullYear();
+						var will3Month = day3.getMonth() + 1;
+						var will3Day = day3.getDate();
+						var dateType = 0; //表示是今天
+						var dateTime = "";
+						var willDoData = new Date(pushDt);
+						var willYear = willDoData.getFullYear();
+						var willMonth = willDoData.getMonth() + 1;
+						var willDay = willDoData.getDate();
+						
+						if (nowDataYear == willYear && nowDataMonth == willMonth && nowDataDay == willDay ) {
+							//是今天
+							dateType = 0;
+						} else if (will2Year == willYear && will2Month == willMonth && will2Day == willDay) {
+							dateType = 1; //明天
+						} else if (will3Year == willYear && will3Month == willMonth && will3Day == willDay) {
+							dateType = 2; //后天
+						} else {
+							dateType = 3; //其他时间
+						}
+						var hour = new Date(pushDt).getHours();
+						var minutes = new Date(pushDt).getMinutes()
+						if (hour < 10) {
+							hour = '0' + hour
+						}
+						if (minutes < 10) {
+							minutes = '0' + minutes
+						}
+						dateTime = hour + ':' +  minutes;
+						if (dateType == 3) {
+							dateTime = item.pushDt;
+						}
+						//装货时间
+						var zhuanghuoDtText = "", startDt = "", zhuanghuoDt = "";
+						var orderLoadTimeRecordVO = item.child.orderLoadTimeRecordVO;
+						orderLoadTimeRecordVO.forEach(atem => {
+							if (atem.serialnumber == 1) {
+								startDt = atem.startDt;
+								startDt = startDt.replace(/-/g, '/');
+								var hour = new Date(startDt).getHours();
+								if (hour > 11) {
+									zhuanghuoDtText = "下午装货"
+								} else {
+									zhuanghuoDtText = "上午装货"
+								}
+								var month = new Date(startDt).getMonth() + 1;
+								var day = new Date(startDt).getDate();
+								if (month < 10) {
+									month = '0' + month
+								}
+								if (day < 10) {
+									day = '0' + day
+								}
+								zhuanghuoDt = month + '月' + day + '日'
+							}
+						})
+						//车长
+						var orderVehicleLengthVOS = item.child.orderVehicleLengthVOs, orderVehicleLength = [];
+						if (orderVehicleLengthVOS) {
+							orderVehicleLengthVOS.forEach(atem => {
+								orderVehicleLength.push(atem.vehicleLength)
+							})
+						}
+						
+						//车型
+						var orderVehicleModelVOS = item.child.orderVehicleModelVOS, orderVehicleModel = [];
+						if (orderVehicleModelVOS) {
+							orderVehicleModelVOS.forEach(atem => {
+								orderVehicleModel.push(atem.vehicleModel)
+							})
+						}
+						
+						
+						orderVehicleLength = orderVehicleLength ? orderVehicleLength.join('/') : '';
+						orderVehicleModel = orderVehicleModel ? orderVehicleModel.join("/") : '';
+						
+						//货物相关
+						var goodsTypeVO = item.cargoChild.goodsTypeVO, goodArr = [];
+						var cargoChild = item.cargoChild;
+						goodsTypeVO.forEach(atem => {
+							var first_typeName = atem.typeName;
+							
+							if (atem.children) {
+								var atem1 = atem.children;
+								atem1.forEach(atem01 => {
+									var atem2 = atem01.children;
+									if (atem2) {
+										atem2.forEach(atem02 => {
+											var atem3 = atem02.children;
+											if (atem3) {
+												atem3.forEach(atem03 => {
+													var typeName = atem03.typeName;
+													var name = first_typeName + '-' + typeName;
+													goodArr.push(name)
+												})  
+											}
+										})
+									}
+								}) 
+							}
+						})
+						var goods = goodArr.join(",");
+						
+						//单位
+						var weight = cargoChild.weight;
+						var volume = cargoChild.volume;
+						
+						//报价截止时间
+						var finishDt = item.child.orderQuoteVO.quotePriceFinishDt;
+						finishDt = finishDt.replace(/-/g, '/');
+						var quotePriceFinish = new Date(finishDt);
+						var hours1 = quotePriceFinish.getHours();
+						var  minutes1 = quotePriceFinish.getMinutes();
+						hours1 = hours1 < 10 ? '0' + hours1 : hours1; 
+						minutes1 = minutes1 < 10 ? '0' + minutes1 : minutes1;
+						var quotePriceFinishDt = hours1 + ':' + minutes1;
+						
+						//订单状态
+						var orderState = item.orderState, orderStateText = "";
+						var userId = this.userId;
+						var platformOrderStatus = 0;
+						var platformOrderText = '';
+						//1报价中，2已报价，3已成交,4货主未点击同意，5没有报价， 6货主取消， 7司机取消
+							if (orderState == 1) {
+								orderStateText = "报价中"
+							} else if (orderState == 2) {
+								if (userId == item.driverSid) {
+									orderStateText = item.fixPriceFlag == 1 ? '已接单' : "已报价"
+								} else {
+									platformOrderStatus = 1;
+									platformOrderText = "已关闭"
+								}
+								
+							} else if (orderState == 3) {
+								if (userId == item.driverSid) {
+									orderStateText = "已成交"
+									platformOrderStatus = 1;
+									platformOrderText = "已成交"
+								} else {
+									platformOrderStatus = 1;
+									platformOrderText = "已关闭"
+								}
+								
+							} else if (orderState == 4) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							} else if (orderState == 5) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							} else if (orderState == 6) {
+								//实际是货主取消,前端统一展示已关闭
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							}  else if (orderState == 7) {
+								orderStateText = "未成交"
+								platformOrderStatus = 1;
+								platformOrderText = "已关闭"
+							}
+						
+						
+						
+						//报价状态
+						var quoteState = '';
+						if (type == "list01") {
+							quoteState = 1
+						} else {
+							quoteState = item.quoteState;
+						}
+						
+						
+						//信息费用
+						var orderQuoteVO = item.child.orderQuoteVO;
+						var informationPrice = (orderQuoteVO.informationPrice || 0) / 100;
+						//平台服务费，技术服务费
+						var orderValueAddedVOS = item.child.orderValueAddedVOS;
+						var cargoDamagePrice = (orderValueAddedVOS.cargoDamagePrice || 0) / 100;
+						var shortLandedPrice = (orderValueAddedVOS.shortLandedPrice || 0) / 100;
+						//判断是否是冷藏车还是普通
+						var orderType = item.orderType;
+						
+						
+						//货主信息
+						var goodsUserName = '匿名用户';
+						var gender = item.gender;
+						var orderContactsVOS = item.child.orderContactsVOS;
+						var findIndex = orderContactsVOS.findIndex(item => {
+							return item.serialnumber == 1 || item.serialnumber == 2
+						})
+						if (findIndex > -1) {
+							var name  = orderContactsVOS[findIndex].userName;
+							var subName = gender == "男" ? '先生' : '女士'
+							goodsUserName = name.substring(0, 1) + subName;
+						}
+						//货主的评分
+						var scoreValue = item.scoreValue || "0.0";
+						//货源是否是固定价格的货源
+						var fixPriceFlag = item.fixPriceFlag;
+						var startAddress =  item.child.orderAddressVOS[0].address;
+						var endAddress = '';
+						item.child.orderAddressVOS.map(val=>{
+							if(!endAddress && val.serialnumber==3){
+								endAddress = val.address
+							}
+						})
+						var startDt = item.child.orderLoadTimeRecordVO[0].startDt;
+						var endDt = item.child.orderLoadTimeRecordVO[0].endDt;
+						var startDt1 = '';
+						var endDt1 = '';
+						// console.log(item)
+						item.child.orderLoadTimeRecordVO.map(data=>{
+							if(!startDt1 && data.serialnumber==3){
+								startDt1 = data.startHours;
+								endDt1 = data.endHours;
+							}
+						})
+						var receiptType = item.receiptType;
+						var fixPrice = item.fixPrice;
+						var remark = item.cargoChild.remark;
+						var loadFactor = '';
+						var distance = item.distance ? (item.distance)/1000 : 0;
+						item.child.orderLoadFactorVOS.map((data, index)=>{
+							if(index==0){
+								loadFactor = data.loadFactor
+							} else{
+								loadFactor = loadFactor + ',' +data.loadFactor
+							}
+						})
+						var orderNumber = item.orderNumber;
+						
+						var driverSid = item.driverSid;
+						var latitude = item.latitude;
+						
+						//货物单位
+						var quotePriceTypeName = item.child.orderQuoteVO.quotePriceTypeName;
+						dataArr.push({
+							platformOrderStatus,
+							platformOrderText,
+							quotePriceTypeName,
+							latitude: latitude,
+							orderNumber: orderNumber,
+							sid: item.sid,
+							driverSid,
+							newStartAddr,
+							newEndAddr,
+							startAddress,
+							endAddress,
+							startDt,
+							endDt,
+							startDt1,
+							endDt1,
+							receiptType,
+							remark,
+							loadFactor,
+							startAddr,
+							endAddr,
+							dateTime,
+							dateType,
+							zhuanghuoDtText,
+							zhuanghuoDt,
+							goods,
+							orderVehicleModel,
+							orderVehicleLength,
+							LoadingAndUnloadingMethods,
+							volume,
+							weight,
+							sid: item.sid,
+							quotePriceFinishDt,
+							orderStateText,
+							orderState,
+							informationPrice,
+							quoteState,
+							cargoDamagePrice,
+							shortLandedPrice,
+							orderType,
+							goodsUserName,
+							scoreValue,
+							fixPriceFlag,
+							fixPrice,
+							distance
+						})
+						
+					})
+					
+				}catch(e){
+					//TODO handle the exception
+					console.log(e)
+					
+				}
+				
+				platformQuoteList = dataArr;
+				if (type == "list01") {
+					
+					this.orderListInfo = ref == 'refresh' ? platformQuoteList :  this.orderListInfo.concat(platformQuoteList);
+					
+				} else if (type == 'close') {
+					this.orderListCloseInfo = ref == 'refresh' ? platformQuoteList : this.orderListCloseInfo.concat(platformQuoteList);
+				}
+				
+				
+			},
+			loadmore() {
+				modal.toast({ message: '加载更多', duration: 1 })
+			},
+            clear() {
+                // 释放数据时被调用，参考 swiper-list 缓存配置
+                this.dataList.length = 0;
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .uni-swiper-page {
+        flex: 1;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    .list {
+        flex: 1;
+        background-color: #ebebeb;
+    }
+    .list-item {
+        margin-left: 12px;
+        margin-right: 12px;
+        margin-top: 12px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+    .loading {
+        height: 20px;
+    }
+</style>

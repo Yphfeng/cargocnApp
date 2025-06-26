@@ -1,0 +1,54 @@
+.jym-container {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: space-between; */
+  padding:0rpx 0;
+  box-sizing: border-box;
+  background:  #F0F3F5;
+  overflow: hidden;
+}
+.divLine{
+  background: #F5F5F5;
+  width: 100%;
+  height: 2rpx;
+}
+.color333Size30Title{
+  margin-left: 30rpx;
+  color: #333;
+  font-size: 30rpx;
+}
+/* flex布局 */
+.flex {
+  display: flex;
+  display: -webkit-box;
+  display: -webkit-flex;
+}
+.row-flex {
+  flex-direction: row;
+}
+.column-flex {
+  flex-direction: column;
+}
+.row-center {
+  justify-content: center;
+}
+.align-center {
+  align-items: center;
+}
+.row-flex-end {
+  justify-content: flex-end;
+}
+.row-flex-start {
+  justify-content: flex-start;
+}
+.row-space-around{
+  justify-content: space-around;
+}
+.row-space-between{
+  justify-content: space-between;
+}
+.flex-l {
+  flex:1
+}

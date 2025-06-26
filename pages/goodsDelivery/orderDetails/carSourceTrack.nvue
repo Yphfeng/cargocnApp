@@ -1,0 +1,937 @@
+<template>
+	<view class="mutual">
+		<view class="statusBar" :style="{height: statusBarHeight + 'px'}" />
+		<view class="backContent">
+			<view class="backer" @click="backToFromPage"><image src="../../../static/images/back.png" class="back"></image></view>
+			<view class="title-view"><text class="title-text" v-if="selectedMapItem">{{showName(selectedMapItem)}}</text></view>
+		</view>
+		
+		<web-view
+		 :webview-styles="webviewStyles"
+			id="myMap"
+		  :src="srcUrl"
+		  style="position: fixed; top: 80; left: 0; right: 0; bottom: 0;"
+		  :style="webViewHeight"
+		  class="mapView"
+		  @message="reciveMessage"
+		  @onPostMessage="recivePostMessage"
+		>
+		</web-view>
+		
+	
+		
+		
+
+			<view class="bottomContent" v-if="selectedMapItem">
+				
+			
+			<!-- 	<view class="content-bottom">
+					<view class="contentLeft">
+						<view class="item first">
+							<text class="name">{{selectedMapItem.hideName}}</text>
+							<text class="dateDesc">{{selectedMapItem.dateDesc}}</text>
+							<image class="msgIcon" v-if="fleetDetail.isAdmin" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/phone.png" @click.stop="call(selectedMapItem.mobile)"></image>
+						</view>
+						<view class="item first">
+							<text class="plateNo">{{selectedMapItem.hidePlateNo}}</text>
+							<text class="dateDesc" v-if="selectedMapItem.model">{{selectedMapItem.model}}</text>
+							<text class="dateDesc pl-20">{{selectedMapItem.hideAddress}}</text>
+						</view>
+					</view>
+			</view>
+					<view class="line" /> -->
+					<view class="contentRight">
+					<view class="title-btnWhole">
+					<text class="title">轨迹时间</text>
+					<view class="title-select">
+						<view class="select-time">
+							<view class="select-item" v-for="(item, index) in selectArr" :class="{'select-item-active': item.isSelected, 'select-item-second': index > 0 }" @click="selectTime(index)">
+								<text class="select-item-text" :class="{'select-item-text-active': item.isSelected}">{{item.name}}</text>
+							</view>
+						</view>
+						<view class="select-self">
+							<view class="select-self-item">
+								<picker class="picker" mode="multiSelector" :value="dateTime" @change="changeDateTime"  @columnchange="changeDateTimeColumn" :range="dateTimeArray">
+									<view class='lableBox'>
+										<text class="select-self-item-text" v-if="!params.dateTime">开始时间</text>
+										<text v-else class="select-self-item-has-text">{{params.dateTime}}</text>
+									</view> 
+								</picker>
+								<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png" class="dateSelect"></image>
+							</view>
+							<view class="select-self-item select-self-item-last">
+								<picker class="picker" mode="multiSelector" :value="endTime" @change="changeEndTime"  @columnchange="changeEndTimeColumn" :range="endTimeArray">
+									<view class='lableBox'>
+										<text class="select-self-item-text" v-if="!params.endTime">结束时间</text>
+										<text v-else class="select-self-item-has-text">{{params.endTime}}</text>
+									</view> 
+								</picker>
+								<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png" class="dateSelect"></image>
+							</view>
+						</view>
+					</view>
+					
+				</view>
+					<view class="btnContent">
+						<view class="boot-item boot-item-first" @click="goAppMap(0)">
+							<text class="boot-item-title">App轨迹</text>
+							<text class="boot-item-sub">(免费)</text>
+						</view>
+						<view class="boot-item boot-item-second" @click="goAppMap(1)">
+							<text class="boot-item-title">北斗轨迹</text>
+							<text class="boot-item-sub">(限时免费)</text>
+						</view>
+					</view>
+				</view>
+			</view>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/ship.js";
+	import * as util from "@/utils/utils";
+	const { dateTimePicker,getMonthDay} = require('@/utils/date.js');
+	var app = getApp();
+	var commonHtmlTitle = '服务站地图';
+	export default {
+		data() {
+			return {
+				
+                webviewStyles: {
+                    progress: false
+                },
+				latitude: '',
+				longitude: '',
+				srcUrl: utils.carSourceTrack,
+				webViewHeight: '',
+				searchData: {},
+				repeatLoad: true,
+				showMapLoading: true,
+				selectedMapItem: null,
+				selectArr: [
+					{name: "今天", isSelected: true},
+					{name: "昨天", isSelected: false},
+					{name: "前天", isSelected: false},
+				],
+				dateTime: null,
+				endTime: null,
+				dateTimeArray: null,
+				endTimeArray: null,
+				startYear: 2000,
+				params: {
+					startTime: "",
+					endTime: '',
+				},
+				todaySelected: true,
+				yestodaySelected: false,
+				lastSelected: false,
+				nowDateStr: '',
+				userCode: '',
+			}
+		},
+		onLoad(option){
+			var driverInfo = JSON.parse(option.driverInfo);
+			var selfPoint = JSON.parse(option.selfPoint);
+			console.log(driverInfo, '司机信息');
+			this.selectedMapItem = driverInfo;
+			this.selfPoint = selfPoint;
+			var statusBarHeight = uni.getSystemInfoSync().statusBarHeight;
+			this.statusBarHeight = statusBarHeight;
+			var nowDateDay = util.GetDateStr(0);
+			var yesDateDay = util.GetDateStr(-1);
+			var beforeDateDay = util.GetDateStr(-2);
+			this.nowDateDay = nowDateDay;
+			this.yesDateDay = yesDateDay;
+			this.beforeDateDay = beforeDateDay;
+			this.initTime();
+			this.getLocationData();
+			
+		},
+		watch: {
+			todaySelected(newVal, oldVal) {
+				console.log(newVal, oldVal, '啊啊撒', this.yestodaySelected,this.lastSelected)
+				var yestodaySelected = this.yestodaySelected;
+				var lastSelected = this.lastSelected;
+				if (!newVal) {
+					//清空时间
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}		
+				} else {
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			},
+			yestodaySelected(newVal, oldVal) {
+				console.log(newVal, 'asa1111111')
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+				
+				var lastSelected = this.lastSelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (todaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+				
+			},
+			lastSelected(newVal, oldVal) {
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+				
+				var yestodaySelected = this.yestodaySelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (todaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59'
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			}
+		},
+		methods: {
+			popStyle() {
+				return "border-top-left-radius: 40rpx"
+			},
+			backToFromPage() {
+				uni.navigateBack({
+					
+				})
+			},
+			showName(item) {
+				var driverName = item.driverName;
+				var plateNo = item.plateNo;
+				var userCode = item.userCode;
+				if (plateNo) {
+					return driverName + '  ' + plateNo
+				}
+				return driverName
+			},
+			
+			getLocationData() {
+				this.searchData = getApp().globalData.serviceSearch;
+				var userInfo = uni.getStorageSync("userInfo");
+				console.log('接收到的搜索参数');
+				var searchVal = getApp().globalData.serviceSearch.searchVal;
+				var userInfo = uni.getStorageSync("userInfo");
+				var pages = getCurrentPages();
+				var prevPage = pages[pages.length - 1]; 
+				var userRole = uni.getStorageSync("userRole");
+				var selfPoint = this.selfPoint;
+				var buriedPoint = {
+					commonUserName: userInfo?JSON.parse(userInfo).userName:'',
+					commonUserId: userInfo?JSON.parse(userInfo).userId:'',
+					commonPhoneModel: getApp().globalData.commonPhoneModel,
+					commonNowVersion: getApp().globalData.appVersion,
+					commonSystemVersion: getApp().globalData.commonSystemVersion,
+					commonFrontPath: prevPage.route,
+					Authorization: JSON.parse(userInfo).attrs.token,
+				}
+				// this.srcUrl = utils.fleetMap;
+				this.srcUrl = utils.carSourceTrack;
+				
+				if(!this.longitude && !this.latitude) {
+					console.log('无定位经纬度');
+					let that = this;
+					uni.getLocation({
+						type: 'gcj02',
+						geocode: true,
+						success: function(res) {
+							that.latitude = res.latitude;
+							that.longitude = res.longitude;
+							buriedPoint.selfLatitude = that.latitude;
+							buriedPoint.selfLongitude = that.longitude;
+							buriedPoint.longitude = selfPoint.longitude;
+							buriedPoint.latitude = selfPoint.latitude;
+							let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+							var dateParse = new Date().getTime();
+							that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query + '&dateParse=' + dateParse;
+							console.log(that.srcUrl);
+							
+							that.$forceUpdate();
+						},
+						fail: function() {
+							that.latitude = 39.909;
+							that.longitude = 116.39742;
+							buriedPoint.latitude = that.latitude;
+							buriedPoint.longitude = that.longitude;
+							let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+							that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query;
+							uni.showToast({
+								title: "请打开定位"
+							})
+						},
+						complete:function(){
+							// console.log('获取到的搜索信息', that.srcUrl);
+						}
+					})
+				}else {
+					buriedPoint.selfLatitude = this.latitude;
+					buriedPoint.selfLongitude = this.longitude;
+					buriedPoint.longitude = selfPoint.longitude;
+					buriedPoint.latitude = selfPoint.latitude;
+					let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+					this.srcUrl = this.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query;
+				}
+				this.repeatLoad = false;
+					// console.log('获取到的搜索信息', this.srcUrl);
+				
+			},
+			openLocation(res){
+				uni.openLocation({
+					latitude: res.latitude,	//维度
+					longitude: res.longitude, //经度
+					name: res.address,	//目的地定位名称
+					scale: 15,	//缩放比例
+					address: res.address	//导航详细地址
+				})
+			},
+			reciveMessage(e){
+				console.log(e)
+			},
+			recivePostMessage(e){ // 地图传递参数
+				console.log('地图传递参数', e);
+				let obj = e.detail.data[0];
+				if (obj.title == "弹出对话框") {
+					this.$refs.popup.open();
+					return;
+				}
+				if(e.detail.data[0].selectData){
+					var selectedMapItem = e.detail.data[0].selectData;
+					var updateDt = selectedMapItem.locationUpdatedDt;
+					if (updateDt) {
+						var dateDesc = util.findFleetDateDesc(updateDt);
+						selectedMapItem.dateDesc = dateDesc;
+					}
+					this.selectedMapItem = selectedMapItem;
+					
+				}
+				this.showMapLoading = false;
+				uni.hideLoading();
+			},
+			selectTime(index) {
+				var selectArr = this.selectArr;
+				var isSelected = selectArr[index].isSelected;
+				selectArr[index].isSelected = !isSelected;
+				this.selectArr = selectArr;
+				if (index == 0) {
+					this.todaySelected = !isSelected
+				} else if (index == 1) {
+					this.yestodaySelected = !isSelected
+				} else {
+					this.lastSelected = !isSelected
+				}
+			},
+			async goAppMap(index) {
+				var latitude = this.latitude;
+				var longitude = this.longitude;
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				var selectedMapItem = this.selectedMapItem;
+				console.log(dateTime, endTime, 'aaaa')
+				if (!dateTime || !endTime) {
+					uni.showToast({
+						title: '请选择轨迹时间',
+						icon: 'none'
+					})
+					return
+				}
+				//最多前三天的数据
+				
+				var willTime = endTime.replace(/-/g, "/");
+				var willTime2 = dateTime.replace(/-/g, "/");
+				var day = util.getDaysBetween(willTime2, willTime);
+				console.log(day, '日期之差')
+				if (day < 0) {
+					uni.showToast({
+						title: '查询结束时间应大于开始时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (day > 3) {
+					uni.showToast({
+						title: '最多只能查询三天内的轨迹',
+						icon: 'none'
+					})
+					return;
+				}
+				console.log(selectedMapItem, 'aa');
+				if (index == 1) {
+					
+					//判断是否有多余次数
+					var rspNum = await utils.postRequest("/calc/web/datacenter/tr/zj/query")
+					console.log(rspNum, '次数');
+					if (rspNum.rspBody == undefined || rspNum.rspBody == 0) {
+						//中交判断(无可用次数)余额是否为0
+						uni.showToast({
+							title: '暂无可查询次数',
+							icon: 'none'
+						})
+					} else {
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/fleetIndex/map?index=' + index + '&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+						})
+					}
+				} else {
+					uni.navigateTo({
+						url: '/pages/goodsDelivery/fleetIndex/map?index=' + index + '&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+				}
+				
+			},
+			//获取日期的picker显示
+			getPickerArr(date) {
+				// 获取完整的年月日 时分秒，以及默认显示的数组
+				let datenow = new Date();
+				let endYear = datenow.getFullYear();
+				let obj = dateTimePicker(this.startYear, endYear, date);
+				// 精确到分的处理，将数组的秒去掉
+				let lastArray = obj.dateTimeArray.pop();
+				let lastTime = obj.dateTime.pop();
+				return obj
+			},
+			initTime(){
+				
+				var obj = this.getPickerArr();
+			 
+				this.dateTimeArray=obj.dateTimeArray;
+				this.endTimeArray = obj.dateTimeArray;
+				var dateTime = obj.dateTime;
+				var startTime = [dateTime[0], dateTime[1], dateTime[2], 0, 0];
+				this.dateTime = startTime;
+				this.endTime = [dateTime[0], dateTime[1], dateTime[2], 23, 59];
+				//获取当前日期
+				
+				this.params.dateTime = this.createTimeStr(this.dateTimeArray,this.dateTime);
+				this.params.endTime= this.createTimeStr(this.endTimeArray,this.endTime);
+				this.nowDateStr = this.createTimeStr(this.endTimeArray,this.endTime);
+				console.log(obj, '是啊实打实1212121', startTime, dateTime)
+				this.$forceUpdate();
+			},
+			changeDateTime(e) {
+				console.log(e)
+				this.dateTime = e.detail.value;
+				this.params.dateTime= this.createTimeStr(this.dateTimeArray,this.dateTime);
+				//ios时间不能用'-'解析成时间戳
+			 },
+			 changeEndTime(e) {
+				 this.endTime = e.detail.value;
+				 this.params.endTime= this.createTimeStr(this.endTimeArray,this.endTime);
+			 },
+			 
+			/*年,月切换时重新更新计算*/
+			changeDateTimeColumn(e) {
+				//let {id} = e.target;
+				let {column,value} = e.detail;
+				if(column==0 || column==1){
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.dateTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.dateTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.dateTime = dateTime;
+					this.dateTimeArray = dateTimeArray;
+				}
+			},
+			changeEndTimeColumn(e) {
+				let {column,value} = e.detail;
+				if(column==0 || column==1){
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.endTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.endTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.endTime = dateTime;
+					this.endTimeArray = dateTimeArray;
+				}
+			},
+			
+			createTimeStr(dateTimeArray,dateTime){
+				let timeStr = dateTimeArray[0][dateTime[0]]+'-'+dateTimeArray[1][dateTime[1]]+'-'+dateTimeArray[2][dateTime[2]]+' '+dateTimeArray[3][dateTime[3]]+":"+dateTimeArray[4][dateTime[4]];
+				console.log(timeStr)
+				return timeStr
+			},
+			call(mobile) {
+				if (!mobile) return;
+				uni.makePhoneCall({
+				    phoneNumber: mobile //仅为示例
+				});
+			}
+		}
+	}
+</script>
+
+<style>
+	.pl-20 {
+		padding-left: 20rpx;
+	}
+	.mapLoadingBox {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index:999999;
+	}
+	
+	.addServiceBtn {
+		background: #FF7D4A;
+		height: 64rpx;
+		width:142rpx;
+		border-radius: 32rpx;
+		margin-left: 40rpx;
+		text-align: center;
+		flex-direction: row;
+		justify-content: flex-start;
+		padding: 0 20rpx;
+	}
+	.addServiceBtnMsg {
+		font-size:28rpx;
+		color: #fff;
+		line-height: 64rpx;
+	}
+	.add-img {
+		width: 30rpx;
+		height: 30rpx;
+		margin-top: 16rpx;
+		margin-right: 10rpx;
+	}
+	.title {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 28rpx;
+	}
+	.backContent {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		height: 66rpx;
+		width: 750rpx;
+		padding: 0 32rpx;
+	}
+	.backer {
+		position: absolute;
+		left: 20rpx;
+		top: 6rpx;
+		width: 66rpx;
+		height: 66rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.back {
+		width: 22rpx;
+		height: 40rpx;
+	}
+	.share {
+		width: 36rpx;
+		height: 38rpx;
+	}
+	.title-view {
+		width: 750rpx;
+		justify-content: center;
+		align-items: center;
+		
+	}
+	.title-text {
+		lines:1;
+		text-overflow: ellipsis;
+		font-size: 32rpx;
+		color: #333333;
+		font-weight: 600;
+	}
+	.popup-box {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.6;
+	}
+	
+	.popup-content {
+		position: fixed;
+		bottom: 30rpx;
+		left: 24rpx;
+		right: 24rpx;
+		height: 400rpx;
+		background-color: #fff;
+		z-index: 999;
+		border-radius: 40rpx;
+		padding: 30rpx 40rpx;
+	}
+	
+	.popup-head {
+		color: #333;
+		font-size: 28rpx;
+		font-weight: bold;
+	}
+	
+	.popup-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border-bottom: 2rpx solid #F6F6F6;
+		padding: 30rpx 10rpx;
+	}
+	.popup-child {
+		margin-right: 70rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.popup-child-text {
+		font-size: 22rpx;
+		color: #333;
+	}
+	.popup-img {
+		width: 88rpx;
+		height: 88rpx;
+		margin-bottom: 14rpx;
+	}
+	.cancel-btn {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		height: 90rpx;
+	}
+	.cancel-btn-text {
+		color: #777;
+		font-size: 32rpx;
+	}
+	.bottomContent {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		z-index: 1;
+		width: 750rpx;
+		border-top-left-radius: 40rpx;
+		border-top-right-radius: 40rpx;
+		background-color: #FFFFFF;
+		display: flex;
+		align-items: center;
+		padding: 0 44rpx 30rpx 56rpx;
+		transition-property: height;
+		transition-duration: 0.3s;
+		transition-delay: 0.1s;
+		transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+	}
+	.bottom-title {
+		height: 80rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.bottom-title-text {
+		font-size: 28rpx;
+		color: #333333;
+	}
+	
+	.content-bottom {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 32rpx 32rpx 38rpx;
+	}
+	.line {
+		width: 686rpx;
+		margin: 0 32rpx;
+		border-top-width: 2rpx;
+		border-top-color: rgba(242, 242, 242, 1);
+		border-style: solid;
+	}
+	.contentLeft {
+		width: 750rpx;
+		padding: 0 32rpx;
+		justify-content: center;
+	}
+	.contentRight {
+		flex: 1;
+		width: 750rpx;
+		padding: 28rpx 32rpx 0;
+	}
+	.item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		
+	}
+	.first {
+		padding-bottom: 10rpx;
+	}
+	.name {
+		font-size: 32rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		font-weight: 600;
+	}
+	.dateDesc {
+		font-size: 26rpx;
+		color: #777777;
+	}
+	.plateNo {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+	}
+	.address {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		width: 500rpx;
+	}
+	.btn {
+		background-color: #0171F9;
+		border-radius: 16rpx;
+		width: 138rpx;
+		height: 52rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.text {
+		color: #FFFFFF;
+		font-size: 26rpx;
+	}
+	.select-time {
+		flex-direction: row;
+	}
+	.select-item {
+		width: 136rpx;
+		height: 52rpx;
+		border: 2rpx solid #D9D9D9;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.select-item-text {
+		color: #D9D9D9;
+		font-size: 28rpx;
+	}
+	.select-item-second {
+		margin-left: 24rpx;
+	}
+	.select-item-active {
+		border: 2rpx solid #0171F9;
+		background-color: #D9EAFF;
+	}
+	.select-item-text-active {
+		color: #0171F9;
+	}
+	.select-self {
+		flex-direction: row;
+		margin-top: 22rpx;
+	}
+	.select-self-item {
+		width: 248rpx;
+		height: 82rpx;
+		border: 2rpx solid #D9D9D9;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16rpx;
+		border-radius: 8rpx;
+	}
+	.select-self-item-last {
+		margin-left: 32rpx;
+	}
+	.dateSelect {
+		width: 24rpx;
+		height: 20rpx;
+	}
+	.picker {
+		flex: 1;
+	}
+	.select-self-item-text {
+		flex: 1;
+		color: rgba(0, 0, 0, 0.25);
+		font-size: 28rpx;
+	}
+	.select-self-item-has-text {
+		flex: 1;
+		color: #333333;
+		font-size: 28rpx;
+	}
+	.btnContent {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 36rpx;
+	}
+	.boot-item {
+		width: 296rpx;
+		height: 106rpx;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}
+	.boot-item-first {
+		background-color: rgba(1, 113, 249, 1);
+		margin-right: 54rpx;
+	}
+	.boot-item-second {
+		background-color: rgba(255, 119, 0, 1);
+	}
+	.boot-item-title {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+	.boot-item-sub {
+		color: #FFFFFF;
+		font-size: 24rpx;
+	}
+	.title-btnWhole {
+		flex-direction: row;
+	}
+	.title {
+		color: #333333;
+		font-size: 32rpx;
+		font-weight: 600;
+		margin-right: 22rpx;
+	}
+	.hintBox {
+		background: #FFFFFF;
+		border-radius: 12rpx;
+		margin: 0 32rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 560rpx;
+		height: 320rpx;
+	}
+	.msgIcon {
+		margin-left: 32rpx;
+		height: 28rpx;
+		width: 28rpx;
+	}
+</style>

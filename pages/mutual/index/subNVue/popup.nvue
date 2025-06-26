@@ -1,0 +1,140 @@
+<template>
+	<view class="container" id="popup2"  @click.prevent="cloneEvent">
+		<view class="opacity" />
+		<view class="popup-box1" :style="'height:' + this.screenArr.length==0?'80rpx': (this.screenArr.length*85) + '80rpx'">
+			<view>
+				<text class="popup-child2" :key="index" v-for="(item, index) in screenArr" @click="selectEvent2(index)">{{item.name}}</text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				screenArr: [
+					{name: '全部', value: ''},
+					{name: '未解决', value: 2},
+					{name: '已解决', value: 1},
+					{name: '已关闭', value: 0},
+				],
+			}
+		},
+		created() {
+			const vm = this;
+			var subNVue = uni.getSubNVueById('popup2')
+			
+			console.log(subNVue)
+			console.log(this.show)
+			var statusBarHeight = plus.navigator.getStatusbarHeight();
+			var platform = uni.getSystemInfoSync().platform;
+			console.log(statusBarHeight, platform, 'asas')
+			if (platform == 'android') {
+				this.top = (statusBarHeight + 115)+ 'px'
+			} else {
+				this.top = (statusBarHeight + 115)+ 'px'
+			}
+			subNVue.setStyle({
+				"position": "absolute",
+				"width": "100%",
+				"top": this.top,
+				"height": "100%",
+				"background": "transparent",
+			})
+			subNVue.hide();
+		
+		
+		},
+		onShow() {
+			
+		},
+		beforeDestroy() {
+			uni.$off('page-popup2')
+		},
+		methods: {
+			
+			selectEvent2(index) {
+				console.log('kkkkkkkkkkk')
+				var item = this.screenArr[index];
+				uni.$emit('page-popup2', {item: item, index: 1});
+				this.cloneEvent();
+			},
+			cloneEvent(){
+				var subNVue = uni.getSubNVueById('popup2')
+				subNVue.hide('fade-out', 300)
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.top{
+		width: 750rpx;
+		height: 80rpx;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 40rpx;
+		flex-direction: row;
+		background-color: #fff;
+	}
+	.screen-child{
+		flex-direction: row;
+		align-items: center;
+	}
+	.screen-child1{
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.screen-child2{
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+	}
+	.screen-img{
+		width: 20rpx;
+		margin-right: 10rpx;
+	}
+	.screen-font{
+		color: #333;
+		font-size: 26rpx;
+		font-weight: bold;
+	}
+	.popup-box{
+		position: fixed;
+		width: 750rpx;
+		text-align: center;
+		background-color: #fff;
+		border-bottom-left-radius: 30rpx;
+		border-bottom-right-radius: 30rpx;
+		
+	}
+	.popup-box1{
+		background-color: #fff;
+		position: absolute;
+		top: 0;
+		left: 0;
+		position: fixed;
+		width: 750rpx;
+	}
+	.popup-child2{
+		border-top: 1rpx;
+		border-top-color: #f3f3f3;
+		border-bottom: 1rpx;
+		border-bottom-color: #f3f3f3;
+		padding: 20rpx 40rpx;
+		color: #333;
+		font-size: 26rpx;
+	}
+	.opacity{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.4;
+		width: 750rpx;
+	}
+</style>

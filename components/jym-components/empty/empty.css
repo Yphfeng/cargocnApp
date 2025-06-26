@@ -1,0 +1,48 @@
+.empty-root-layout {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.empty-layout {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 666;
+}
+
+.empty-img {
+  width: 100rpx;
+  height: 100rpx;
+}
+
+.empty-text {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #999;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-btn {
+  background: #FFD169;
+  margin-top: 20rpx;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.empty-btn::after{
+  border: none;
+}
+
+.empty-content-layout {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}

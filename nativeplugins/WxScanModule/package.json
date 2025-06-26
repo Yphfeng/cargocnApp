@@ -1,0 +1,19 @@
+{
+    "name": "WxScanModule",
+    "id": "WxScanModule",
+    "version": "2.0.0",
+    "description": "sdk",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "WxScanModule",
+                    "class": "com.cargo.wxscanmodule.WxScanModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}

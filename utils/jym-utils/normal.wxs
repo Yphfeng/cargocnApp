@@ -1,0 +1,85 @@
+var filter = {
+  couponType2String: function (flag) {
+    //110立减 111充返 112红包 113自定义
+    var str = "";
+
+    if (110 == flag) {
+      str = "立减";
+    } else if (111 == flag) {
+      str = "充返";
+    } else if (112 == flag) {
+      str = "红包";
+    } else if (113 == flag) {
+      str = "自定义";
+    }
+
+    return str;
+  },
+  checkCardFlagName: function (flag) {
+    var str = "";
+    if ("CC" == flag) {
+      str = "车队柴油卡";
+    } else if ("YC" == flag) {
+      str = "油站柴油卡";
+    } else if ("YQ" == flag) {
+      str = "油站汽油卡";
+    } else if ("YT" == flag) {
+      str = "油站天然气卡";
+    } else if ("CT" == flag) {
+      str = "车队天然气卡";
+    } else if ("CC" == flag) {
+      str = "车队柴油卡";
+    } else if ("PT" == flag) {
+      str = "货运中国平台卡";
+    }
+
+    return str;
+  },
+  checkCardFlagIsSite: function (flag) {
+    if ("CC" == flag) {
+      return false;
+    } else if ("C2" == flag) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  prcieFiltering: function (flag) {
+    if ("CC" == flag) {
+      return false;
+    } else if ("C2" == flag) {
+      return false;
+    } else if ("CC" == flag || "CT" == flag) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  retainNumber: function (number) {
+    return (number * 1000 / 1000).toFixed(2);
+  },
+  Amount: function (number) {
+    if (!isNaN(number)) {
+      number = number.toFixed(2).split(".");
+      return number;
+    } else {
+      return number;
+    }
+  },
+  Amount2: function (number) {
+	if(!number){
+		return 0;
+	}
+    number = number.toFixed(2);
+    return number;
+  }
+};
+module.exports = {
+  checkCardFlagName: filter.checkCardFlagName,
+  checkCardFlagIsSite: filter.checkCardFlagIsSite,
+  retainNumber: filter.retainNumber,
+  Amount: filter.Amount,
+  Amount2: filter.Amount2,
+  couponType2String: filter.couponType2String,
+  prcieFiltering: filter.prcieFiltering
+};

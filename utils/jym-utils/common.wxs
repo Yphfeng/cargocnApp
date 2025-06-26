@@ -1,0 +1,28 @@
+var formatterTimer = function (systimestamp, compareTime) {
+  var result = {};
+  var nowTime = systimestamp;
+  var reg = getRegExp("-", "g");
+  var futureTime = getDate(compareTime.replace(reg, '/')).getTime();
+  var resTime = futureTime - nowTime;
+  var zero = futureTime - nowTime;
+
+  if (zero >= 0) {
+    result.d = Math.floor(resTime / (1000 * 60 * 60 * 24));
+    result.h = Math.floor(resTime / (1000 * 60 * 60) % 24);
+    result.m = Math.floor(resTime / (1000 * 60) % 60);
+    result.s = Math.floor(resTime / 1000 % 60);
+    result.status = true;
+  } else {
+    result.d = '00';
+    result.h = '00';
+    result.m = '00';
+    result.s = '00';
+    result.status = false;
+  }
+
+  return result;
+};
+
+module.exports = {
+  formatterTimer: formatterTimer
+};

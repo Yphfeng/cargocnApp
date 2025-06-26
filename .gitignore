@@ -1,0 +1,6 @@
+.project
+node_modules/
+unpackage/
+.DS_Store
+node_modules/
+pages/my/carVerify/carDemo.nvue

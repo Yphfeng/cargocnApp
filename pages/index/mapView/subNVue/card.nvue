@@ -1,0 +1,160 @@
+<template>
+	<view>
+		<view id="card" class="card-all" v-if="cardInfo.providerName">
+			<image class="card-img" :src="cardInfo.facadeImgs?cardInfo.newFacadeImgs[0]:'https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/driver/banner1.png'"></image>
+			<view class="card-info">
+				<view :class="[show && platform == 'android'?'opacity':'opacity1']"></view>
+				<view class="card-head">
+					<text class="card-name">{{cardInfo.providerName}}</text>
+					<view class="address-box">
+						<image class="address-img" src="../../../../static/images/location.png"></image>
+						<text class="address-text">{{getDistance(cardInfo.latitude, cardInfo.longitude, latitude, longitude).toFixed(2)}}km</text>
+					</view>
+				</view>
+				<text class="address-content">{{cardInfo.address}}</text>
+				<view class="navigation-box">
+					<text class="navigation-text" @click="openLocation(cardInfo)">导航</text>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/service.js"
+	export default {
+		data() {
+			return {
+				show: false,
+				platform: '',
+				cardInfo: {},
+				latitude: 0,
+				longitude: 0,
+			}
+		},
+		created() {
+			var that = this;
+			uni.$on('page-index', (data) => {
+				console.log(data)
+				if(data==1){
+					that.show = true
+				} else{
+					that.show = false
+				}
+			})
+			uni.$on('page-items', item=>{
+				if(item.data.facadeImgs){
+					item.data.newFacadeImgs = item.data.facadeImgs.split(",");
+				}
+				that.cardInfo = item.data;
+				// console.log(that.cardInfo);
+				that.latitude = item.address.latitude;
+				that.longitude = item.address.longitude;
+			})
+			this.platform = uni.getSystemInfoSync().platform;
+			console.log(this.platform);
+		},
+		methods: {
+			openLocation(res){
+				uni.openLocation({
+					latitude: res.latitude,	//维度
+					longitude: res.longitude, //经度
+					name: res.address,	//目的地定位名称
+					scale: 15,	//缩放比例
+					address: res.address	//导航详细地址
+				})
+			},
+			getDistance(lat, lng, selfLatitude, selfLongitude){
+				return utils.getDistance(lat, lng, selfLatitude, selfLongitude)
+			},
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.card-all{
+		border-radius: 20rpx;
+		height: 800rpx;
+		
+	}
+	.card-img{
+		width: 525rpx;
+		height: 392rpx;
+		border-radius: 20rpx;
+	}
+	.card-info{
+		position: fixed;
+		top: 166rpx;
+		width: 525rpx;
+		bottom: 0;
+		background-color: #fff;
+		border-radius: 20rpx;
+	}
+	.card-head{
+		width: 525rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 20rpx 30rpx;
+	}
+	.card-name{
+		font-size: 32rpx;
+		color: #333;
+		font-weight: bold;
+	}
+	.address-box{
+		flex-direction: row;
+		align-items: center;
+	}
+	.address-img{
+		height: 30rpx;
+		width: 24rpx;
+		margin-right: 10rpx;
+	}
+	.address-text{
+		font-size: 24rpx;
+		color: #666;
+	}
+	.address-content{
+		width: 525rpx;
+		padding: 0 30rpx 20rpx 30rpx;
+		font-size: 28rpx;
+		color: #666;
+	}
+	.navigation-box{
+		width: 525rpx;
+		padding: 0 30rpx;
+	}
+	.navigation-text{
+		background-color: #FF8D02;
+		font-size: 28rpx;
+		height: 64rpx;
+		line-height: 64rpx;
+		text-align: center;
+		color: #fff;
+		border-radius: 32rpx;
+		font-weight: bold;
+	}
+	.opacity{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.4;
+		width: 750rpx;
+		border-radius: 20rpx;
+	}
+	.opacity1{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		width: 750rpx;
+		opacity: 0;
+		border-radius: 20rpx;
+	}
+</style>

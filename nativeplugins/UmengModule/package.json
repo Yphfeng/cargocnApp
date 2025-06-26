@@ -1,0 +1,34 @@
+{
+    "name": "UmengModule",
+    "id": "UmengModule",
+    "version": "1.0.0",
+    "description": "友盟sdk",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "UmengModule",
+                    "class": "com.cargochina.umengmodule.UmengModule"
+                }
+            ],
+			"integrateType": "aar"
+        },
+		"ios": {
+			"plugins": [{
+				"type": "module",
+				"name": "UmengModule",
+				"class": "UmengModule"
+			}],
+			"frameworks": [
+				"libz.tbd",
+				"libsqlite3.tbd",
+				"CoreTelephony.framework",
+				"SystemConfiguration.framework"
+			],
+			"integrateType": "framework",
+			"deploymentTarget": "9.0"
+		}
+    }
+}

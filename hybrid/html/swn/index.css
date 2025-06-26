@@ -1,0 +1,373 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  background: #CDE9FF;
+  overflow-y: scroll;
+}
+.container .top_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.1rem;
+  padding-left: 0.19rem;
+  padding-bottom: 0.1rem;
+  height: 0.44rem;
+  box-sizing: border-box;
+}
+.container .top_header img {
+  width: 0.08rem;
+  height: 0.15rem;
+}
+.container .top_header div {
+  font-size: 0.18rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+}
+.container .banner {
+  width: 100vw;
+  height: 1.6rem;
+  background-image: url('images/banner.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.container .content {
+  background: #CDE9FF;
+  padding: 0.16rem 0.18rem 0.18rem 0.18rem;
+  box-sizing: border-box;
+  width: 100vw;
+}
+.container .content .content_item_list {
+  width: 100%;
+  margin-top: 0.2rem;
+  background: #D8ECFC;
+  box-shadow: 0rem 0rem 0.05rem 0.01rem rgba(59, 137, 255, 0.36);
+  border-radius: 0.12rem 0.12rem 0.12rem 0.12rem;
+  position: relative;
+  padding: 0.04rem;
+  box-sizing: border-box;
+  overflow-y: scroll;
+}
+.container .content .content_item_list .content_box {
+  height: 100%;
+  background: #FFFFFF;
+  box-shadow: 0rem 0rem 0.05rem 0.01rem rgba(59, 137, 255, 0.36);
+  border-radius: 0.12rem 0.12rem 0.12rem 0.12rem;
+}
+.container .content .content_item_list .content_box .news_title {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.18rem;
+  box-sizing: border-box;
+  margin-left: -0.02rem;
+}
+.container .content .content_item_list .content_box .news_title img {
+  width: 0.35rem;
+  height: 0.35rem;
+}
+.container .content .content_item_list .content_box .news_title div {
+  font-size: 0.2rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+}
+.container .content .content_item_list .content_box .news_list {
+  min-height: 0.35rem;
+  max-height: 4rem;
+  overflow-y: scroll;
+}
+.container .content .content_item_list .content_box .news_list .news_item {
+  border-top: 0.01rem solid #EAEAEA;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 0.16rem;
+}
+.container .content .content_item_list .content_box .news_list .news_item .news_content {
+  line-height: 0.2rem;
+  width: 100%;
+  font-size: 0.14rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #333333;
+}
+.container .content .content_item_list .content_box .news_list .news_item .news_date {
+  font-size: 0.14rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #333333;
+}
+.container .content .content_item {
+  width: 100%;
+  margin-top: 0.2rem;
+  height: 1.35rem;
+  background: #D8ECFC;
+  box-shadow: 0rem 0rem 0.05rem 0.01rem rgba(59, 137, 255, 0.36);
+  border-radius: 0.12rem 0.12rem 0.12rem 0.12rem;
+  position: relative;
+  padding: 0.04rem;
+  box-sizing: border-box;
+}
+.container .content .content_item .content_box {
+  height: 100%;
+  background: #FFFFFF;
+  box-shadow: 0rem 0rem 0.05rem 0.01rem rgba(59, 137, 255, 0.36);
+  border-radius: 0.12rem 0.12rem 0.12rem 0.12rem;
+}
+.container .content .content_item .content_box .news_title {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.18rem;
+  box-sizing: border-box;
+}
+.container .content .content_item .content_box .news_title img {
+  width: 0.35rem;
+  height: 0.35rem;
+}
+.container .content .content_item .content_box .news_title div {
+  font-size: 0.2rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+}
+.container .content .content_item .content_box .news_list .news_item {
+  border-top: 0.01rem solid #EAEAEA;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 0.16rem;
+}
+.container .content .content_item .content_box .news_list .news_item .news_content {
+  font-size: 0.14rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #333333;
+}
+.container .content .content_item .content_box .news_list .news_item .news_date {
+  font-size: 0.14rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #333333;
+}
+.container .content .content_item .content_name {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.58rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container .content .content_item .content_name div {
+  font-size: 0.32rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+}
+.container .content .content_item .content_name img {
+  margin-left: 0.2rem;
+  margin-top: 0.05rem;
+  width: 0.22rem;
+  height: 0.12rem;
+}
+.container .content .content_item .content_wechat {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  padding: 0 0.18rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.container .content .content_item .content_wechat .join_text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.2rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+}
+.container .content .content_item .content_wechat .join_text .text {
+  font-size: 0.14rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #666666;
+}
+.container .content .content_item .content_wechat .we_chat {
+  width: 0.35rem;
+  height: 0.35rem;
+}
+.container .content .content_item .content_wechat .right_arrow {
+  transform: rotate(-90deg);
+  width: 0.22rem;
+  height: 0.12rem;
+}
+.container .content .content_item .content_title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -0.2rem;
+  width: 1.35rem;
+  height: 0.41rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(#6DBFFF, #0065FF);
+  z-index: 1;
+  border-radius: 0.57rem;
+}
+.container .content .content_item .content_title div {
+  margin-top: -0.02rem;
+  font-size: 0.24rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+.mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 99;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(84, 84, 84, 0.58);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.mask .dialog {
+  position: absolute;
+  width: 100vw;
+  overflow-y: scroll;
+  bottom: -100vh;
+  left: 0;
+  transition: bottom 0.2s;
+  border-top-left-radius: 0.1rem;
+  border-top-right-radius: 0.1rem;
+  background: #ffffff;
+  box-shadow: 0rem 0rem 0.08rem 0.01rem rgba(172, 203, 255, 0.19);
+  padding: 0.18rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+.mask .dialog .dialog_header {
+  height: 0.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.mask .dialog .dialog_header div {
+  font-size: 0.2rem;
+  font-family: PingFang SC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #333333;
+}
+.mask .dialog .dialog_header img {
+  position: absolute;
+  right: 0;
+  top: 0.1rem;
+  width: 0.24rem;
+  height: 0.24rem;
+  margin-top: -0.2rem;
+}
+.mask .dialog .select_box {
+  font-size: 0.18rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #666666;
+}
+.mask .dialog .select_box .line {
+  margin: 0.04rem auto 0.17rem auto;
+  width: 0.26rem;
+  height: 0.03rem;
+  background-color: #3D8AFF;
+}
+.mask .dialog img {
+  width: 0.24rem;
+  height: 0.24rem;
+}
+.mask .dialog .province_list {
+  height: 3.5rem;
+  overflow-y: scroll;
+  padding-bottom: 0.5rem;
+}
+.mask .dialog .province_list .province_item {
+  font-size: 0.18rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 0.22rem;
+}
+.mask .dialog .province_list .province_item .line {
+  margin: 0.04rem auto 0.17rem auto;
+  width: 0.26rem;
+  height: 0.03rem;
+  background: #3D8AFF;
+}
+.mask .dialog .bottom_btn {
+  position: absolute;
+  width: 100vw;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  height: 0.54rem;
+}
+.mask .dialog .bottom_btn .left {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0rem -0.04rem 0.08rem 0.01rem rgba(0, 0, 0, 0.12);
+  width: 34vw;
+  height: 0.54rem;
+  font-size: 0.2rem;
+  font-family: PingFang SC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #666666;
+}
+.mask .dialog .bottom_btn .right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 66vw;
+  height: 0.54rem;
+  background: #3D8AFF;
+  font-size: 0.2rem;
+  font-family: PingFang SC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+body {
+  margin: 0;
+}
+.rich_text {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #FFFFFF;
+  z-index: 100;
+  overflow: scroll;
+}
+.rich_text .left_arrow {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 0.1rem;
+  height: 0.17rem;
+}
+.rich_text .rich_details {
+  padding: 0.16rem 0.18rem ;
+  box-sizing: border-box;
+  width: 100vw;
+  overflow: hidden;
+}

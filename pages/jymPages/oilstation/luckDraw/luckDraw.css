@@ -1,0 +1,96 @@
+Page{
+    background-color: white;
+}
+
+.body{
+    background: url("https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/bgimage/oil_luckdrawbg.png");
+	 background-size: 100% 100%;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+}
+.frame_view{
+    bottom: 160rpx;
+    left: 60rpx;
+    right: 60rpx;
+    width:500rpx;
+    height:500rpx;
+      padding: 84rpx;
+    background: url("https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/bgimage/oil_luckBoxBg.png") no-repeat;
+	 background-size: 100% 100%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 30rpx;
+}
+.frame_row{
+    width:500rpx;
+    height:150rpx;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.frame_item{
+    width:150rpx;
+    height:150rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    font-size: 30rpx;
+    background-color: white;
+    border-radius: 30rpx;
+}
+.frame_image_item{
+    width:150rpx;
+    height:150rpx;
+}
+.countContainer{
+    color: white;
+    width: 300rpx;
+    height: 60rpx;
+    font-size: 30rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #A2C5FD;
+    margin-left: 50rpx;
+    margin-right: 50rpx;
+    border-radius: 50rpx;
+}
+.coupon{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+.coupon image{
+	width: 80rpx;
+	height: 65rpx;
+}
+.coupon_Amount{
+	position: absolute;
+	top: 26rpx;
+color: #DBE5F7;
+font-size: 22rpx;
+}
+.coupon_text{
+	color: #FD6584;
+	
+font-size: 24rpx;
+}
+.coupon_text1{
+	color: #6D9AED;
+}
+.coupon1 image{
+	width: 74rpx;
+	height: 74rpx;
+}

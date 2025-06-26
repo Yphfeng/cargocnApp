@@ -1,0 +1,6 @@
+framework module UmengModule {
+  umbrella header "UmengModule.h"
+
+  export *
+  module * { export * }
+}

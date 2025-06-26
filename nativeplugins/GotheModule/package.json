@@ -1,0 +1,19 @@
+{
+    "name": "GotheModule",
+    "id": "GotheModule", 
+    "version": "1.0.0",
+    "description": "高德地",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "GotheModule",
+                    "class": "com.hhy.gothemodule.GotheModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}

@@ -1,0 +1,3273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+    <meta
+      id="viewport"
+      name="viewport"
+      content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+    />
+	<title>找卡车</title>
+	<link rel="stylesheet" href="https://unpkg.com/vant@2.12/lib/index.css" />
+	<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+	<script src="https://unpkg.com/vant@2.12/lib/vant.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://res.wx.qq.com/open/js/jweixin-1.3.2.js"
+    ></script>
+    <style>
+      html,
+      body,
+      #container {
+        width: 100%;
+        height: 100%;
+        margin: 0 !important;
+        font-family: PingFang SC-Regular, PingFang SC;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        /* overflow: hidden; */
+      }
+	  .amap-logo{
+       display: none;
+       opacity:0 !important;
+       }
+       .amap-copyright {
+           opacity:0;
+       }
+      .label-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 0;
+        z-index: 999;
+        background-color: #fff;
+      }
+      .road-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+        padding: 10px 0;
+        z-index: 999;
+        background-color: #fff;
+      }
+      .label-box::-webkit-scrollbar {
+        display: none;
+      }
+      .label-child {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      .label-text {
+        margin: 0 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 16px;
+        color: #9e9fa1;
+        font-weight: 700;
+      }
+      .label-text1 {
+        margin: 0 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #333;
+        font-size: 19px;
+        font-weight: 700;
+      }
+      .road-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 16px;
+        color: #9e9fa1;
+        font-weight: 700;
+      }
+      .road-text1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #333;
+        font-size: 19px;
+        font-weight: 700;
+      }
+      [v-cloak] {
+        display: none;
+      }
+      .status-box {
+        position: absolute;
+        top: 70px;
+        right: 10px;
+        z-index: 99;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      .status-img {
+        width: 48px;
+        height: 26px;
+      }
+      .opt {
+        position: absolute;
+        top: 126px;
+        right: 18px;
+        width: 89rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      .opt-item-list {
+        width: 89px;
+        height: 35px;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 1);
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.25);
+      }
+      .locationCenter {
+        width: 24px;
+        height: 24px;
+        margin-right: 5px;
+      }
+      .tabs {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-1.png);
+        background-size: cover;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        background-position: 100%;
+      }
+      .tabs.active {
+        background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-2.png);
+      }
+      .tab-item {
+        flex: 1;
+        height: 39px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px;
+        color: #ffffff;
+      }
+      .tab-item.active {
+        font-weight: 600;
+        color: #333333;
+      }
+
+      .date {
+        font-size: 12px;
+        color: #666666;
+        margin-left: 6px;
+      }
+      .car-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: 18px;
+        color: #333333;
+        font-weight: 500;
+        line-height: 22px;
+      }
+      .car-type {
+        margin-right: 15px;
+      }
+      .car-mobile {
+        width: 22px;
+        height: 22px;
+      }
+      .car-news {
+        width: 24px;
+        height: 24px;
+      }
+      .contact-info {
+        display: flex;
+        flex-direction: row;
+      }
+      .car-icon-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        line-height: 12px;
+        color: #000000;
+        font-size: 10px;
+      }
+      .car-icon-item:last-child {
+        margin-left: 22px;
+      }
+      .back {
+        position: absolute;
+        left: 18px;
+        top: 59px;
+        width: 28px;
+        height: 28px;
+      }
+      .marker-info {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        width: 100%;
+        background-color: #ffffff;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        flex-direction: column;
+        height: 223px;
+        justify-content: flex-start;
+        align-items: flex-start;
+      }
+      .track_img {
+        position: fixed;
+        right: 11px;
+        bottom: 189px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .track_icon {
+        width: 20px;
+        height: 20px;
+      }
+      .title {
+        margin: 17px 21px 8px;
+        color: #333333;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 22px;
+      }
+      .name:first-child {
+        margin-right: 20px;
+      }
+      .marker-date {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 25px 21px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .selectWhole {
+        border: 1px solid #dfdfdf;
+        border-radius: 4px;
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: 30px;
+        font-size: 14px;
+        color: #333333;
+        padding: 0 7px;
+        box-sizing: border-box;
+      }
+      .selectWholeFirst {
+        margin-right: 10px;
+      }
+      .clearIcon {
+        width: 17px;
+        height: 17px;
+      }
+      .marker-btn {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
+      .btn-default {
+        margin-right: 45px;
+      }
+      .btn-item.btn-active {
+        background-color: #2b72f0;
+        color: #ffffff;
+        font-weight: 600;
+      }
+      .tips {
+        position: fixed;
+        top: 84px;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+      }
+      .tips-content {
+        background-color: rgba(255, 235, 190, 1);
+        box-shadow: 0 0 19px 1px rgba(255, 193, 63, 0.44);
+        padding: 6px 38px;
+        border-radius: 8px;
+        color: rgba(247, 139, 48, 1);
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+      }
+	  	.bottom-city-alert {
+		  	position: fixed;
+		  	bottom: 0;
+		  	left: 0;
+		  	width: 100%;
+		  	height: 103px;
+		  	display: flex;
+		  	flex-direction: row;
+		  	justify-content: center;
+		  	align-items: center;
+		  	background-color: #ffffff;
+		  	border-radius: 12px 12px 0 0;
+			opacity: 0;
+	  	}
+		  .bottom-city-alert.active {
+			  opacity: 1;
+		  }
+	  .bottom-city-item {
+		  width: 141px;
+		  height: 45px;
+		  color: #ffffff;
+		  font-size: 18px;
+		  font-weight: 500;
+		  display: flex;
+		  justify-content: center;
+		  align-items: center;
+	  }
+	  .bottom-city-item.add {
+		  background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/join-left-bg.png");
+		  background-size: cover;
+		  margin-right: 41px;
+	  }
+	  .bottom-city-item.detailPage {
+		  background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/join-right-bg.png");
+		  background-size: cover;
+	  }
+	  	.bottom-points-alert {
+		  	position: fixed;
+		  	bottom: 0;
+		  	left: 0;
+		  	background-color: #ffffff;
+		  	width: 100%;
+			align-items: center;
+			border-radius: 12px 12px 0 0;
+			box-shadow: 0 -3px 9px 1px rgba(0, 0, 0, 0.17);
+			opacity: 0;
+	  	}
+		  .bottom-points-alert.active {
+			  opacity: 1;
+		  }
+	.info {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		margin-top: 13px;
+		width: 100%;
+	}
+	.info-ship {
+		height: 128px;
+		justify-content: center;
+		align-items: center;
+		margin-top: 0;
+	}
+	.avatar-content {
+		width: 80px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.avatar-icon {
+		width: 75px;
+		height: 59px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+	.isBindDevice {
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/box-avatar-first-1.png");
+		background-size: cover;
+	}
+	.isBindZj {
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/box-bold-avatar.png");
+		background-size: cover;
+	}
+	.avatar-icon-other {
+		margin-top: 5px;
+	}
+	.avatar-other {
+		width: 40px;
+		height: 40px;
+		border-radius: 100%;
+	}
+	.status {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 4px;
+	}
+	.dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 7px;
+		background-color: rgba(74, 205, 27, 1);
+	}
+	.dotActive {
+		background-color: rgba(226, 99, 59, 1);
+	}
+	.statusTextActive {
+		color: rgba(226, 99, 59, 1);
+	}
+	.status-text {
+		color: rgba(74, 205, 27, 1);
+		font-size: 14px;
+		line-height: 33rpx;
+		padding-left: 2px;
+	}
+	
+	.info-content {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+	}
+	.info-item {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.changp {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	.changp-label {
+		color: rgba(51, 51, 51, 1);
+		font-size: 18px;
+		margin-right: 5px;
+	}
+
+	.changp-text {
+		color: rgba(52, 137, 233, 1);
+		font-size: 18px;
+		font-weight: bold;
+		lines: 1;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		width: 140px;
+	}
+	.avatar {
+		width: 34px;
+		height: 34px;
+		border-radius: 100%;
+		margin-left: 2px;
+	}
+	.avatar-bold {
+		width: 34px;
+		height: 34px;
+		border-radius: 100%;
+		margin-bottom: 1px;
+	}
+	.avatar-tips {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 75px;
+		z-index: 2;
+		justify-content: center;
+		align-items: center;
+		display: flex;
+	}	
+	.avatar-tips-content {
+		width: 38px;
+		height: 14px;
+		border-radius: 35px;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+		display: flex;
+	}
+	.content-bind {
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/jingxuan-btn-icon.png");
+		background-size: cover;
+	}
+	.bold {
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/bold-btn-icon.png");
+		background-size: cover;
+	}
+	
+	.avatar-tips-text {
+		font-size: 8px;
+		font-weight: 500;
+		color: #000;
+	}
+	
+	.user-info {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding-right: 19px;
+	}
+	.user-info-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.markerCloseIcon {
+		position: absolute;
+		top: -40px;
+		right: 18px;
+		width: 20px;
+		height: 20px;
+	}
+	.markerCloseIcon-ship {
+		top: -60px;
+	}
+	.info-content-between {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: flex-start;
+		padding-right: 20px;
+		box-sizing: border-box;
+	}
+	.mt-9 {
+		margin-top: 9px;
+	}
+	.info-content-right {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+	}
+	.detail {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 6px;
+		height: 20px;
+	}
+	.arrow_black_right {
+		width: 5px;
+		height: 10px;
+	}
+	.detail-label {
+		margin-right: 5px;
+		font-size: 14px;
+		color: rgba(52, 137, 233, 1);
+		font-weight: 500;
+		line-height: 16px;
+	}
+	.name {
+		font-size: 16px;
+		color: #333333;
+		font-weight: 600;
+		line-height: 19px;
+	}
+	.nameType {
+		font-size: 12px;
+		color: rgba(102, 102, 102, 1);
+		margin-right: 4px;
+		line-height: 19px;
+	}
+	.lenAndType {
+		font-size: 16px;
+		color: #333333;
+		line-height: 19px;
+		
+	}
+	.addr_content {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+	.addr_ship {
+		justify-content: center;
+		align-items: center;
+	}
+	.addr {
+		width: 200px;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.addr-ship-content {
+		width: 225px;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+	.beidou_icon {
+		width: 17px;
+		height: 17px;
+	}
+	.beidou_no_icon {
+		width: 16px;
+		height: 16px;
+		margin-right: 4px;
+	}
+	.addr-text {
+		flex: 1;
+		color: rgba(51, 51, 51, 1);
+		font-size: 18px;
+		line-height: 19px;
+		padding-left: 2px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.date {
+		font-size: 14px;
+		color: rgba(102, 102, 102, 1);
+		padding-top: 15px;
+		line-height: 22px;
+	}
+	.date-ship {
+		font-size: 14px;
+		color: rgba(102, 102, 102, 1);
+		line-height: 22px;
+	}
+	.info-labels {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.isContact {
+		margin-top: 15px;
+		
+	}
+	.isContact-text {
+		color: rgba(232, 82, 13, 1);
+		font-size: 12px;
+	}
+	.btn-item {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		box-sizing: border-box;
+		padding: 0 13px;
+		height: 21px;
+		border: 1px solid rgba(82, 131, 255, 1);
+		justify-content: center;
+		align-items: center;
+		border-radius: 4px;
+		margin-right: 10px;
+		margin-top: 10px;
+	}
+	.btn-item-text {
+		color: rgba(82, 131, 255, 1);
+		font-size: 12px;
+		font-weight: 500;
+	}
+	.line {
+		width: 100%;
+		height: 1px;
+		background-color: rgba(0, 0, 0, 0.2);
+		margin: 13px 0 18px;
+	}
+	.opt-content {
+		width: 100%;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 0 18px 17px;
+		background-color: #FFFFFF;
+		box-sizing: border-box;
+	}
+	.opt-between {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.opt-7 {
+		padding: 0 38px 17px;
+	}
+	.opt-item {
+		border-radius: 45px;
+		height: 38px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.opt-item-1 {
+		background-color: rgba(56, 136, 255, 1);
+		width: 80px;
+	}
+	.opt-item-5 {
+		background-image: linear-gradient(to right, rgba(234, 142, 67, 1), rgba(234, 106, 58, 1));
+		width: 80px;
+	}
+	.opt-item-6 {
+		background-image: linear-gradient(to right, rgba(161, 234, 67, 1), rgba(58, 234, 97, 1));
+		width: 80px;
+	}
+	.opt-item-2 {
+		background-color: rgba(234, 167, 67, 1);
+		width: 80px;
+		
+	}
+	.opt-item-4 {
+		background-color: rgba(178, 90, 246, 1);
+		width: 130px;
+	}
+	.opt-item-text {
+		color: #FFFFFF;
+		font-weight: 500;
+		font-size: 18px;
+	}
+	.opt-item-text-second {
+		font-size: 16px;
+	}
+	.noSourceNumBox {
+		width: 315px;
+	}	
+	.closeIcon {
+		width: 24px;
+		height: 24px;
+		position: absolute;
+		top: -30px;
+		right: 0;
+		z-index: 2099;
+		
+	}
+	.msgBox {
+		width: 315px;
+		background: #FFFFFF;
+		border-radius: 12px;
+		box-sizing: border-box;
+		padding: 19px 0;
+	}	
+	.mainTitle {
+		font-size: 20px;
+		font-weight: 500;
+		color: #333333;
+		line-height: 22px;
+		text-align: center;
+	}
+	.mainContent {
+		margin-top: 15px;
+		
+		padding: 0 27px;
+	}
+	.mainContent {
+		font-size: 16px;
+		font-weight: 500;
+		color: #333333;
+		line-height: 22px;
+		text-align: center;
+	}
+	.singleTouUpBtn {
+		height: 40px;
+		margin: 22px 13px 0 ;
+		border-radius: 8px;
+		overflow: hidden;
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-1.png");
+		background-size: cover;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 0 7px;
+		box-sizing: border-box;
+	}	
+	.singleTouUpBtn-content {
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 40px;
+		width: 289px;
+		padding: 0 9px;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.msg-text {
+		font-size: 14px;
+		font-weight: 500;
+		color: #FFFFFF;
+		line-height: 22px;
+	}
+	.sigleRightIcon {
+		height: 15px;
+		width: 15px;
+		display: block;
+	}
+	.memberTouUpBtn {
+		border-radius: 8px;
+		overflow: hidden;
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-bf-2.png");
+		background-size: cover;
+		position: relative;
+		margin: 10px 13px 0;
+		height: 46px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 9px;
+	}
+
+	.msg-btn-text {
+		font-size: 14px;
+		font-weight: 500;
+		color: #F0AB88;
+		line-height: 22px;
+		text-align: center;
+	}
+	.toBuyBtn {
+		width: 64px;
+		height: 24px;
+		border-radius: 114px;
+		overflow: hidden;
+		background-image: url("https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-nvue-btn-1.png");
+		background-size: cover;
+		font-size: 12px;
+		font-weight: 500;
+		color: #422507;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.membersRightIcon {
+		width: 14px;
+		height: 14px;
+	}
+	.rspMsgBox {
+		width: 100%;
+		padding: 0 34px;
+		box-sizing: border-box;
+		height: 124px;
+		background: #FFFFFF;
+		box-shadow: 0px 0px 10px 1px rgba(56, 136, 255, 0.18);
+		border-radius: 12px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.msgText-text {
+		text-align: center;
+		font-size: 20px;
+		font-weight: 500;
+		color: #000000;
+		line-height: 29px;
+		letter-spacing: 1px;
+	}
+	.msgText-tips-text {
+		text-align: center;
+		font-size: 18px;
+		color: rgba(0, 0, 0, 1);
+		line-height: 22px;
+		letter-spacing: 1px;
+	}
+	.myFleetBox {
+		width: 232px;
+		background: #FFFFFF;
+		border-radius: 12px;
+		height: 295px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.checkIcon {
+		width: 14px;
+		height: 14px;
+		display: block;
+		flex-shrink: 0;
+		margin-right: 8px;
+	}
+	.fleetHintBox {
+		width: 232px;
+		background: #FFFFFF;
+		border-radius: 12px;
+	}
+	.fleetName {
+		flex: 1;
+	}
+
+	.fleetName-text {
+		font-size: 14px;
+		font-weight: 400;
+		color: #333333;
+		line-height: 22px;
+	}
+
+	.popupBtn {
+		margin: 17px auto 0 auto;
+		background-color: #3888FF;
+		width: 156px;
+		height: 31px;
+		border-radius: 8px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+
+	.popupBtn-text {
+		font-size: 14px;
+		font-weight: 500;
+		color: #FFFFFF;
+	}
+
+
+	.popupCloseIcon {
+		display: block;
+		position: absolute;
+		width: 20px;
+		height: 20px;
+		right: 9px;
+		top: 6px;
+	}
+
+	.popupTitle {
+		text-align: center;
+		font-size: 18px;
+		font-weight: 500;
+		color: #000000;
+		line-height: 22px;
+	}
+	.popupTitle {
+		padding-top: 15px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.popupList {
+		height: 167px;
+		margin-top: 17px;
+	}
+
+	.myFleetInfoBox {
+		margin-top: 10px;
+		margin-left: 21px;
+		margin-right: 21px;
+		height: 36px;
+		background: #F2F2F2;
+		border-radius: 4px;
+		display: flex;
+		align-items: center;
+		padding: 0 0 0 12px;
+		width: 190px;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.fleetHintBox {
+		height: 145px;
+		justify-content: center;
+		align-items: center;
+	}
+	.popupTitle1 {
+		padding-top: 25px;
+	}
+
+	.myFleetBox {
+		width: 232px;
+		background: #FFFFFF;
+		border-radius: 12px;
+		height: 245px;
+		justify-content: flex-start;
+		align-items: center;
+	}
+
+	.fleetHintBox {
+		width: 232px;
+		background: #FFFFFF;
+		border-radius: 12px;
+	}
+	.van-toast--unclickable * {
+		pointer-events: all
+	}
+	.van-popup {
+		overflow-y: visible;
+	}
+    </style>
+  </head>
+
+  <body>
+    <div
+      id="container"
+      style="width: 100vw; height: 100vh; position: relative"
+    ></div>
+    <div id="app">
+      	<div class="tabs" :class="[{active: !isFleetSource}]">
+        <div
+          class="tab-item"
+          :class="{active: !isFleetSource}"
+          @click="toFleetMap"
+        >
+          车辆定位地图
+        </div>
+        <div
+          class="tab-item"
+          :class="{active: isFleetSource}"
+          @click="toCarSourceMap"
+        >
+          常跑线路地图
+        </div>
+      	</div>
+
+      	<div class="tips">
+        <div class="tips-content">为您展示平台内最新司机定位</div>
+      	</div>
+      	<div class="opt">
+        <div class="opt-item-list" @click="toList">
+          <img
+            src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/list_icon.png"
+            class="locationCenter"
+          />
+          <div>列表</div>
+        </div>
+	 	</div>
+	  	<div class="bottom-city-alert" v-if="isShowPoints" :class="{active: isShowPoints}">
+		  <div class="bottom-city-item add" @click="batchToMyFleet">加入我的车队</div>
+		  <div class="bottom-city-item detailPage"  @click="toContact">查看车辆详情</div>
+	  	</div>
+	  	<div class="bottom-points-alert" v-if="isShowSelectedMapItem" :class="{active: isShowSelectedMapItem}">
+			<div class="marker-content">
+				<!--isAlertJoin == 2-->
+				<div class="alertJoin_1" v-if="selectedMapItem.serviceType == 10">
+					<div class="info">
+						<div class="avatar-content">
+							<div class="avatar-icon isBindDevice" v-if="selectedMapItem.isBindDevice == 1">
+									<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar"></image>
+									<div class="avatar-tips">
+										<div class="avatar-tips-content content-bind">
+											
+												<div class="avatar-tips-text">精选</div>
+											
+										</div>
+									</div>							
+								
+							</div>
+							<div class="avatar-icon isBindZj" v-else-if="selectedMapItem.isBindZj == 1">
+								
+									<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-bold"></image>
+									<div class="avatar-tips">
+										<div class="avatar-tips-content bold">
+											
+												<div class="avatar-tips-text">黄金</div>
+											
+										</div>
+									</div>							
+								
+								
+							</div>
+							<div class="avatar-icon-other" v-else>
+								<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-other"></image>
+							</div>
+							
+							<div class="status">
+								<div class="dot" :class="{dotActive: selectedMapItem.taskStatus == 2}" ></div>
+								<div class="status-text" :class="{statusTextActive: selectedMapItem.taskStatus == 2}">{{selectedMapItem.taskStatus != 2 ? '可接单' : '忙碌'}}</div>
+							</div>
+						</div>
+						
+						<div class="info-content">
+							<div class="user-info">
+								<div class="user-info-content">
+									<div class="name">{{showName(selectedMapItem)}}</div>
+									<div class="nameType" v-if="selectedMapItem.isOwner || selectedMapItem.isAdmin">{{selectedMapItem.isOwner ?'(车队长)':'(管理员)'}}</div>
+									<div class="lenAndType">{{selectedMapItem.model?setModel(selectedMapItem.model):''}}</div>
+								</div>		
+								<image class="markerCloseIcon" @click="closeMarkerPopup()" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/close-white.png"></image>
+								
+							</div>
+							<div class="info-content-between">
+								<div class="info-content-left">
+									<div class="info-item mt-9" v-if="selectedMapItem.circuitCombo">
+										<div class="changp">
+											<div class="changp-label">常跑：</div>
+											<div class="changp-text">{{selectedMapItem.circuitCombo}}</div>
+										</div>
+									</div>
+									<div class="info-item addr_content mt-9">
+										<div class="addr">
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_beidou.png" class="beidou_icon" v-if="selectedMapItem.dataSrc == 4"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_wx.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 3"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_box.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 1"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_app.png" class="beidou_icon" v-else></image>
+											
+										
+											<div class="addr-text">{{showAddr(selectedMapItem)}}</div>
+										</div>
+										
+									</div>
+									<div class="info-item info-labels" v-if="selectedMapItem.tagShowArr.length">
+										
+										<div class="btn-item" v-for="atem in selectedMapItem.tagShowArr">
+											<div class="btn-item-text">{{atem.tagName}}</div>
+										</div>
+										
+									</div>
+								</div>
+								<div class="info-content-right">
+									<div class="detail">
+										<!-- <div class="detail-label">详情</div>
+										<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/arrow_right_blue_icon.png" class="arrow_black_right"></image> -->
+									</div>
+									<div class="date">{{showDate(selectedMapItem)}}</div>
+									<div class="isContact" v-if="selectedMapItem.isContact"><div class="isContact-text">您今天查看过</div></div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+					<div class="line" :style="{opacity: isAlertJoin == 5 ? 0 : 1}" ></div>
+					<div class="opt-content" v-if="isAlertJoin == 3">
+							<div></div>
+							<div class="opt-item opt-item-1" @click="toTrack">
+								<div class="opt-item-text">查轨迹</div>
+							</div>
+					</div>
+					<div class="opt-content" v-if="isAlertJoin == 4">
+							<div></div>
+							<div class="opt-item opt-item-1" @click="toTrack">
+								<div class="opt-item-text">查轨迹</div>
+							</div>
+					</div>
+					<div class="opt-content opt-between" v-if="isAlertJoin == 1 || isAlertJoin == 2 || isAlertJoin == 8">	
+						<div class="opt-item opt-item-1" @click="toTrack">
+							<div class="opt-item-text">查轨迹</div>
+						</div>
+						<div class="opt-item opt-item-4" @click="toMyFleet">
+							<div class="opt-item-text">加入我的车队</div>
+						</div>
+						<div class="opt-item opt-item-5" style="width: 94px;" @click="toSimpleContact">
+							<div class="opt-item-text">联系车辆</div>
+						</div>
+					</div>
+					<!-- <div class="opt-content" v-if="isAlertJoin == 6">
+						<div class="opt-item opt-item-5" @click="toChatDetails(selectedMapItem)">
+							<div class="opt-item-text">私信</div>
+						</div>	
+					</div> -->
+					<div class="opt-content opt-between opt-7" v-if="isAlertJoin == 7">
+						<div></div>
+						<div class="opt-item opt-item-1" @click="toTrack">
+							<div class="opt-item-text">查轨迹</div>
+						</div>
+						<div class="opt-item opt-item-6" @click="makePhoneCall(selectedMapItem)">
+							<div class="opt-item-text">电话</div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="alertJoin_1" v-else>
+					<div class="info info-ship">
+						<div class="avatar-content">
+							<div class="avatar-icon-other">
+								<image :src="selectedMapItem.avatar ? selectedMapItem.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png' " class="avatar-other"></image>
+							</div>
+						</div>
+						
+						<div class="info-content">
+							<div class="user-info">
+								<div class="user-info-content">
+									<div class="name">{{showName(selectedMapItem)}}</div>
+									<div class="nameType">{{selectedMapItem.isAdmin ?'(管理员-货主)':'(货主)'}}</div>
+								</div>		
+								<image class="markerCloseIcon markerCloseIcon-ship" @click="closeMarkerPopup()" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/close-white.png"></image>
+							</div>
+							<div class="info-content-between">
+								<div class="info-content-left">
+									<div class="info-item addr_content addr_ship mt-9">
+										<div class="addr addr-ship-content">
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_beidou.png" class="beidou_icon" v-if="selectedMapItem.dataSrc == 4"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_wx.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 3"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_box.png" class="beidou_icon" v-else-if="selectedMapItem.dataSrc == 1"></image>
+											<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/datasrc_app.png" class="beidou_icon" v-else></image>
+											
+										
+											<div class="addr-text">{{showAddr(selectedMapItem)}}</div>
+										</div>
+										<div class="date-ship">{{showDate(selectedMapItem)}}</div>
+									</div>
+
+								</div>
+
+							</div>
+							
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<van-popup v-model="noSourceNumPopup" position="center" round>
+			<div class="noSourceNumBox">
+				<image @click="closeNoNumPopup()" class="closeIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/noSourceNumClose.png"></image>
+				<div class="msgBox">
+					<div class="mainTitle">提示</div>
+					<div class="mainContent">您今天剩余可查询车辆条数为{{remainingNum}}条，可点击下面了解详情</div>
+					<div class="singleTouUpBtn" @click="jumpToSingleTopup()">
+						<div class="msg-text" v-if="firstTouUp == 1">充值{{couponAccountObj.pointFirstPrice ? couponAccountObj.pointFirstPrice / 1000 : 0}}元，查看{{couponAccountObj.pointNum ? couponAccountObj.pointNum : 0}}条最新车源，去充值</div>
+						<div class="msg-text" v-if="!firstTouUp">充值{{couponAccountObj.pointPrice ? couponAccountObj.pointPrice / 1000 : 0}}元，查看{{couponAccountObj.pointNum ? couponAccountObj.pointNum : 0}}条最新车源，去充值</div>
+						<image class="sigleRightIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/sigleRight.png"></image>
+					</div>
+					<div class="memberTouUpBtn" @click="jumpToUserMember()">
+						
+						<div class="msg-btn-text">开通会员，享{{mealBaseInfo ? mealBaseInfo : 0}}条车源/天推荐</div>
+						<div class="toBuyBtn">
+							
+							<div class="btnText-text">去购买</div>
+							<image class="membersRightIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/membersRight.png"></image>							
+						
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</van-popup>
+		<van-popup v-model="noSourceNumPopupFleet" position="center" round>
+			<div class="noSourceNumBox">
+				<image @click="closeNoNumPopup" class="closeIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/noSourceNumClose.png"></image>
+				<div class="msgBox">
+					<div class="mainTitle">提示</div>
+					<div class="mainContent">您车队人数已经达到上限啦～，快点击下面了解详情吧</div>
+					<div class="memberTouUpBtn" @click="jumpToUserMember">	
+						
+						<div class="msg-btn-text"  v-if="isRoleMember">升级会员，享{{mealBaseInfo ? mealBaseInfo : 0}}位司机加入您的车队</div>
+						<div class="msg-btn-text"  v-else>开通会员，享{{mealBaseInfo ? mealBaseInfo : 0}}位司机加入您的车队</div>
+					
+						<div class="toBuyBtn">
+							<div class="btnText-text">去购买</div>
+							<image class="membersRightIcon" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/membersRight.png"></image>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</van-popup>
+		<van-popup v-model="myFleetPopup" position="center" round>
+			<div class="myFleetBox">
+				<image class="popupCloseIcon" @click="closeFleetPopup()"
+					src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/closePopupBtn.png"></image>
+				<div class="popupTitle"><div class="popupTitle-text">选择您的车队</div></div>
+				<scroll-view class="popupList" :scroll-y="true" :show-scrollbar="false">
+					<div class="myFleetInfoBox" v-for="(item, fIndex) in myFleetData" :key="fIndex"
+						@click="item.checked = !item.checked">
+						<image class="checkIcon"
+							:src="item.checked ? 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/checkedIcon.png' : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/nCheck.png'">
+						</image>
+						<div class="fleetName"><div class="fleetName-text">{{item.name}}</div></div>
+					</div>
+				</scroll-view>
+				<div class="popupBtn" @click="toAddUserInFleet"><div class="popupBtn-text">确定</div></div>
+			</div>
+		</van-popup>
+		<van-popup v-model="mainRspMsgPopup" position="center" :style="{ width: '80%' }" round>
+			<div class="rspMsgBox">
+				<div class="msgText"><div class="msgText-text">{{rspMsg}}</div></div>
+			</div>
+		</van-popup>
+
+		<van-popup v-model="fleetHintPopup" position="center" round>
+			<div class="fleetHintBox">
+				<image class="popupCloseIcon" @click="closeFleetHintPopup()"
+					src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/goodsDelivery/closePopupBtn.png"></image>
+				<div class="popupTitle popupTitle1"><div class="popupTitle-text">提示</div></div>
+				<div class="hintMsg"><div class="hintMsg-text">您还没有创建车队</div></div>
+				<div class="popupBtn" @click="jumpToCreatFleet()"><div class="popupBtn-text">去新建车队</div></div>
+			</div>
+		</van-popup>
+
+		<van-popup
+			v-model="toViewPopup"
+			round
+			position="center"
+			:style="{ width: '80%' }"
+		>
+		<div class="rspMsgBox">
+			<div class="msgText"><div class="msgText-tips-text">您选择了{{showCheckedNum}}条，给您跳转至联系方式</div></div>
+		</div>
+		</van-popup>
+
+	  </div>
+    </div>
+    <script type="text/javascript">
+      window._AMapSecurityConfig = {
+        securityJsCode: "8b03bea8180ec5d6635efe8ecacfe2a0",
+      };
+    </script>
+    <script
+      type="text/javascript"
+      src="https://webapi.amap.com/maps?v=1.4.15&key=5b9b2e858cdd6686a2c60b1420666a32&plugin=AMap.Marker,AMap.Scale"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://webapi.amap.com/ui/1.1/main.js?v=1.1.1"
+    ></script>
+    <!-- 	<script type="text/javascript" 
+			src="https://webapi.amap.com/maps?v=1.4.15&key=011f8982630e524b678d2e7b591cfd3e&plugin=AMap.Driving">
+		</script> -->
+    <script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"
+	></script>
+
+
+	<script type="text/javascript">
+		 // 可以通过下面的方式手动注册
+		 Vue.use(vant.Lazyload);
+      	function getQuery(name) {
+			// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+			let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+			let r = window.location.search.substr(1).match(reg);
+			if (r != null) {
+			// 对参数值进行解码
+			return decodeURIComponent(r[2]);
+			}
+			return null;
+		  }
+		function withData(param) {
+			return param < 10 ? '0' + param : '' + param;
+		}
+		//日期格式化
+		function dateFormat(fmt, date) {
+		let ret;
+		const opt = {
+			"Y+": date.getFullYear().toString(),        // 年
+			"m+": (date.getMonth() + 1).toString(),     // 月
+			"d+": date.getDate().toString(),            // 日
+			"H+": date.getHours().toString(),           // 时
+			"M+": date.getMinutes().toString(),         // 分
+			"S+": date.getSeconds().toString()          // 秒
+			// 有其他格式化字符需求可以继续添加，必须转化成字符串
+		};
+		for (let k in opt) {
+			ret = new RegExp("(" + k + ")").exec(fmt);
+			if (ret) {
+				fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+			};
+		};
+		return fmt;
+		}
+	  	function getLoopArray(start, end) {
+			var start = start || 0;
+			var end = end || 1;
+			var array = [];
+			for (var i = start; i <= end; i++) {
+				array.push(withData(i));
+			}
+			return array;
+		}
+
+		function getMonthDay(year, month) {
+			var flag = year % 400 == 0 || (year % 4 == 0 && year % 100 != 0), array = null;
+			
+			switch (month) {
+				case '01':
+				case '03':
+				case '05':
+				case '07':
+				case '08':
+				case '10':
+				case '12':
+				array = getLoopArray(1, 31)
+				break;
+				case '04':
+				case '06':
+				case '09':
+				case '11':
+				array = getLoopArray(1, 30)
+				break;
+				case '02':
+				array = flag ? getLoopArray(1, 29) : getLoopArray(1, 28)
+				break;
+				default:
+				array = '月份格式不正确，请重新输入！'
+			}
+			return array;
+		}
+		function getNewDateArry() {
+			// 当前时间的处理
+			var newDate = new Date();
+			var year = withData(newDate.getFullYear()),
+				mont = withData(newDate.getMonth() + 1),
+				date = withData(newDate.getDate()),
+				hour = withData(newDate.getHours()),
+				minu = withData(newDate.getMinutes()),
+				seco = withData(newDate.getSeconds());
+			
+			return [year, mont, date, hour, minu, seco];
+		}
+
+		var name = getQuery("fleetName");
+        document.title = name || "";
+
+      var routeLine;
+      var massMarks;
+      var style;
+      var bigImg;
+      var clearPoint = 0;
+      var selectData = {};
+	  var clearSelect = 0;
+	  var repeatFlag = false;
+	  function btnRepeat() {
+		if(!repeatFlag) {
+			repeatFlag = true;
+			setTimeout(() => {
+				repeatFlag = false;
+			}, 1500);
+			return true;
+		}else {
+			return false;
+		}
+	  }
+      var vm = new Vue({
+        el: "#app",
+        data() {
+          	return {
+				rspMsg: '',
+				mainRspMsgPopup: false,
+				myFleetData: [],
+				isRoleMember: false,
+				fleetHintPopup: false,
+				myFleetPopup: false,
+				noSourceNumPopupFleet: false,
+				toViewPopup: false,
+				showCheckedNum: 0,
+				mealBaseInfo: 0,
+				couponAccountObj: {},
+				firstTouUp: 0,
+				remainingNum: 0,
+				noSourceNumPopup: false,
+				selectedMapItem: null,
+				isShowSelectedMapItem: false,
+				newCheckedItem: [],
+				fleetDetail: null,
+				isShowPoints: false, //是否显示所有的点
+				isShowDetailBtn: true, //是否能查看详情
+				userRole: 1,
+				userName: '',
+				isAlertJoin: 0, //弹框如何显示
+				source: false,
+				isFleetSource: true,
+				isListBtn: false,
+				active: 0,
+				memberInfo: null,
+				mapIndex: 0,
+				maps: [],
+				Authorization: "",
+				QueryApiRootUrl: "",
+				params: {},
+				Authorization: "",
+				driverData: [],
+				carSourceData: [],
+				markers: [],
+				pageSource: "",
+				zoom: 4,
+				lastClickItem: null,
+				provinceLocal: [],
+          };
+        },
+        created() {
+			var that = this;
+          	this.params.userCode = getQuery("userCode");
+			this.userId = getQuery("userId");
+			this.userName = getQuery("userName");
+          	this.Authorization = getQuery("Authorization");
+          	this.QueryApiRootUrl = getQuery("QueryApiRootUrl");
+			this.userRole = getQuery("userRole");
+          	this.params.fleetId = getQuery("fleetId");
+         	this.params.latitude = getQuery("latitude");
+          	this.params.longitude = getQuery("longitude");
+          	this.pageSource = getQuery("pageSource") || "";
+			//获取省市区信息
+			this.getProvince();  
+			this.getMyFleetInfo();//获取我的车队列表  
+			  var type = getQuery("type");
+          	if (type == "detail") {
+            	this.source = true;
+          	} else {
+            	this.source = false;
+          	}
+          //坐标系转换
+
+          AMapUI.load(
+            [
+              "ui/geo/DistrictCluster",
+              "ui/misc/PointSimplifier",
+              "lib/$",
+              "lib/utils",
+            ],
+            function (DistrictCluster, PointSimplifier, $, utils) {
+              that.init(DistrictCluster, PointSimplifier, $, utils); //地图初始化
+              //启动页面
+				//获取车队详细信息
+				that.getFleetDetail();
+              	that.initPage(DistrictCluster, $, utils);
+            }
+          );
+        },
+        methods: {
+			request(url, params) {
+				let that = this;
+				console.log("Authorization",that.Authorization);
+				return new Promise((resolve, reject) => {
+					$.ajax({
+						url: that.QueryApiRootUrl + url,
+						data: JSON.stringify(params),
+						dataType: "json",
+						contentType: "application/json",
+						type: "POST",
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+						}, 
+						success: function(res) {
+							resolve(res)
+						},
+						fail: function(err) {
+							reject(err)
+						}
+					})
+				})
+			},
+			async getProvince() {
+				try {
+					var res = await this.request("/ts/nationDict/getBasicData", {})
+					console.log(res);
+					if (res.retCode == "0000000") {
+						this.provinceLocal = res.rspBody;
+					}
+					
+				} catch (error) {
+					
+				}
+			},
+			showAddr(item) {
+				var address = item.address;
+				if (!address) return '';
+				var reg = /.+?(县|区)/g
+				var addrArr = address.match(reg);
+				var addr = "";
+				if (addrArr) {
+					addr = addrArr[0]
+				} else {
+					addr = address
+				}
+				return addr;
+				
+			},
+			showDate(item) {
+				var locationDate = item.locationUpdatedDt;
+				if (!locationDate) return '';
+				return this.findBeidouDateDesc(locationDate)
+			},
+			showName(item) {
+				var that = this;
+				var userName = item.userName;
+				var userCode = item.userCode;
+				if (userName) {
+					if(item.isOwner && that.fleetDetail.fleetAttributes == '平台') {
+						return '货运中国'
+					} else if (that.fleetDetail.isAdmin || that.fleetDetail.isOwner) {
+						return userName
+					} else {
+						return userName.slice(0, 1) + '*'
+					}
+				} else {
+					return "卡友号：" + userCode
+				}
+			},
+			setModel(str) {
+				if(str.indexOf(',')>-1){
+					str = str.split(",")[0];
+				}
+				return str
+			},
+          	getFleetDetail() {
+				let that = this;
+				var data = {
+					id:  that.params.fleetId
+				}
+            	$.ajax({
+              		url: that.QueryApiRootUrl + "/cd/fleet/list",
+              		data: JSON.stringify(data),
+              		dataType: "json",
+              		contentType: "application/json",
+              		type: "POST",
+              		beforeSend: function (xhr) {
+                		xhr.setRequestHeader("Authorization", that.Authorization);
+              		},
+              		success: function (res) {
+                		console.log(res, "数据");
+                		if (res.retCode == "0000000") {
+							var userRole = that.userRole;
+							var fleetDetail = res.rspBody.items[0];
+							that.fleetDetail = fleetDetail;
+							//判断用户身份
+							if (!fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+								that.isAlertJoin = 1 ;//游客-货主购买了套餐访问超级车队
+							}
+							if (fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+								that.isAlertJoin = 2 ;//成员-货主购买了套餐访问超级车队
+							}
+							if (!fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 != "SUPER_FLEET") {
+								that.isAlertJoin = 3 ;//游客-货主看别人的普通车队
+							}
+							if (fleetDetail.isMember && userRole == 2 && fleetDetail.ext3 != "SUPER_FLEET") {
+								that.isAlertJoin = 4 ;//成员-货主看别人的普通车队
+							}
+							if (!fleetDetail.isMember && userRole == 1) {
+								that.isAlertJoin = 5 ;//游客-司机看车队
+							}
+							if (fleetDetail.isMember && !fleetDetail.isOwner && userRole == 1) {
+								that.isAlertJoin = 6 ;//成员-司机看别人的车队
+							}
+							if ((fleetDetail.isOwner  || fleetDetail.isAdmin)  && fleetDetail.ext3 != "SUPER_FLEET") {
+								that.isAlertJoin = 7 ;//货主/司机看自建的普通车队
+								if (userRole == 1) {
+									that.isShowDetailBtn = false;
+								}
+							}
+							if ((fleetDetail.isOwner || fleetDetail.isAdmin) && fleetDetail.ext3 == "SUPER_FLEET") {
+								that.isAlertJoin = 8 ;//车队长/管理员看超级车队
+							}
+							if ((!fleetDetail.isOwner && !fleetDetail.isAdmin) && userRole == 1) {
+								that.isShowDetailBtn = false ;//游客，成员司机看车队不能查看详情
+							}
+                		}
+              		},
+					fail: function (err) {
+						
+					},
+					complete: function () {
+						
+					},
+           		});
+          	},
+          toList(params) {
+			var that = this;
+			if (!btnRepeat()) return;
+            //判断是否在具体的点还是聚合点
+            var isFleetSource = this.isFleetSource;
+            var markers = this.markers;
+            var selfCode = getQuery("selfCode");
+
+            var center = mapkeys.getCenter();
+            console.log(center, "中心点");
+            var centerAddr = center.lng + "," + center.lat;
+            $.get(
+              "https://restapi.amap.com/v3/geocode/regeo?output=json&location=" +
+                centerAddr +
+                "&key=3d7bc60f07018e1f3f9ad969f642d780&radius=1000&extensions=all",
+              function (res) {
+                console.log(res);
+                var addressComponent = res.regeocode.addressComponent;
+                var province = addressComponent.province;
+                var sender = "",
+                  senderCode = "",
+                  provinceName = "",
+                  provinceCode = "";
+                var adcode = addressComponent.adcode;
+				adcode = adcode.toString();
+				
+				var userCode = that.params.userCode;
+				var provinceLocal = that.provinceLocal;
+				var source = isFleetSource ? "fleetSource" : "carSource";
+				var fleetDetail = that.fleetDetail;
+				if (!fleetDetail) {
+					vant.Toast("地图正在加载中，请稍等！")
+					return;
+				}
+
+
+                if (markers.length < 1) {
+                  if (
+                    province == "上海市" ||
+                    province == "北京市" ||
+                    province == "重庆市" ||
+                    province == "天津市"
+                  ) {
+                    provinceCode = adcode.substr(0, 2) + "0000";
+                    senderCode = provinceCode;
+                  } else {
+                    provinceCode = adcode.substr(0, 2) + "0000";
+                    senderCode = provinceCode;
+                  }
+                  //非聚合状态
+				  	var findIndex = provinceLocal.findIndex(item => {
+						return item.code == provinceCode
+					})
+					var provinceName = provinceLocal[findIndex].name;
+
+				  	//跳转
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + provinceName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(fleetDetail) + '&type=' + source
+					})	
+					return;
+                }
+                if (
+                  province == "上海市" ||
+                  province == "北京市" ||
+                  province == "重庆市" ||
+                  province == "天津市"
+                ) {
+                  provinceCode = adcode.substr(0, 2) + "0000";
+                  senderCode = adcode.substr(0, 2) + "0000";
+                } else {
+                  provinceCode = adcode.substr(0, 2) + "0000";
+                  senderCode = adcode.substr(0, 4) + "00";
+                }
+
+                //点击跳转到列表
+                var item = {
+                  provinceCode: provinceCode,
+                  senderCode: senderCode,
+                  isPro: false,
+                };
+
+				var provinceCode = item.provinceCode;
+				var senderCode = item.senderCode;
+				var isPro = item.isPro; //判断是否跳转到省或市
+				var findIndex = provinceLocal.findIndex(item => {
+					return item.code == provinceCode
+				})
+				var provinceName = provinceLocal[findIndex].name;
+				var cityArr = provinceLocal[findIndex].cities;
+				if (provinceName == "上海市" || provinceName == "北京市" || provinceName == "天津市" || provinceName == "重庆市") {
+						
+					var findCityIndex = cityArr.findIndex(atem => {
+						return atem.code == senderCode
+					})
+					var senderName;
+					var senderCode; //直辖市直接跳转市级
+					if (findCityIndex > -1) {
+						senderName = cityArr[findCityIndex].name;
+						senderCode = cityArr[findCityIndex].code;
+					} else {
+						senderName = provinceName;
+						senderCode = provinceCode; //直辖市直接跳转市级
+					}
+					
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(fleetDetail) + '&type=' + source
+					})
+					return;
+				}
+				var findCityIndex = cityArr.findIndex(atem => {
+						return atem.code == senderCode
+				})
+				console.log(findCityIndex, 'asz')
+				if (findCityIndex < 0) return; 
+				
+				var senderName = cityArr[findCityIndex].name;
+				var senderCode = cityArr[findCityIndex].code;
+				console.log(senderName, senderCode);
+				console.log('跳转新页面')
+				
+				wx.miniProgram.navigateTo({
+					url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(fleetDetail) + '&type=' + source
+				})
+              }
+            );
+          },
+          locationCenter() {
+            mapkeys.setZoom(4);
+            mapkeys.setCenter([114.306677, 30.594718]);
+            var webMessage = {
+              type: "locationCenter",
+            };
+
+            wx.miniProgram.postMessage({
+              data: webMessage,
+            });
+          },
+          init(DistrictCluster, PointSimplifier, $, utils) {
+			var that = this;
+			var QueryApiRootUrl = this.QueryApiRootUrl;
+            var ApiRoot = QueryApiRootUrl != "https://hyjy.hyzgapp.com/api" ? "https://m-test.hyzgapp.com/FleetMap" : "https://m.hyzgapp.com/FleetMap";
+            var linePng = ApiRoot + "/line_icon.png";
+            var unLinePng = ApiRoot + "/unLine_icon.png";
+            function MyRender(distClusterIns, opts) {
+              //直接调用父类的构造函数
+              MyRender.__super__.constructor.apply(this, arguments);
+            }
+
+            groupStyleMap = {
+              1: {
+                pointStyle: {
+                  //绘制点占据的矩形区域
+                  content: PointSimplifier.Render.Canvas.getImageContent(
+                    linePng,
+                    onIconLoad,
+                    onIconError
+                  ),
+                  //宽度
+                  width: 24,
+                  //高度
+                  height: 24,
+                  //定位点为中心
+                  offset: ["-50%", "-50%"],
+                  fillStyle: null,
+                  //strokeStyle: null
+                },
+              },
+              2: {
+                pointStyle: {
+                  //绘制点占据的矩形区域
+                  content: PointSimplifier.Render.Canvas.getImageContent(
+                    unLinePng,
+                    onIconLoad,
+                    onIconError
+                  ),
+                  //宽度
+                  width: 24,
+                  //高度
+                  height: 24,
+                  //定位点为中心
+                  offset: ["-50%", "-50%"],
+                  fillStyle: null,
+                  // strokeStyle: null
+                },
+              },
+            };
+
+            pointSimplifierIns = new PointSimplifier({
+              map: mapkeys, //所属的地图实例
+              autoSetFitView: false, //禁止自动更新地图视野
+              zIndex: 110,
+              getPosition: function (item) {
+                if (!item) {
+                  return null;
+                }
+                var lngLatLine = item.lngLatLine;
+                var parts = lngLatLine.split(",");
+
+                //返回经纬度
+                return [parseFloat(parts[0]), parseFloat(parts[1])];
+              },
+              getHoverTitle: function (dataItem, idx) {
+                return idx + ": " + dataItem.lngLatLine;
+              },
+              renderConstructor: PointSimplifier.Render.Canvas.GroupStyleRender,
+              renderOptions: {
+                //点的样式
+                pointStyle: {
+                  content: PointSimplifier.Render.Canvas.getImageContent(
+                    "https://webapi.amap.com/theme/v1.3/markers/n/mark_b1.png",
+                    function onload() {
+                      pointSimplifierIns.renderLater();
+                    },
+                    function onerror(e) {
+                      alert("图片加载失败！");
+                    }
+                  ),
+                  width: 19,
+                  height: 31,
+                  offset: ["-50%", "-100%"],
+                  fillStyle: null,
+                  strokeStyle: null,
+                },
+                getGroupId: function (item, idx) {
+                  if (!item.taskStatus) {
+                    return 1;
+                  }
+                  return item.taskStatus;
+                },
+                groupStyleOptions: function (gid) {
+                  return groupStyleMap[gid];
+                },
+                //鼠标hover时的title信息
+                hoverTitleStyle: {
+                  position: "top",
+                },
+              },
+            });
+
+            distCluster = new DistrictCluster({
+              map: mapkeys, //所属的地图实例
+              zIndex: 11,
+              autoSetFitView: false,
+              getPosition: function (item) {
+                if (!item) {
+                  return null;
+                }
+                var lngLatLine = item.lngLatLine;
+                var parts = lngLatLine.split(",");
+
+                //返回经纬度
+                return [parseFloat(parts[0]), parseFloat(parts[1])];
+              },
+              renderOptions: {
+                getClusterMarkerPosition:
+                  DistrictCluster.ClusterMarkerPositionStrategy
+                    .AVERAGE_POINTS_POSITION,
+                getClusterMarker: function (
+                  feature,
+                  dataItems,
+                  recycledMarker
+                ) {
+                  if (dataItems.length < 1) return null;
+                  //label内容
+                  var name = feature.properties.name;
+                  var len = dataItems.length;
+
+                  var content =
+                    '<div class="amap-ui-district-cluster-marker level_province adcode_640000 descendant_of_100000 child_of_100000"><span class="amap-ui-district-cluster-marker-title">' +
+                    name +
+                    '</span><span class="amap-ui-district-cluster-marker-body">' +
+                    len +
+                    "</span></div>";
+
+                  //存在可回收利用的marker
+                  if (recycledMarker) {
+                    //直接更新内容返回
+                    recycledMarker.setContent(content);
+                    return recycledMarker;
+                  }
+                  //返回一个新的Marker
+                  return new AMap.Marker({
+                    content: content,
+                  });
+                },
+                clusterMarkerClickToShowSub: false,
+                featureEventSupport: true,
+                featureClickToShowSub: false,
+                clusterMarkerEventSupport: true,
+                //标注信息Marker上需要监听的事件
+                clusterMarkerEventNames: ["click"],
+                featureStyle: {
+                  fillStyle: "rgba(102,170,0,0.5)", //填充色
+                  lineWidth: 2, //描边线宽
+                  strokeStyle: "rgb(31, 119, 180,0.2)", //描边色
+                  //鼠标Hover后的样式
+                  hoverOptions: {
+                    fillStyle: "rgba(255,255,255,0.2)",
+                  },
+                },
+                featureStyleByLevel: {
+                  country: {
+                    fillStyle: "rgba(255, 255, 255, 0)",
+                  },
+                  province: {
+                    fillStyle: "rgba(255, 255, 255, 0)",
+                  },
+                  city: {
+                    fillStyle: "rgba(255, 255, 255, 0)",
+                  },
+                  district: {
+                    fillStyle: "rgba(255, 255, 255, 0)",
+                  },
+                },
+              },
+            });
+
+            pointSimplifierIns.on("pointClick", function (e, points) {
+              console.log(points, "海量点的点击时间");
+              var webMessage = {
+                type: "pointClick",
+                data: points,
+              };
+
+              wx.miniProgram.postMessage({
+                data: webMessage,
+              });
+            });
+
+            distCluster.on("clusterMarkerClick", function (e, record) {
+              console.log(e.type + ": " + record.feature.properties.name);
+              var feature = record.feature;
+              var properties = record.feature.properties;
+              var name = feature.properties.name;
+              var adcode = record.adcode;
+              adcode = adcode.toString();
+
+              if (!that.isFleetSource) {
+                //点击的是车源地图
+                //判断该区域是否属于直辖市
+				var userCode = that.params.userCode;
+				var senderName = feature.properties.name;
+				var adCode = feature.properties.adcode;
+				adCode = adcode.toString();
+				var codePro = adCode.substr(0, 2) + '0000';
+				var provinceLocal = that.provinceLocal;
+				var findIndex = provinceLocal.findIndex(item => {
+					return item.code == codePro
+				})
+				if (findIndex < 0) return;
+				var provinceName = provinceLocal[findIndex].name;
+				var provinceCode = codePro;
+				var source = that.isFleetSource ? "fleetSource" : "carSource";
+                var codeCity = adcode.substr(2, 2);
+                if (
+                  codePro == "310000" ||
+                  codePro == "110000" ||
+                  codePro == "500000" ||
+                  codePro == "120000"
+                ) {
+                  if (codeCity != "00") {
+                    //表示点击的是直辖市的区级别的，点击后跳转列表
+                   
+					if (provinceName == "上海市" || provinceName == "北京市" || provinceName == "天津市" || provinceName == "重庆市") {
+							 
+						var senderName = senderName;
+						var senderCode = data.adcode;
+						
+						wx.miniProgram.navigateTo({
+							url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(this.fleetDetail) + '&type=' + source
+						})		
+					} else {
+						var cityArr = provinceLocal[findIndex].cities;
+						
+						var findCityIndex = cityArr.findIndex(atem => {
+							return atem.code == codeCity
+						})
+						console.log(findCityIndex, 'asz')
+						if (findCityIndex < 0) return; 
+						
+						var senderName = cityArr[findCityIndex].name;
+						var senderCode = cityArr[findCityIndex].code;
+						console.log(senderName, senderCode);
+						
+						
+						wx.miniProgram.navigateTo({
+							url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + senderCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(that.fleetDetail) + '&type' + source
+						})
+					}
+                  } else {
+                    //表示点击的是直辖市的市级别，点击后跳列表
+					
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + provinceName + '&senderCode=' + adCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(that.fleetDetail) + '&type=' + source
+					})
+                  }
+                } else {
+                  var codeCity = adcode.substr(2, 2);
+                  var codeArea = adcode.substr(4, 2);
+                  if (codeCity != "00" && codeArea == "00") {
+                    //表示点击的是普通市级别的，点击后跳转列表
+                   
+					var cityArr = provinceLocal[findIndex].cities;
+						
+					var findCityIndex = cityArr.findIndex(atem => {
+						return atem.code == adCode
+					})
+					console.log(findCityIndex, 'asz')
+					if (findCityIndex < 0) return; 
+					
+					var senderName = cityArr[findCityIndex].name;
+					var senderCode = cityArr[findCityIndex].code;
+					
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetMemberList/fleetPositionList?userCode=' + userCode + '&sender=' + senderName + '&senderCode=' + adCode + "&provinceCode=" + provinceCode + '&provinceName=' + provinceName + '&fleetDetail=' + JSON.stringify(that.fleetDetail) + '&type=' + source
+					})
+                  } else {
+                    distCluster.zoomToShowSubFeatures(
+                      record.adcode,
+                      record.feature.properties.center
+                    );
+                  }
+                }
+              } else {
+                var codeCity = adcode.substr(2, 2);
+                var codePro = adcode.substr(0, 2) + "0000";
+                if (
+                  codePro == "310000" ||
+                  codePro == "110000" ||
+                  codePro == "500000" ||
+                  codePro == "120000"
+                ) {
+                  //表示点击的是直辖市，不论是区还是市，都展示具体的点
+                  //展示具体的点
+                  var markers = that.markers;
+                  if (markers.length > 0) {
+                    mapkeys.remove(markers);
+                    that.markers = [];
+                  }
+                  var dataItems = record.dataItems;
+                  var markers = [];
+                  dataItems.forEach((item) => {
+                    var dataMarker = item.dataItem;
+                    var taskStatus = dataMarker.taskStatus;
+                    var image =
+                      taskStatus == 2
+                        ? "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/unLine_icon.png"
+                        : "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/line_icon.png";
+
+                    var icon = new AMap.Icon({
+                      size: new AMap.Size(24, 24), // 图标尺寸
+                      image: image, // Icon的图像
+                      imageOffset: new AMap.Pixel(0, 0), // 图像相对展示区域的偏移量，适于雪碧图等
+                      imageSize: new AMap.Size(24, 24), // 根据所设置的大小拉伸或压缩图片
+                    });
+
+                    var marker = new AMap.Marker({
+                      icon: icon,
+                      position: new AMap.LngLat(
+                        item.position[0],
+                        item.position[1]
+                      ), // 基点位置
+                      offset: new AMap.Pixel(0, 0), // 相对于基点的偏移位置
+                      extData: {
+                        data: dataMarker,
+                      },
+                    });
+                    AMap.event.addListener(marker, "click", that.markerClick);
+                    markers.push(marker);
+                  });
+                  that.zoom = mapkeys.getZoom();
+                  // distCluster.zoomToShowSubFeatures(adcode)
+                  distCluster.hide();
+                  that.markers = markers;
+                  mapkeys.add(markers);
+                  mapkeys.setFitView(markers);
+                  //展示具体的点
+				  if (that.isAlertJoin == 1 || that.isAlertJoin == 2 || that.isAlertJoin == 8) {
+					//显示底部的全选弹框
+					that.isShowPoints = true;
+				  }
+				  	
+                } else {
+                  var codeCity = adcode.substr(2, 2);
+                  var codeArea = adcode.substr(4, 2);
+                  if (codeCity != "00") {
+                    //表示点击的是普通市级别的，点击后跳转列表
+                    //点击后展示具体的点
+                    var markers = that.markers;
+                    if (markers.length > 0) {
+                      mapkeys.remove(markers);
+                      that.markers = [];
+                    }
+                    var dataItems = record.dataItems;
+                    var markers = [];
+                    dataItems.forEach((item) => {
+                      var dataMarker = item.dataItem;
+                      var taskStatus = dataMarker.taskStatus;
+                      var image =
+                        taskStatus == 2
+                          ? "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/unLine_icon.png"
+                          : "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/line_icon.png";
+
+                      var icon = new AMap.Icon({
+                        size: new AMap.Size(24, 24), // 图标尺寸
+                        image: image, // Icon的图像
+                        imageOffset: new AMap.Pixel(0, 0), // 图像相对展示区域的偏移量，适于雪碧图等
+                        imageSize: new AMap.Size(24, 24), // 根据所设置的大小拉伸或压缩图片
+                      });
+
+                      var marker = new AMap.Marker({
+                        icon: icon,
+                        position: new AMap.LngLat(
+                          item.position[0],
+                          item.position[1]
+                        ), // 基点位置
+                        offset: new AMap.Pixel(0, 0), // 相对于基点的偏移位置
+                        extData: {
+                          data: dataMarker,
+                        },
+                      });
+                      AMap.event.addListener(marker, "click", that.markerClick);
+                      markers.push(marker);
+                    });
+                    that.zoom = mapkeys.getZoom();
+                    that.markers = markers;
+                    mapkeys.add(markers);
+                    mapkeys.setFitView(markers);
+                    distCluster.hide();
+
+                    //展示具体的点//显示底部的全选弹框
+                    if (that.isAlertJoin == 1 || that.isAlertJoin == 2 || that.isAlertJoin == 8) {
+						that.isShowPoints = true;
+					}
+                  } else {
+                    distCluster.zoomToShowSubFeatures(
+                      record.adcode,
+                      record.feature.properties.center
+                    );
+                  }
+                }
+              }
+            });
+
+            mapkeys.on("zoomchange", that.zoomchange);
+
+            window.distCluster = distCluster;
+          },
+          markerClick(e) {
+			console.log(e);
+			var that = this;
+            var icon1 = new AMap.Icon({
+              image:
+                "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/line_icon.png",
+              size: new AMap.Size(24, 24), // 图标大小
+              imageSize: new AMap.Size(24, 24),
+            });
+            var icon2 = new AMap.Icon({
+              image:
+                "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/unLine_icon.png",
+              size: new AMap.Size(24, 24), // 图标大小
+              imageSize: new AMap.Size(24, 24),
+            });
+            if (this.lastClickItem) {
+              var extData = this.lastClickItem.getExtData();
+              if (extData.data.taskStatus == 2) {
+                this.lastClickItem.setIcon(icon2);
+              } else {
+                this.lastClickItem.setIcon(icon1);
+              }
+            }
+            var icon = new AMap.Icon({
+              image:
+                "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/line_click_icon.png",
+              size: new AMap.Size(32, 32), // 图标大小
+              imageSize: new AMap.Size(32, 32),
+            });
+            e.target.setIcon(icon);
+            var dataMarker = e.target.getExtData();
+			console.log(dataMarker, "asa");
+			//点击后获取点击的司机信息
+			var userCode = dataMarker.data.userCode;
+			var params = {
+				userCode: userCode,
+				fleetId: that.params.fleetId,
+				source: 1,
+				count: false,
+				commonUserId: that.userId
+			}
+			$.ajax({
+				url: that.QueryApiRootUrl + '/cd/fleetWithUser/list',
+				data: JSON.stringify(params),
+                dataType: "json",
+                contentType: "application/json",
+                type: "POST",
+                beforeSend: function (xhr) {
+                  xhr.setRequestHeader("Authorization", that.Authorization);
+				},
+				success: function(res) {
+					var item = res.rspBody.items[0];
+					if (!item) return;
+					var tagList = item.tagList;
+					var tagShowArr = []
+					if (tagList) {
+						tagList.forEach(item => {
+							if (item.tagTypeCode == "FAVORITE_CARGO") {
+								tagShowArr.push(item)
+							}
+							if (item.tagTypeCode == "OFTEN_AREA") {
+								tagShowArr.push(item)
+							}
+							if (item.tagTypeCode == "ROAD_TYPE") {
+								tagShowArr.push(item)
+							}
+						})
+					}
+					item.tagShowArr = tagShowArr;
+					that.selectedMapItem = item;
+					that.isShowSelectedMapItem = true;
+					that.isShowPoints = false;
+						
+				}
+
+			})
+            that.lastClickItem = e.target;
+          },
+          toFleetMap() {
+            this.isFleetSource = true;
+			this.isShowPoints = false;
+			this.isShowSelectedMapItem = false;
+            //启动页面
+            this.initPage();
+          },
+          initPage() {
+            //跳转车队地图
+            var that = this;
+            var data = {
+              fleetId: that.params.fleetId,
+            };
+            try {
+              $.ajax({
+                url: that.QueryApiRootUrl + "/cd/fleetWithUser/mapList",
+                data: JSON.stringify(data),
+                dataType: "json",
+                contentType: "application/json",
+                type: "POST",
+                beforeSend: function (xhr) {
+                  xhr.setRequestHeader("Authorization", that.Authorization);
+                },
+                success: function (res) {
+                  console.log(res, "数据");
+                  if (res.retCode == "0000000") {
+                    var webMessage = {
+                      type: "loadComplete",
+                    };
+
+                    wx.miniProgram.postMessage({
+                      data: webMessage,
+                    });
+                    var lines = res.rspBody.items,
+                      data = [];
+
+                    for (var i = 0, len = lines.length; i < len; i++) {
+                      if (lines[i].latitude) {
+                        var latitude = lines[i].latitude;
+                        var longitude = lines[i].longitude;
+                        var lngLatLine = longitude + "," + latitude;
+                        data.push({
+                          lngLatLine,
+                          ...lines[i],
+                        });
+                      }
+                    }
+                    that.driverData = data;
+                    console.log(data, "asas");
+                    distCluster.setData(data);
+                    that.locationCenter();
+                  } else {
+                    var webMessage = {
+                      type: "loadError",
+                      message: res.retDesc,
+                    };
+
+                    wx.miniProgram.postMessage({
+                      data: webMessage,
+                    });
+                  }
+                },
+                fail: function (err) {
+                  var webMessage = {
+                    type: "loadComplete",
+                  };
+
+                  wx.miniProgram.postMessage({
+                    data: webMessage,
+                  });
+                },
+                complete: function () {
+                  var webMessage = {
+                    type: "loadComplete",
+                    data: true,
+                  };
+
+                  wx.miniProgram.postMessage({
+                    data: webMessage,
+                  });
+                },
+              });
+            } catch (e) {
+              //TODO handle the exception
+              var webMessage = {
+                type: "loadComplete",
+              };
+
+              wx.miniProgram.postMessage({
+                data: webMessage,
+              });
+            }
+          },
+          zoomchange() {
+            //监听缩放事件
+            var zoom = mapkeys.getZoom();
+            var zoom1 = this.zoom || 4;
+            var isHidden = distCluster.isHidden();
+            console.log(zoom, "sd1");
+
+            if (zoom <= zoom1) {
+              var markers = this.markers;
+              if (markers.length > 0) {
+                mapkeys.remove(markers);
+                this.markers = [];
+              }
+              if (isHidden) {
+                distCluster.show();
+                distCluster.renderLater();
+				this.isShowSelectedMapItem = false;
+				this.isShowPoints = false;
+              }
+            }
+          },
+          toCarSourceMap() {
+            var that = this;
+            this.isFleetSource = false;
+            this.isListBtn = false;
+			this.isShowSelectedMapItem = false;
+			this.isShowPoints = false;
+            //启动页面
+            var QueryApiRootUrl =
+              that.QueryApiRootUrl + "/olnanas/recommend/getMapPolymerization";
+            var data = {
+              ownerUserCode: that.params.userCode,
+              source: 2,
+              fleetId: that.params.fleetId,
+            };
+            console.log(data, "参数");
+            var Authorization = that.Authorization;
+
+            try {
+              $.ajax({
+                url: QueryApiRootUrl,
+                data: JSON.stringify(data),
+                dataType: "json",
+                contentType: "application/json",
+                type: "POST",
+                beforeSend: function (xhr) {
+                  xhr.setRequestHeader("Authorization", Authorization);
+                },
+                success: function (csv) {
+                  console.log(csv, "数据");
+                  if (csv.retCode != "0000000") {
+                    var webMessage = {
+                      type: "loadError",
+                      message: csv.retDesc,
+                    };
+
+                    wx.miniProgram.postMessage({
+                      data: webMessage,
+                    });
+                    return;
+                  }
+                  var webMessage = {
+                    type: "loadComplete",
+                  };
+
+                  wx.miniProgram.postMessage({
+                    data: webMessage,
+                  });
+
+                  var lines = csv.rspBody,
+                    data = [];
+
+                  for (var i = 0, len = lines.length; i < len; i++) {
+                    data.push({
+                      lngLatLine: lines[i],
+                    });
+                  }
+                  that.carSourceData = data;
+                  distCluster.setData(data);
+                  that.locationCenter();
+                },
+                fail: function (err) {
+                  var webMessage = {
+                    type: "loadComplete",
+                  };
+
+                  wx.miniProgram.postMessage({
+                    data: webMessage,
+                  });
+                },
+                complete: function () {
+                  var webMessage = {
+                    type: "loadComplete",
+                    data: true,
+                  };
+
+                  wx.miniProgram.postMessage({
+                    data: webMessage,
+                  });
+                },
+              });
+            } catch (e) {
+              //TODO handle the exception
+              var webMessage = {
+                type: "loadComplete",
+              };
+
+              wx.miniProgram.postMessage({
+                data: webMessage,
+              });
+            }
+          },
+
+          		back() {
+					//返回上一页
+					var webData = {
+					type: "back",
+					};
+					console.log(webData);
+
+					wx.miniProgram.postMessage({
+					data: webData,
+					});
+				},
+				toMyFleet() {
+					var that = this;
+					//判断身份权限
+					if (!btnRepeat()) return;
+					var selectedMapItem = this.selectedMapItem;
+					this.newCheckedItem = [selectedMapItem];
+					var fleetDetail = this.fleetDetail;
+					var userRole = this.userRole;
+					
+					that.willJoinFleetArr = [selectedMapItem];
+					if (!fleetDetail.isAdmin && !fleetDetail.isOwner && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+						vant.Toast.loading({
+							duration: 0, // 持续展示 toast
+							forbidClick: true,
+							message: '加载中',
+						});
+						this.determineView(1)
+						return;
+					}
+					vant.Toast.loading({
+						duration: 0, // 持续展示 toast
+						forbidClick: true,
+						message: '加载中',
+					});
+					//判断车队人数到达上限
+					this.getFleetUplimit(that.willJoinFleetArr);
+				},
+				batchToMyFleet() {
+					//加入我的车队
+					var that = this;
+					if (!btnRepeat()) return;
+					var fleetDetail = this.fleetDetail;
+					var userRole = this.userRole;
+					var willJoinFleetArr = that.markers;
+				
+					if (!fleetDetail.isAdmin && !fleetDetail.isOwner && userRole == 2 && fleetDetail.ext3 == "SUPER_FLEET") {
+						//批量获取司机信息
+						var userIds = [];
+						willJoinFleetArr.forEach(item => {
+							var i = item.getExtData();
+							var data = i.data;
+							if (data.serviceType == 10) {
+								userIds.push(data.userId)
+							}
+						});
+						var params = {
+							source: 1,
+							status: 1,
+							fleetId: that.fleetDetail.id,
+							pageSize: 9999,
+							pageNum: 1,
+							userIdList: userIds,
+						}
+						$.ajax({
+							url: that.QueryApiRootUrl + '/cd/fleetWithUser/list',
+							data: JSON.stringify(params),
+							dataType: "json",
+							contentType: "application/json",
+							type: "POST",
+							beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+							},
+							success: function(res) {
+								if (res.retCode != "0000000") {
+									vant.Toast.clear();
+									vant.Toast(res.retDesc)
+									return;
+								}
+								var items = res.rspBody.items;
+								if (items.length < 1) {
+									vant.Toast("该区域内只有货主，暂无司机！")
+									return;
+								}
+								that.newCheckedItem = items;
+								vant.Toast.loading({
+									duration: 0, // 持续展示 toast
+									forbidClick: true,
+									message: '加载中',
+								});
+								that.determineView(1)
+							},
+							fail: function(err) {
+
+							}
+						})
+					} else {
+						//判断车队人数是否有限制;
+						this.getFleetUplimit(willJoinFleetArr)
+					}
+				},
+				async getFleetUplimit(newCheckedItem) {
+				
+					var userId = this.userId;
+					var result = await this.getFleetMemberInfo();
+					console.log("会员套餐", result);
+					
+					await this.getFleetMealBaseList(); //获取会员套餐配置
+					this.isRoleMember = result ? true : false; //判断是否是会员
+					
+					var rsp = await this.request("/cp/member/queryByUser", {
+						"usersid": userId,
+						"setmchannel": "app"
+					})
+					console.log("判断", rsp)
+					if (rsp.retCode != "0000000") {
+						vant.Toast(rsp.retDesc);
+						return;
+					}
+					var setmitems = rsp.rspBody.setmitems;
+					var fleetmemsize = JSON.parse(setmitems).fleetmemsize;
+					var nowsurnum = fleetmemsize.nowsurnum; //车队剩余条数
+					this.remainingNum = nowsurnum;
+					console.log(nowsurnum);
+					setTimeout(() => {
+						if (nowsurnum < newCheckedItem.length) {
+							//剩余条数不足，提醒去充值
+							this.noSourceNumPopupFleet = true;
+							return;
+						}
+						
+						if (this.myFleetData.length > 0) {
+							this.myFleetPopup = true;
+						} else {
+							this.fleetHintPopup = true;
+						}
+					}, 500)
+				},
+				async getFleetMealBaseList() {
+					//车队套餐请求
+					let params = {
+						"setmfree": "0",
+						"setmrole": "cargo",
+						"setmchannel": "app"
+					}
+					let that = this;
+					var res = await that.request('/cp/set/meal/base/list', params)
+					
+					console.log('会员套餐结果', res);
+					if(res.retCode == '0000000'){
+						let rspBody = res.rspBody;
+						that.mealBaseInfo = 0;
+						let defvalAry = [];
+						if(rspBody && rspBody.length > 0) {
+							for(let i in rspBody) {
+								let setmitemsJson = rspBody[i].setmitems.replace(/\//g, '');
+								let obj = JSON.parse(setmitemsJson);
+								// console.log('测试参数' + i, obj);
+								defvalAry.push(Number(obj.fleetmemsize.defval));
+							}
+							console.log(that.mealBaseInfo);
+							let newAry = that.toSorting(defvalAry);
+							that.mealBaseInfo = newAry && newAry.length > 0 ? newAry[newAry.length - 1] : 0;
+							that.$forceUpdate();
+						}
+					} else{
+						wx.showToast({
+							title: res.retDesc,
+							icon: 'none'
+						})
+					}
+				},
+				getFleetMemberInfo() {
+					var that = this;
+					var userId = this.userId;
+					var params = {
+						usersid: userId,
+						setmchannel: "app",
+						setmfree: 0,
+					}
+					return new Promise((resolve, reject) => {
+						$.ajax({
+							url: that.QueryApiRootUrl + '/cp/act/set/meal/queryByUser',
+							data: JSON.stringify(params),
+							dataType: "json",
+							contentType: "application/json",
+							type: "POST",
+							beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+							},
+							success: function(res) {
+								if (res.retCode == "0000000") {
+									var arr = res.rspBody;
+									resolve(arr.length > 0 ? arr[0] : null)
+								} else {
+									resolve(null);
+								}
+							},
+							fail: function(err) {
+								reject(err)
+							}
+
+						})
+					})
+				},
+				async toContact() {
+					//批量联系
+					let that = this;
+					if (!btnRepeat()) return;
+					var willJoinFleetArr = this.markers;
+					var fleetDetail = this.fleetDetail;
+					var params = [], userIdList = [];
+					willJoinFleetArr.forEach(item => {
+						var i = item.getExtData();
+						var data = i.data; 
+						if (data.serviceType == 10) {
+							userIdList.push(data.userId);
+						}
+					})
+					console.log("联系记录", params);
+					var rsp = await this.request("/cd/fleetWithUser/list", {
+						fleetId: fleetDetail.id,
+						source: 1,
+						userIdList: userIdList,
+						count: false
+					})
+					if (rsp.retCode != "0000000") {
+						wx.showToast({
+							title: rsp.retDesc,
+							icon: 'none'
+						})
+						return;
+					}
+					console.log("数据",rsp);
+					var selectedMapArr = rsp.rspBody.items;
+					if (selectedMapArr.length < 1) {
+						vant.Toast("该区域内只有货主，暂无司机！")
+						return;
+					}
+					this.newCheckedItem = selectedMapArr;
+					var isAlertJoin = this.isAlertJoin;
+					if (isAlertJoin == 8) {
+						this.totView();
+					} else {
+						vant.Toast.loading({
+							duration: 0, // 持续展示 toast
+							forbidClick: true,
+							message: '加载中',
+						});
+						this.determineView();
+					}
+				},
+				determineView(addFleetFlag) { // 确定查看
+					let that = this;
+					var fleetDetail = this.fleetDetail;
+					let params = [];
+					for(let i in that.newCheckedItem) {
+						params.push({
+							fleetId: fleetDetail.id,
+							userId: that.newCheckedItem[i].userId,
+							contactUserId: that.userId,
+						});
+					}
+					console.log('消费参数', params);
+					$.ajax({
+						url: that.QueryApiRootUrl + '/cd/contact/log/addBatch',
+						data: JSON.stringify(params),
+						dataType: "json",
+						contentType: "application/json",
+						type: "POST",
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+						},
+						success: function(res) {
+							if(res.retCode == '0000000'){
+								if(res.rspBody > 0) {
+
+									that.totView(addFleetFlag);
+								}else {
+									vant.Toast.clear();
+									console.log('消费次数失败');
+									that.getRemainingPoint();
+								}
+							} else{
+								vant.Toast.clear();
+								vant.Toast(res.retDesc)
+							}
+						},
+						fail: function(err) {
+							vant.Toast.clear();
+						}
+					})
+				},
+				totView(addFleetFlag) { // 展示选中几条后跳转车源详情
+					var fleetDetail = this.fleetDetail;
+					var newCheckedItem = this.newCheckedItem;
+					this.showCheckedNum = newCheckedItem.length;
+					vant.Toast.clear();
+					this.toViewPopup = true;
+					setTimeout(() => {
+						this.toViewPopup = false;
+						wx.miniProgram.navigateTo({
+							url: '../fleetContactList/fleetContactList?selectedMapArr=' + JSON.stringify(newCheckedItem) + "&fleetDetail=" +  JSON.stringify(fleetDetail) + '&isFee=1&addFleetFlag=' + addFleetFlag
+						})
+						this.isShowSelectedMapItem = false;
+					}, 3000)
+						
+					
+					
+				},
+				getRemainingPoint() { // 消费次数失败则获取消费次数并打开弹窗
+					let that = this;
+					let params = {
+						"usersid": this.userId,
+						"setmchannel": "app"
+					}
+					console.log('剩余条数费参数', params);
+					$.ajax({
+						url: that.QueryApiRootUrl + '/cp/member/queryByUser',
+						data: JSON.stringify(params),
+						dataType: "json",
+						contentType: "application/json",
+						type: "POST",
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+						},
+						success: function(res) {
+							if(res.retCode == '0000000'){
+								let noteStr = res.rspBody.setmitems;
+								noteStr = noteStr.replace(/\//g, '');
+								noteStr = JSON.parse(noteStr);
+								console.log('JSON剩余条数结果', noteStr);
+								that.remainingNum = Number(noteStr.carsourcenum.nowsurnum);
+								that.firstTouUp = Number(noteStr.carsourcenum.firstRecharge);
+								that.getCouponAccountType(); // 单次充值配置
+							} else{
+								vant.Toast(res.retDesc)
+							}
+						},
+						fail: function(err) {
+
+						}
+					})
+				},
+				getCouponAccountType() { // 单次充值配置
+					let params = {
+						"level1": "车源",
+					}
+					console.log('单次充值费参数', params);
+					let that = this;
+					$.ajax({
+						url: that.QueryApiRootUrl + '/cp/couponAccountType/list',
+						data: JSON.stringify(params),
+						dataType: "json",
+						contentType: "application/json",
+						type: "POST",
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+						},
+						success: function(res) {
+							if(res.retCode == '0000000'){
+								that.couponAccountObj = {};
+								that.couponAccountObj = res.rspBody && res.rspBody.length > 0 ? res.rspBody['0'] : {};
+								
+								that.getMealBaseList(); // 会员套餐
+							} else{
+								vant.Toast(res.retDesc)
+							}
+						},
+						fail: function(err) {
+
+						}
+					})
+				},
+				getMealBaseList() { // 会员套餐列表
+					let params = {
+						"setmfree": "0",
+						"setmrole": "cargo",
+						"setmchannel": "app"
+					}
+					// console.log('会员套餐参数', params);
+					let that = this;
+					$.ajax({
+						url: that.QueryApiRootUrl + '/cp/set/meal/base/list',
+						data: JSON.stringify(params),
+						dataType: "json",
+						contentType: "application/json",
+						type: "POST",
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Authorization", that.Authorization);
+						},
+						success: function(res) {
+							if(res.retCode == '0000000'){
+								let rspBody = res.rspBody;
+								that.mealBaseInfo = 0;
+								let defvalAry = [];
+								if(rspBody && rspBody.length > 0) {
+									for(let i in rspBody) {
+										let setmitemsJson = rspBody[i].setmitems.replace(/\//g, '');
+										let obj = JSON.parse(setmitemsJson);
+										// console.log('测试参数' + i, obj);
+										defvalAry.push(Number(obj.carsourcenum.defval));
+									}
+									console.log(that.mealBaseInfo);
+									let newAry = that.toSorting(defvalAry);
+									that.mealBaseInfo = newAry && newAry.length > 0 ? newAry[newAry.length - 1] : 0;
+									// that.$refs.noSourceNumPopup.open();
+									that.noSourceNumPopup = true;
+									
+									
+								}
+							} else{
+								vant.Toast(res.retDesc)
+							}
+						},
+						fail: function(err) {
+
+						}
+					})
+				},
+				toSorting(arr){
+					var interval = parseInt(arr.length / 2);  //分组间隔设置
+					while(interval > 0){
+						for(var i = 0 ; i < arr.length ; i ++){
+							var n = i;
+							while(arr[n] < arr[n - interval] && n > 0){
+								var temp = arr[n];
+								arr[n] = arr[n - interval];
+								arr[n - interval] = temp;
+								n = n - interval;
+							}
+						}
+						interval = parseInt(interval / 2);
+					}
+					return arr;
+				},
+				//北斗定位在线时间
+				findBeidouDateDesc(date) {
+					var dateS = date.replace(/-/g, "/");
+					var dateStmp = Date.parse(new Date(dateS));
+					var nowStmp = Date.parse(new Date());
+					var period = nowStmp - dateStmp;
+					var yearLevelValue = 365 * 24 * 60 * 60 * 1000;
+					var monthLevelValue = 30 * 24 * 60 * 60 * 1000;
+					var dayLevelValue = 24 * 60 * 60 * 1000;
+					var hourLevelValue = 60 * 60 * 1000;
+					var minuteLevelValue = 60 * 1000;
+					var secondLevelValue = 1000;
+					
+					function getDifference(period) {
+						/*******计算出时间差中的年、月、日、天、时、分、秒*******/
+						var year = parseInt(getYear(period));
+						var month = parseInt(getMonth(period - year * yearLevelValue));
+						var day = parseInt(getDay(period - year * yearLevelValue - month * monthLevelValue));
+						var hour = parseInt(getHour(period - year * yearLevelValue - month * monthLevelValue - day * dayLevelValue));
+						var minute = parseInt(getMinute(period - year * yearLevelValue - month * monthLevelValue - day * dayLevelValue - hour * hourLevelValue));
+						var second = parseInt(getSecond(period - year * yearLevelValue - month * monthLevelValue - day * dayLevelValue - hour * hourLevelValue - minute * minuteLevelValue));
+						var result = "";
+						// console.log(year, month, day, hour, minute, second);
+						if (year != 0) {
+							result =  "1天前";
+						} else if (month != 0){
+							result = "1天前";
+						} else if (day != 0) {
+							// if (day < 3) {
+							// 	result = day + "天前";
+							// } else {
+							// 	result = "1天前";
+							// }
+							result = "1天前";
+						} else if (hour != 0) {
+							result = hour + "小时前"
+						} else if (minute != 0) {
+							result = minute + "分钟前"
+						} else {
+							result = '刚刚'
+						}
+						function getYear(period) {
+							//Math.floor()
+							return Math.floor(parseInt(period) / yearLevelValue);
+						}
+						function getMonth(period) {
+							return Math.floor(parseInt(period) / monthLevelValue);
+						}
+						function getDay(period) {
+							return Math.floor(parseInt(period) / dayLevelValue);
+						}
+						function getHour(period) {
+							return Math.floor(parseInt(period) / hourLevelValue);
+						}
+						function getMinute(period) {
+							return Math.floor(parseInt(period) / minuteLevelValue);
+						}
+						function getSecond(period) {
+							return Math.floor(parseInt(period) / secondLevelValue);
+						}
+						
+						return result;
+					}
+					return getDifference(period);
+				},
+				toTrack() {
+					//跳转轨迹页面
+					var selectedMapItem = this.selectedMapItem;
+					var obj = this.getPickerArr();
+								
+					var dateTimeArray=obj.dateTimeArray;
+					var endTimeArray = obj.dateTimeArray;
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], 0, 0];
+					var endTime = [dateTime[0], dateTime[1], dateTime[2], 23, 59];
+					//获取当前日期
+					
+					var dateTime = this.createTimeStr(dateTimeArray,startTime);
+					var endTime= this.createTimeStr(endTimeArray,endTime);
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetTrack/fleetTrack?index=0&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+				},
+				//获取日期的picker显示
+				getPickerArr(date) {
+					// 获取完整的年月日 时分秒，以及默认显示的数组
+					let datenow = new Date();
+					let endYear = datenow.getFullYear();
+					let obj = this.dateTimePicker(this.startYear, endYear, date);
+					// 精确到分的处理，将数组的秒去掉
+					let lastArray = obj.dateTimeArray.pop();
+					let lastTime = obj.dateTime.pop();
+					return obj
+				},
+				createTimeStr(dateTimeArray,dateTime){
+					let timeStr = dateTimeArray[0][dateTime[0]]+'-'+dateTimeArray[1][dateTime[1]]+'-'+dateTimeArray[2][dateTime[2]]+' '+dateTimeArray[3][dateTime[3]]+":"+dateTimeArray[4][dateTime[4]];
+					console.log(timeStr)
+					return timeStr
+				},
+				dateTimePicker(startYear, endYear, date) {
+					// 返回默认显示的数组和联动数组的声明
+					var dateTime = [], dateTimeArray = [[], [], [], [], [], []];
+					var start = startYear || 2000;
+					var end = endYear || 2100;
+					// 默认开始显示数据
+					var defaultDate = date ? [...date.split(' ')[0].split('-'), ...date.split(' ')[1].split(':')] : getNewDateArry();
+					// 处理联动列表数据
+					/*年月日 时分秒*/
+					dateTimeArray[0] = getLoopArray(start, end);
+					dateTimeArray[1] = getLoopArray(1, 12);
+					dateTimeArray[2] = getMonthDay(defaultDate[0], defaultDate[1]);
+					dateTimeArray[3] = getLoopArray(0, 23);
+					dateTimeArray[4] = getLoopArray(0, 59);
+					dateTimeArray[5] = getLoopArray(0, 59);
+					
+					dateTimeArray.forEach((current, index) => {
+						dateTime.push(current.indexOf(defaultDate[index]));
+					});
+					
+					return {
+						dateTimeArray: dateTimeArray,
+						dateTime: dateTime
+					}
+				},
+				toSimpleContact() {
+			
+					//联系单人
+				
+					let that = this;
+					if (!btnRepeat()) return;
+					let isAlertJoin = this.isAlertJoin;
+					var selectedMapItem = this.selectedMapItem;
+					this.newCheckedItem = [selectedMapItem];
+					if (isAlertJoin == 8) {
+						//车队长管理员不消耗条数
+						that.totView();
+					} else {
+						vant.Toast.loading({
+							duration: 0, // 持续展示 toast
+							forbidClick: true,
+							message: '加载中',
+						});
+						this.determineView();
+					}
+				},
+				closeMarkerPopup() {
+					this.isShowSelectedMapItem = false;
+				},
+				//关闭
+				closeNoNumPopup() {
+					this.noSourceNumPopup = false;
+					this.noSourceNumPopupFleet = false;
+				},
+				jumpToSingleTopup() {
+					//跳转到单次充值
+					var smsObj = {
+						amount: this.firstTouUp == 1 ? this.couponAccountObj.pointFirstPrice / 1000 : this.couponAccountObj.pointPrice / 1000,
+						noteVOS: [],
+						point: Number(this.couponAccountObj.pointNum)
+					}
+					this.noSourceNumPopup = false;
+					wx.miniProgram.navigateTo({
+						url: '/pages/index/sourceTopUp/sourceTopUp?typeNum=55&pageSource=fleetMap&smsObj=' + JSON.stringify(smsObj)
+					})
+				},
+				jumpToUserMember() {
+					this.noSourceNumPopup = false;
+					this.noSourceNumPopupFleet = false
+				
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/member/memberPage/memberPage'
+					})
+				},
+				makePhoneCall(item) {
+					var mobile = item.displayMobile ? item.displayMobile : item.mobile;
+					if (!mobile) return;
+					window.location.href= 'tel:' + mobile;
+					var userId = this.userId;
+					var now = new Date();
+					var viewDt = dateFormat("YYYY-mm-dd HH:MM:SS", now);
+					var clientType = 2; //小程序
+					var sendParams = {
+						userSid: userId,
+						clientType,
+						pageName: "超级车队拨打电话",
+						viewDt
+					}	
+					this.request("/danas/pageViewLog/add", sendParams);
+				},
+				hasCheckedFleetChecked() {
+					for (let i in this.myFleetData) {
+						if (this.myFleetData[i].checked) {
+							return true;
+						}
+					}
+				},
+				toAddUserInFleet() { // 邀请加入车队
+					if (this.hasCheckedFleetChecked()) {
+						this.checkedCarItem = [];
+						for (let c in this.willJoinFleetArr) {
+							this.checkedCarItem.push(this.willJoinFleetArr[c])
+						}
+						let checkedFleetItem = [];
+						for (let f in this.myFleetData) {
+							if (this.myFleetData[f].checked) {
+								checkedFleetItem.push(this.myFleetData[f])
+							}
+						}
+						console.log('选中的车源', this.checkedCarItem);
+						console.log('选中的车队', checkedFleetItem);
+						let paramsInfo = [];
+						for (let a in this.checkedCarItem) {
+							for (let b in checkedFleetItem) {
+								let obj = {
+									"commonUserId": this.userId,
+									"commonUserName": this.userName ? this.userName : undefined,
+									"fleetId": checkedFleetItem[b].id,
+									"fleetName": checkedFleetItem[b].name,
+									"userId": this.checkedCarItem[a].userId,
+									"userCode": this.checkedCarItem[a].userCode
+								}
+								paramsInfo.push(obj);
+							}
+						}
+
+						console.log('邀请参数', paramsInfo);
+						var len = this.checkedCarItem.length;
+						let that = this;
+						this.request('/cd/fleetWithUser/invite', paramsInfo)
+							.then(function(res) {
+								console.log('加入车队结果', res);
+								if (res.retCode == '0000000') {
+									that.myFleetPopup = false;
+									setTimeout(() => {
+										that.openRspMsgPopup('成功把' + len + '名司机加入您的车队，请稍后在车队查看');
+									}, 700)
+								} else {
+									vant.Toast(res.retDesc);
+								}
+							})
+							.catch(err => {
+								console.log(err);
+							})
+					} else {
+						vant.Toast("请选择车队");
+					}
+				},
+
+				openRspMsgPopup(msg) {
+					this.rspMsg = msg;
+					this.mainRspMsgPopup = true;
+					setTimeout(()=>{
+						this.mainRspMsgPopup = false;
+					},3000)
+				},
+				closeFleetHintPopup() {
+					this.fleetHintPopup = false;
+				},
+				jumpToCreatFleet() {
+					this.fleetHintPopup = false;
+					wx.miniProgram.navigateTo({
+						url: '/pages/goodsDelivery/fleet/fleetCreat/fleetCreat?type=create'
+					})
+				},
+				getMyFleetInfo() { // 获取车队列表
+					let that = this;
+					that.myFleetData = [];
+					this.request('/cd/fleet/list', {
+							pageNum: 1,
+							pageSize: 999,
+							isMyFleet: 1,
+							isOwner: 1
+						})
+						.then(res => {
+							if (res.retCode == '0000000') {
+								let items = res.rspBody.items;
+								if (items && items.length > 0) {
+									for (let i in items) {
+										items[i].checked = false;
+									}
+									that.myFleetData = items;
+								} else {
+									that.myFleetData = [];
+								}
+							}
+						})
+						.catch(err => {
+							console.log(err);
+						})
+				},
+        	},
+      	});
+
+      // var zoomLevel = 10;
+      var zoomLevel = 4;
+      var countNum = 0;
+      var firstNum = 1;
+
+      var distCluster, pointSimplifierIns;
+      var mapkeys = new AMap.Map("container", {
+        zoom: zoomLevel,
+        autoSetFitView: false,
+      });
+      var position = [114.306677, 30.594718];
+      mapkeys.setCenter(position);
+
+      var groupStyleMap;
+      function onIconLoad() {
+        pointSimplifierIns.renderLater();
+      }
+
+      function onIconError(e) {
+        alert("图片加载失败！");
+      }
+
+      // 禁用双击放大
+      var lastTouchEnd = 0;
+      document.documentElement.addEventListener(
+        "touchend",
+        function (event) {
+          var now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        {
+          passive: false,
+        }
+      );
+    </script>
+  </body>
+</html>

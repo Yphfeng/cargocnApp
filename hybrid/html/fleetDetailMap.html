@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>webview</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0 !important;
+				font-family: PingFang SC-Regular, PingFang SC;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none; 
+				/* overflow: hidden; */
+			}
+			.label-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.road-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.label-box::-webkit-scrollbar {
+                display: none;
+            }
+			.label-child{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.label-text{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.label-text1{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			.road-text{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.road-text1{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			[v-cloak]{
+			    display: none;
+			}
+			.status-box{
+				position: absolute;
+				top: 70px; 
+				right: 10px; 
+				z-index: 99;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.status-img{
+				width: 48px;
+				height: 26px;
+			}
+			.opt {
+				position: absolute;
+				top: 154px;
+				right: 18px;
+				height: 200px;
+				width: 89rpx;
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: center;
+				z-index: 2;
+			}
+			.topOpt {
+				top: 154px;
+			}
+			.opt-item {
+				width: 89px;
+				height: 35px;
+				border-radius: 6px;
+				background-color: rgba(255, 255, 255, 1);
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				
+			}
+			.opt-item:first-child {
+				margin-bottom: 20px;
+			}
+			.locationCenter {
+				width: 24px;
+				height: 24px;
+				margin-right: 5px;
+			}
+			.tabs {
+				position: absolute;
+				top: 86px;
+				left: 0;
+				right: 0;
+				height: 64px;
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-1.png);
+				background-size: cover;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				background-position: 100%;
+			}
+			.topTabs {
+				top: 86px;
+			}
+			.tabs.active {
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-points-icon-2.png);
+			}
+			.tab-item {
+				flex: 1;
+				height: 39px;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				font-size: 16px;
+				color: #333333;
+			}
+			.tab-item.active {
+				font-weight: 600;
+				color: #ffffff;
+			}
+
+			.date {
+				font-size: 12px;
+				color: #666666;
+				margin-left: 6px;
+			}
+			.addr {
+				font-size: 14px;
+				color: #333333;
+				line-height: 22px;
+				margin-bottom: 14px;
+			}
+			.car-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				font-size: 18px;
+				color: #333333;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.car-type {
+				margin-right: 15px;
+			}
+			.car-mobile {
+				width: 22px;
+				height: 22px;
+			}
+			.car-news {
+				width: 24px;
+				height: 24px;
+			}
+			.contact-info {
+				display: flex;
+				flex-direction: row;
+				
+			}
+			.car-icon-item {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				line-height: 12px;
+				color: #000000;
+				font-size: 10px;
+			}
+			.car-icon-item:last-child {
+				margin-left: 22px;
+			}
+			.back {
+				position: absolute;
+				left: 18px;
+				top: 59px;
+				width: 28px;
+				height: 28px;
+			}
+			.marker-info {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				z-index: 9999;
+				width: 100%;
+				background-color: #FFFFFF;
+				border-radius: 12px 12px 0 0;
+				display: flex;
+				flex-direction: column;
+				height: 223px;
+				justify-content: flex-start;
+				align-items: flex-start;
+			}
+			.track_img {
+				position: fixed;
+				right: 11px;
+				bottom: 189px;
+				width: 30px;
+				height: 30px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.track_icon {
+				width: 20px;
+				height: 20px;
+			}
+			.title {
+				margin: 17px 21px 8px;
+				color: #333333;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 22px;
+			}
+			.user-info {
+				display: flex;
+				flex-direction: row;
+				justify-content:flex-start;
+				align-items: center;
+				color: #333333;
+				font-size: 18px;
+				line-height: 22px;
+				margin: 0 21px;
+			}
+			.name:first-child {
+				margin-right: 40px;
+			}
+			.marker-date {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				padding: 25px 21px;
+				width: 100%;
+				box-sizing: border-box;
+			}
+			.selectWhole {
+				border: 1px solid #DFDFDF;
+				border-radius: 4px;
+				flex: 1;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items:  center;
+				height: 30px;
+				font-size: 14px;
+				color: #333333;
+				padding: 0 7px;
+				box-sizing: border-box;
+			}
+			.selectWholeFirst {
+				margin-right: 10px;
+			}
+			.clearIcon {
+				width: 17px;
+				height: 17px;
+			}
+			.marker-btn {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+			}
+			.btn-item {
+				width: 124px;
+				height: 38px;
+				border-radius: 4px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border: 1px solid #2B72F0;
+				background-color: #FFFFFF;
+				color: #2B72F0;
+				font-weight: 400;
+				
+				font-size: 14px;
+			}
+			.btn-default {
+				margin-right: 45px;
+			}
+			.btn-item.btn-active {
+				background-color: #2B72F0;
+				color: #FFFFFF;
+				font-weight: 600;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<div id="container" style="width: 100vw; height: 100vh; position: relative;">
+		</div>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<script type="text/javascript">
+		        window._AMapSecurityConfig = {
+		            securityJsCode:'8b03bea8180ec5d6635efe8ecacfe2a0',
+		        }
+		</script>
+		<script type="text/javascript"
+			src="https://webapi.amap.com/maps?v=1.4.15&key=5b9b2e858cdd6686a2c60b1420666a32&plugin=AMap.Marker,AMap.Scale">
+		</script>
+		<script type="text/javascript" src="https://webapi.amap.com/ui/1.1/main.js?v=1.1.1"></script>
+	<!-- 	<script type="text/javascript" 
+			src="https://webapi.amap.com/maps?v=1.4.15&key=011f8982630e524b678d2e7b591cfd3e&plugin=AMap.Driving">
+		</script> -->
+		<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+		<script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<script type="text/javascript">
+			function getQuery(name) {
+				// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+				let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				let r = window.location.search.substr(1).match(reg);
+				if (r != null) {
+					// 对参数值进行解码
+					return decodeURIComponent(r[2]);
+				}
+				return null;
+			};
+			var routeLine;
+			var massMarks;
+			var style;
+			var bigImg;
+			var clearPoint = 0;
+			var selectData = {};
+			var clearSelect = 0;
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+						source: false,
+						isFleetSource: true,
+						isListBtn: false,
+						active: 0,
+						memberInfo: null,
+						mapIndex: 0,
+						maps: [],
+						
+						Authorization: "",
+						ApiRootUrl: "",
+						QueryApiRootUrl: "",
+						params: {},
+						Authorization: '',
+						driverData: [],
+						carSourceData: [],
+						markers: [],
+						pageSource: '',
+					}
+				},
+				created() {
+
+				},
+				mounted() {
+					var that = this;
+					this.params.userCode = getQuery("userCode");
+					
+					this.Authorization = getQuery("Authorization");
+					this.ApiRootUrl = getQuery("ApiRootUrl");
+					this.QueryApiRootUrl = getQuery("QueryApiRootUrl");
+					this.params.fleetId =  getQuery("fleetId");
+					this.params.latitude = getQuery("latitude");
+					this.params.longitude = getQuery("longitude");
+					this.pageSource = getQuery("pageSource") || "";
+					var type = getQuery("type");
+					if (type == "detail") {
+						this.source = true
+					} else {
+						this.source = false
+					}
+					//坐标系转换
+					
+				
+					AMapUI.load(['ui/geo/DistrictCluster', 'ui/misc/PointSimplifier', 'lib/$', 'lib/utils'], function(DistrictCluster, PointSimplifier, $, utils) {
+						
+						that.init(DistrictCluster, PointSimplifier, $, utils); //地图初始化
+						//启动页面
+						
+						that.initPage(DistrictCluster, $, utils);
+						
+						
+					});
+					
+					
+	
+				},
+				methods: {
+					toList(params) {
+						var that = this;
+						var center = mapkeys.getCenter();
+						console.log(center, '中心点');
+						var centerAddr = center.lng + ',' + center.lat;
+						$.get('https://restapi.amap.com/v3/geocode/regeo?output=json&location=' + centerAddr + '&key=6ae872d0bc86389b263ecdf64521a42a&radius=1000&extensions=all',function(res) {
+							console.log(res)
+							var addressComponent = res.regeocode.addressComponent;
+							var province = addressComponent.province;
+							var sender = "", senderCode= '', provinceName = "", provinceCode = "";
+							var adcode = addressComponent.adcode;
+							adcode = adcode.toString();
+							if (province == "上海市" || province == "北京市" || province == "重庆市" || province == "天津市") {
+								provinceCode = adcode.substr(0, 2) + '0000';
+								senderCode = adcode;
+							} else {
+								provinceCode = adcode.substr(0, 2) + '0000';
+								senderCode = provinceCode;
+							}
+							//点击跳转到列表
+							var item = {
+								provinceCode: provinceCode,
+								senderCode: senderCode,
+								isPro: true,
+							}
+							var isFleetSource = that.isFleetSource;
+							//判断是定位地图还是车源地图
+							var webMessage = {
+								type: 'toFleetList',
+								source: isFleetSource ? 'fleetSource' : 'carSource',
+								data: item,
+							}
+							uni.postMessage({
+								type: 'toFleetList',
+								data: webMessage,
+							})
+							
+						})
+						
+					},
+					locationCenter() {
+						var webMessage = {
+							type: 'locationCenter',
+						}
+						uni.postMessage({
+							type: 'locationCenter',
+							data: webMessage
+						})
+					},
+					init(DistrictCluster, PointSimplifier, $, utils) {
+						var that = this;
+						var ApiRootUrl = that.ApiRootUrl;
+						var ApiRoot = ApiRootUrl.split("/api")[0];
+						var linePng = ApiRoot + '/line_icon.png';
+						var unLinePng = ApiRoot + '/unLine_icon.png';
+						function MyRender(distClusterIns, opts) {
+							//直接调用父类的构造函数
+							MyRender.__super__.constructor.apply(this, arguments);
+						}
+						
+						groupStyleMap = {
+							'1': {
+								pointStyle: {
+									//绘制点占据的矩形区域
+									content: PointSimplifier.Render.Canvas.getImageContent(linePng, onIconLoad, onIconError),
+									//宽度
+									width: 24,
+									//高度
+									height: 24,
+									//定位点为中心
+									offset: ['-50%', '-50%'],
+									fillStyle: null,
+									//strokeStyle: null
+								}
+							},
+							'2': {
+								pointStyle: {
+									//绘制点占据的矩形区域
+									content: PointSimplifier.Render.Canvas.getImageContent(unLinePng, onIconLoad, onIconError),
+									//宽度
+									width: 24,
+									//高度
+									height: 24,
+									//定位点为中心
+									offset: ['-50%', '-50%'],
+									fillStyle: null,
+									// strokeStyle: null
+								}
+							}
+						};
+						
+						pointSimplifierIns = new PointSimplifier({
+							map: mapkeys, //所属的地图实例
+							autoSetFitView: false, //禁止自动更新地图视野
+							zIndex: 110,
+							getPosition: function(item) {
+								if (!item) {
+									return null;
+								}
+								var lngLatLine = item.lngLatLine;
+								var parts = lngLatLine.split(',');
+												
+								//返回经纬度
+								return [parseFloat(parts[0]), parseFloat(parts[1])];
+							},
+							getHoverTitle: function(dataItem, idx) {
+								return idx + ': ' + dataItem.lngLatLine;
+							},
+							renderConstructor: PointSimplifier.Render.Canvas.GroupStyleRender,
+							renderOptions: {
+								//点的样式
+								pointStyle: {
+									content: PointSimplifier.Render.Canvas.getImageContent(
+										'https://webapi.amap.com/theme/v1.3/markers/n/mark_b1.png',
+										function onload() {
+											pointSimplifierIns.renderLater();
+										},
+										function onerror(e) {
+											alert('图片加载失败！');
+										}
+									),
+									width: 19,
+									height: 31,
+									offset: ['-50%', '-100%'],
+									fillStyle: null,
+									strokeStyle: null
+								},
+								getGroupId: function(item, idx) {
+									if (!item.taskStatus) {
+										return 1
+									}
+									return item.taskStatus;
+								},
+								groupStyleOptions: function(gid) {
+								
+									return groupStyleMap[gid];
+								},
+								//鼠标hover时的title信息
+								hoverTitleStyle: {
+									position: 'top'
+								}
+							}
+						});
+						
+						
+						distCluster = new DistrictCluster({
+							map: mapkeys, //所属的地图实例
+							zIndex:11,
+							autoSetFitView: false,
+							getPosition: function(item) {
+								
+								if (!item) {
+									return null;
+								}
+								var lngLatLine = item.lngLatLine;
+								var parts = lngLatLine.split(',');
+				
+								//返回经纬度
+								return [parseFloat(parts[0]), parseFloat(parts[1])];
+							},
+							renderOptions: {
+								getClusterMarkerPosition: DistrictCluster.ClusterMarkerPositionStrategy.AVERAGE_POINTS_POSITION,
+								getClusterMarker: function(feature, dataItems, recycledMarker) {
+									if (dataItems.length < 1) return null
+									   //label内容
+									var name = feature.properties.name
+									var len = dataItems.length;
+									
+									var content = '<div class="amap-ui-district-cluster-marker level_province adcode_640000 descendant_of_100000 child_of_100000"><span class="amap-ui-district-cluster-marker-title">'+ name +'</span><span class="amap-ui-district-cluster-marker-body">'+ len +'</span></div>'
+													
+									//存在可回收利用的marker
+									if (recycledMarker) {
+										//直接更新内容返回
+										recycledMarker.setContent(content);
+										return recycledMarker;
+									}
+									//返回一个新的Marker
+									return new AMap.Marker({
+										 content: content,		
+									});
+								
+									
+								},
+								clusterMarkerClickToShowSub: false,
+								featureEventSupport: true,
+								featureClickToShowSub: false,
+								clusterMarkerEventSupport: true,
+								//标注信息Marker上需要监听的事件
+								clusterMarkerEventNames: ['click'],
+								featureStyle: {
+								    fillStyle: 'rgba(102,170,0,0.5)', //填充色
+								    lineWidth: 2, //描边线宽
+								    strokeStyle: 'rgb(31, 119, 180,0.2)', //描边色
+								    //鼠标Hover后的样式
+								    hoverOptions: {
+								        fillStyle: 'rgba(255,255,255,0.2)'
+								    }
+								},
+								featureStyleByLevel: {
+									country: {
+										fillStyle: 'rgba(255, 255, 255, 0)'
+									},
+									province: {
+										fillStyle: 'rgba(255, 255, 255, 0)'
+									},
+									city: {
+										fillStyle: 'rgba(255, 255, 255, 0)'
+									},
+									district: {
+										fillStyle: 'rgba(255, 255, 255, 0)'
+									}
+								}
+							}
+						});
+					
+						pointSimplifierIns.on("pointClick", function(e, points) {
+							console.log(points, '海量点的点击时间')
+							var webMessage = {
+								type: 'pointClick',
+								data: points
+							}
+							uni.postMessage({
+								data: webMessage
+							});
+						})
+				
+						distCluster.on('clusterMarkerClick', function(e, record) {
+							console.log(e.type + ': ' + record.feature.properties.name);
+							var feature = record.feature;
+							var properties = record.feature.properties;
+							var name = feature.properties.name;
+							var adcode = record.adcode;
+							adcode = adcode.toString();
+							
+							if (!that.isFleetSource) {
+								//判断该区域是否属于直辖市
+								
+								var codeCity = adcode.substr(2, 2);
+								var codePro = adcode.substr(0, 2) + '0000';
+								if (codePro == "310000" || codePro == "110000" || codePro == "500000" || codePro == "120000") {
+									if (codeCity != "00") {
+										//表示点击的是直辖市的区级别的，点击后跳转列表
+										var webMessage = {
+											type: 'showList',
+											source: 'carSource',
+											data: feature.properties,
+										}
+										uni.postMessage({
+											data: webMessage,
+										});
+										return;
+									} else {
+										//表示点击的是直辖市的市级别，点击后跳列表
+										var webMessage = {
+											type: 'showList',
+											source: 'carSource',
+											data: feature.properties,
+										}
+										uni.postMessage({
+											data: webMessage,
+										});
+										// distCluster.zoomToShowSubFeatures(record.adcode,record.feature.properties.center);
+									}
+								} else {
+									var codeCity = adcode.substr(2, 2);
+									var codeArea = adcode.substr(4, 2);
+									if (codeCity != "00" && codeArea == "00" ) {
+										//表示点击的是普通市级别的，点击后跳转列表
+										var webMessage = {
+											type: 'showList',
+											source: 'carSource',
+											data: feature.properties,
+										}
+										uni.postMessage({
+											data: webMessage,
+										});
+									} else {
+										distCluster.zoomToShowSubFeatures(record.adcode,record.feature.properties.center);
+									}
+								}
+							} else {
+								var codeCity = adcode.substr(2, 2);
+								var codePro = adcode.substr(0, 2) + '0000';
+								if (codePro == "310000" || codePro == "110000" || codePro == "500000" || codePro == "120000") {
+									if (codeCity != "00") {
+										//表示点击的是直辖市的区级别的
+										//展示具体的点
+										var markers = that.markers;
+										if (markers.length > 0) {
+											mapkeys.remove(markers);
+											that.markers = [];
+										}
+										var dataItems = record.dataItems;
+										var markers = [];
+										dataItems.forEach(item => {
+		
+											var icon = new AMap.Icon({
+												size: new AMap.Size(24, 24),    // 图标尺寸
+												image: 'https://hyjy-test.hyzgapp.com:8600/line_icon.png',  // Icon的图像
+												imageOffset: new AMap.Pixel(0, 0),  // 图像相对展示区域的偏移量，适于雪碧图等
+												imageSize: new AMap.Size(24, 24)   // 根据所设置的大小拉伸或压缩图片
+											});
+
+											var dataMarker = item.dataItem;
+											var marker = new AMap.Marker({
+												icon: icon,
+											    position:  new AMap.LngLat(item.position[0], item.position[1]), // 基点位置
+											    offset: new AMap.Pixel(0, 0), // 相对于基点的偏移位置
+												extData:{
+												   data: dataMarker
+												}
+											});
+											AMap.event.addListener(marker,'click',that.markerClick);
+											markers.push(marker)
+										})
+										that.markers = markers;
+										mapkeys.add(markers);
+										mapkeys.setFitView();
+										that.isListBtn = true;
+										distCluster.hide();
+										//展示具体的点
+										var webMessage = {
+											type: 'showPoints',
+											data: record.dataItems,
+										}
+										uni.postMessage({
+											data: webMessage,
+										});
+									} else {
+										distCluster.zoomToShowSubFeatures(record.adcode,record.feature.properties.center);
+									}
+								} else {
+									var codeCity = adcode.substr(2, 2);
+									var codeArea = adcode.substr(4, 2);
+									if (codeCity != "00" && codeArea == "00" ) {
+										//表示点击的是普通市级别的，点击后跳转列表
+										//点击后展示具体的点
+										var markers = that.markers;
+										if (markers.length > 0) {
+											mapkeys.remove(markers);
+											that.markers = [];
+										}
+										var dataItems = record.dataItems;
+										var markers = [];
+										dataItems.forEach(item => {
+												
+											var icon = new AMap.Icon({
+												size: new AMap.Size(24, 24),    // 图标尺寸
+												image: 'https://hyjy-test.hyzgapp.com:8600/line_icon.png',  // Icon的图像
+												imageOffset: new AMap.Pixel(0, 0),  // 图像相对展示区域的偏移量，适于雪碧图等
+												imageSize: new AMap.Size(24, 24)   // 根据所设置的大小拉伸或压缩图片
+											});
+										
+											var dataMarker = item.dataItem;
+											var marker = new AMap.Marker({
+												icon: icon,
+											    position:  new AMap.LngLat(item.position[0], item.position[1]), // 基点位置
+											    offset: new AMap.Pixel(0, 0), // 相对于基点的偏移位置
+												extData:{
+												   data: dataMarker
+												}
+											});
+											AMap.event.addListener(marker,'click',that.markerClick);
+											markers.push(marker)
+										})
+										that.markers = markers;
+										mapkeys.add(markers);
+										mapkeys.setFitView();
+										that.isListBtn = true;
+										distCluster.hide();
+										//展示具体的点
+										var webMessage = {
+											type: 'showPoints',
+											data: feature.properties,
+										}
+										uni.postMessage({
+											data: webMessage,
+										});
+										
+									} else {
+										distCluster.zoomToShowSubFeatures(record.adcode,record.feature.properties.center);
+									}
+								}
+							
+							}
+							
+						});
+						
+						
+						mapkeys.on("zoomchange", that.zoomchange);
+						
+						window.distCluster = distCluster;		
+						
+					},
+					markerClick(e) {
+						console.log(e)
+						// var icon =  new AMap.Icon({
+						// 	image: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/line_click_icon.png",
+						// 	size: new AMap.Size (32, 32), // 图标大小
+						// 	imageSize: new AMap.Size(32, 32)
+						// })
+						//  e.target.setIcon(icon);
+						 var dataMarker = e.target.getExtData();
+						 console.log(dataMarker, 'asa');
+						 var webMessage = {
+						 	type: 'pointClick',
+						 	data: dataMarker
+						 }
+						 uni.postMessage({
+						 	data: webMessage
+						 });
+						 
+					},
+					toFleetMap() {
+						this.isFleetSource = true;
+						this.isListBtn = false;
+						var webMessage = {
+							type: 'isToFleetMap',
+							data: true,
+						}
+						uni.postMessage({
+							data: webMessage
+						});
+						//启动页面
+						this.initPage();
+						
+					},
+					initPage() {
+						//跳转车队地图
+						var that = this;
+						var data = {
+							fleetId: that.params.fleetId,
+						};
+						try{
+							$.ajax({
+								url: that.QueryApiRootUrl + '/cd/fleetWithUser/mapList',
+								data: JSON.stringify(data),
+								dataType: 'json',
+								contentType: 'application/json',
+								type: 'POST',
+								beforeSend: function(xhr) {
+									xhr.setRequestHeader("Authorization", that.Authorization)
+								},
+								success: function(res) {
+									console.log(res, '数据');
+									if (res.retCode == "0000000") {
+										var webMessage = {
+											type: 'loadComplete',
+										}
+										uni.postMessage({
+											data: webMessage
+										});
+										var lines = res.rspBody.items, data = [];
+										for(var i = 0, len = lines.length; i < len; i++) {
+											if (lines[i].latitude) {
+												var latitude = lines[i].latitude;
+												var longitude = lines[i].longitude;
+												var lngLatLine = longitude + ',' + latitude;
+												data.push({
+													lngLatLine,
+													...lines[i]
+												})
+											}
+											
+										}
+										that.driverData = data;
+										console.log(data, 'asas');
+										distCluster.setData(data);
+										var senderCode = getQuery("senderCode");
+										if (senderCode) {
+											setTimeout(() => {
+												distCluster.zoomToShowSubFeatures(senderCode)
+											}, 1000)
+											
+										}
+										
+									} else {
+										var webMessage = {
+											type: 'loadError',
+											message: res.retDesc,
+										}
+										uni.postMessage({
+											data: webMessage
+										});
+									}
+								},
+								fail: function(err) {
+									var webMessage = {
+										type: 'loadComplete',
+									}
+									uni.postMessage({
+										data: webMessage
+									});
+								},
+								complete: function() {
+									var webMessage = {
+										type: 'loadComplete',
+										data: true,
+									}
+									uni.postMessage({
+										data: webMessage,
+									});
+								}
+							})
+						}catch(e){
+							//TODO handle the exception
+							var webMessage = {
+								type: 'loadComplete',
+							}
+							uni.postMessage({
+								data: webMessage
+							});
+						}
+						
+					},
+					zoomchange() {
+						//监听缩放事件
+						var zoom = mapkeys.getZoom();
+						var isHidden = distCluster.isHidden();
+						console.log(zoom, 'sd1');
+						if (zoom < 10) {
+							var markers = this.markers;
+							if (markers.length > 0) {
+								mapkeys.remove(markers);
+								this.markers = [];
+							}
+							if (isHidden) {
+								distCluster.show()
+								distCluster.renderLater();
+							}
+							// pointSimplifierIns && pointSimplifierIns.setData(null);
+							this.isListBtn = false;
+						}
+					},
+					toCarSourceMap() {
+						var that = this;
+						this.isFleetSource = false;
+						this.isListBtn = false;
+						var webMessage = {
+							type: 'isToFleetMap',
+							data: false,
+						}
+						uni.postMessage({
+							data: webMessage
+						});
+						//启动页面
+						var QueryApiRootUrl =  that.QueryApiRootUrl + '/olnanas/recommend/getMapPolymerization';
+						var data = {
+							ownerUserCode: that.params.userCode,
+							source: 2,
+							fleetId: that.params.fleetId,
+						};
+						console.log(data, '参数');
+						var Authorization = that.Authorization;
+						
+						try{
+							$.ajax({
+								url: QueryApiRootUrl,
+								data: JSON.stringify(data),
+								dataType: 'json',
+								contentType: 'application/json',
+								type: 'POST',
+								beforeSend: function(xhr) {
+									xhr.setRequestHeader("Authorization", Authorization)
+								},
+								success: function(csv) {
+									console.log(csv, '数据')
+									if (csv.retCode != "0000000") {
+										var webMessage = {
+											type: 'loadError',
+											message: csv.retDesc
+										}
+										uni.postMessage({
+											data: webMessage
+										});
+										return;
+									}	
+									var webMessage = {
+										type: 'loadComplete',
+									}
+									uni.postMessage({
+										data: webMessage
+									});				
+										
+									var lines = csv.rspBody, data = [];
+									
+									for(var i = 0, len = lines.length; i < len; i++) {
+										data.push({
+											lngLatLine: lines[i],
+										});
+									}
+									that.carSourceData = data;
+									distCluster.setData(data);
+									var senderCode = getQuery("senderCode");
+									if (senderCode != 'undefined' && senderCode) {
+										setTimeout(() => {
+											distCluster.zoomToShowSubFeatures(Number(senderCode))
+										}, 500)
+										
+									} else {
+										that.locationCenter();
+									}
+									// pointSimplifierIns.setData(null);
+									
+								},
+								fail: function(err) {
+									var webMessage = {
+										type: 'loadComplete',
+									}
+									uni.postMessage({
+										data: webMessage
+									});
+								},
+								complete: function() {
+									var webMessage = {
+										type: 'loadComplete',
+										data: true,
+									}
+									uni.postMessage({
+										data: webMessage,
+									});
+								}
+								
+								
+							});
+						}catch(e){
+							//TODO handle the exception
+							var webMessage = {
+								type: 'loadComplete',
+							}
+							uni.postMessage({
+								data: webMessage
+							});
+						}
+					},
+					mapSearch(index) {
+						this.active = index;
+						this.refreshEvent();
+					},
+				
+					showName(driverName) {
+						if (!driverName) return "匿名用户";
+						return driverName.slice(0, 1) + '*'
+						
+					},
+					
+					refreshEvent() {
+						//获取数据
+						var that = this;
+						var mapMarkers = this.mapMarkers;
+						mapkeys.clearMap(mapMarkers);
+						if (routeLine) {
+							mapkeys.remove(routeLine);
+						}
+						
+						this.mapMarkers = [];
+						var webData = {
+							type: 'startLoad'
+						}
+						uni.postMessage({
+							data: webData
+						});
+						if (this.active == 0) {
+						
+						} else {
+							//判断是否有免费次数
+							
+						
+						}
+						
+					},
+					//日期格式化
+					dateFormat(time){
+						if (!time) return;
+						time = time.replace(/-/g, '/');
+						var date = new Date(time);
+					    let ret;
+						var fmt = "YYYY-mm-dd HH:MM";
+					    const opt = {
+					        "Y+": date.getFullYear().toString(),        // 年
+					        "m+": (date.getMonth() + 1).toString(),     // 月
+					        "d+": date.getDate().toString(),            // 日
+					        "H+": date.getHours().toString(),           // 时
+					        "M+": date.getMinutes().toString(),         // 分
+					        "S+": date.getSeconds().toString()          // 秒
+					        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+					    };
+					    for (let k in opt) {
+					        ret = new RegExp("(" + k + ")").exec(fmt);
+					        if (ret) {
+					            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+					        };
+					    };
+					    return fmt;
+					},
+					back() {
+						//返回上一页
+						var webData = {
+							type: 'back'
+						}
+						console.log(webData);
+						uni.postMessage({
+							data: webData
+						});
+					}
+				}
+			})
+			
+			
+			// var zoomLevel = 10;
+			var zoomLevel = 4;
+			var countNum = 0;
+			var firstNum = 1;
+				
+			var distCluster, pointSimplifierIns;
+			var mapkeys = new AMap.Map("container", {
+				zoom: zoomLevel,
+				autoSetFitView: false,
+			});
+			var position = [114.306677, 30.594718];
+			mapkeys.setCenter(position); 
+			
+			var groupStyleMap;
+			function onIconLoad() {
+				pointSimplifierIns.renderLater();
+			}
+				
+			function onIconError(e) {
+				alert('图片加载失败！');
+			}
+		
+			// 禁用双击放大
+			var lastTouchEnd = 0;
+			document.documentElement.addEventListener('touchend', function (event) {
+			    var now = Date.now();
+			    if (now - lastTouchEnd <= 300) {
+			        event.preventDefault();
+			    }
+			    lastTouchEnd = now;
+			}, {
+			    passive: false
+			});
+		</script>
+	</body>
+</html>

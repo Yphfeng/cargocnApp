@@ -1,0 +1,40 @@
+
+function reChargeStatus(status, originStatus) {
+  var statusText = '';
+  if (originStatus) {
+    if (originStatus == 1) {
+      statusText = "车队充值"
+    } else if (originStatus == "2") {
+      statusText = "奖励"
+    } else if (originStatus == 3) {
+      statusText = "自助充值"
+    } else if (originStatus == 4) {
+      statusText = "好货云充值"
+    } else if (originStatus == 5) {
+      statusText = "退款"
+    }else if (originStatus == 11) {
+	  statusText = "车队回收"
+	}else {
+      statusText = "授权充值"
+    }
+  } else {
+    if (status == 1) {
+      statusText = "车队充值"
+    } else if (status == "2") {
+      statusText = "奖励"
+    } else if (status == 3) {
+      statusText = "自助充值"
+    } else if (status == 4) {
+      statusText = "好货云充值"
+    } else if (status == 5) {
+      statusText = "退款"
+    } else if (status == 11) {
+      statusText = "车队回收"
+    } else {
+      statusText = "授权充值"
+    }
+  }
+
+    return statusText;
+}
+	module.exports.reChargeStatus = reChargeStatus;

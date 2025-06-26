@@ -1,0 +1,355 @@
+<template>
+	<view class="mutual">
+		<view class="searchHead">
+			<view style="width: 64rpx; flex-direction: row; align-items: center;" @click="backToFromPage">
+				<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/back.png" style="width: 22rpx;" mode="widthFix"></image>
+			</view>
+			<text class="" style="font-size: 36rpx; color: #333; flex: 1; text-align: center;">位置查看</text>
+			<view style="width: 64rpx; flex-direction: row; align-items: center;"></view>
+		</view>
+		
+		<web-view
+		 :webview-styles="webviewStyles"
+			id="myMap"
+		  :src="srcUrl"
+		  style="position: fixed; top: 80; left: 0; right: 0; bottom: 0;"
+		  :style="webViewHeight"
+		  class="mapView"
+		  @message="reciveMessage"
+		  @onPostMessage="recivePostMessage"
+		>
+		</web-view>
+		
+		<web-view v-if="showMapLoading" class="mapLoadingBox" src="../../../../static/demo/data.html"></web-view>
+		
+		<uni-popup ref="popup" :mask-click="true">
+		    <view class="alertContent" v-if="alertFleetDetail">
+				<view class="title"><text class="titleFont">车队成员信息</text></view>
+				<view class="contentItem">
+					<text class="content-title">姓名</text>
+					<text class="contentText">{{alertFleetDetail.userName}}</text>
+				</view>
+				<view class="contentItem">
+					<text class="content-title">手机号</text>
+					<text class="contentText">{{alertFleetDetail.mobile}}</text>
+				</view>
+				<view class="contentItem">
+					<text class="content-title">卡友号</text>
+					<text class="contentText">{{alertFleetDetail.userCode}}</text>
+				</view>
+				<view class="contentItem">
+					<text class="content-title">车牌号</text>
+					<text class="contentText">{{alertFleetDetail.plateNo}}</text>
+				</view>
+				<view class="contentItem">
+					<text class="content-title">登录时间</text>
+					<text class="contentText">{{alertFleetDetail.dateDesc}}</text>
+				</view>
+				<view class="contentItem">
+					<text class="content-title">登录地址</text>
+					<text class="contentText contentAddress">{{alertFleetDetail.address}}</text>
+				</view>
+				<!-- <view class="pupBottom">
+					<text class="tips">请登录【货运中国】快手直播间寻求帮助</text>
+				</view> -->
+			</view>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import * as utils from "@/utils/ship.js";
+	var app = getApp();
+	var commonHtmlTitle = '服务站地图';
+	export default {
+		data() {
+			return {
+                webviewStyles: {
+                    progress: false
+                },
+				latitude: '',
+				longitude: '',
+				srcUrl: utils.fleetUrl,
+				webViewHeight: '',
+				searchData: {},
+				repeatLoad: true,
+				showMapLoading: true,
+				fleetDetail: {},
+				alertFleetDetail: {},
+			}
+		},
+		onLoad(option){
+			var fleetDetail = JSON.parse(option.fleetDetail);
+			this.fleetDetail = fleetDetail;
+			console.log(fleetDetail);
+			if(this.repeatLoad) {
+				this.getLocationData();
+			}
+		},
+		onShow() {
+			
+		},
+		methods: {
+			backToFromPage() {
+				uni.navigateBack({
+					
+				})
+			},
+			getLocationData() {
+				this.searchData = getApp().globalData.serviceSearch;
+				var userInfo = uni.getStorageSync("userInfo");
+				console.log('接收到的搜索参数');
+				var searchVal = getApp().globalData.serviceSearch.searchVal;
+				var userInfo = uni.getStorageSync("userInfo");
+				var pages = getCurrentPages();
+				var prevPage = pages[pages.length - 1]; 
+				var userRole = uni.getStorageSync("userRole");
+				var buriedPoint = {
+					commonUserName: userInfo?JSON.parse(userInfo).userName:'',
+					commonUserId: userInfo?JSON.parse(userInfo).userId:'',
+					commonPhoneModel: getApp().globalData.commonPhoneModel,
+					commonNowVersion: getApp().globalData.appVersion,
+					commonSystemVersion: getApp().globalData.commonSystemVersion,
+					commonFrontPath: prevPage.route,
+					Authorization: JSON.parse(userInfo).attrs.token,
+					isOwner: this.fleetDetail.isOwner,
+					isAdmin: this.fleetDetail.isAdmin,
+					fleetId: this.fleetDetail.id,
+				}
+				this.srcUrl = utils.fleetUrl;
+				if(this.searchData.longitude && this.searchData.latitude) {
+					if(!this.longitude && !this.latitude) {
+						console.log('无定位经纬度');
+						let that = this;
+						uni.getLocation({
+							type: 'gcj02',
+							geocode: true,
+							success: function(res) {
+								that.latitude = res.latitude;
+								that.longitude = res.longitude;
+								buriedPoint.latitude = that.latitude;
+								buriedPoint.longitude = that.longitude;
+								let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+								that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + '&QueryApiRootUrl=' + utils.QueryApiRootUrl + query;
+								console.log(that.srcUrl);
+								that.$forceUpdate();
+							},
+							fail: function() {
+								that.latitude = 39.909;
+								that.longitude = 116.39742;
+								buriedPoint.latitude = that.latitude;
+								buriedPoint.longitude = that.longitude;
+								let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+								that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + '&QueryApiRootUrl=' + utils.QueryApiRootUrl + query;
+								uni.showToast({
+									title: "请打开定位"
+								})
+							},
+							complete:function(){
+								// console.log('获取到的搜索信息', that.srcUrl);
+							}
+						})
+					}else {
+						buriedPoint.latitude = this.latitude;
+						buriedPoint.longitude = this.longitude;
+						let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+						this.srcUrl = this.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query;
+					}
+					this.repeatLoad = false;
+					// console.log('获取到的搜索信息', this.srcUrl);
+				}else {
+					let that = this;
+					
+					// let query = '&type=' + 'service'
+					// that.srcUrl = 'https://www.hyzgapp.com/webView.html';
+					uni.getLocation({
+						type: 'gcj02',
+						geocode: true,
+						success: function(res) {
+							that.latitude = res.latitude;
+							that.longitude = res.longitude;
+							buriedPoint.latitude = that.latitude;
+							buriedPoint.longitude = that.longitude;
+							let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+							that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query;
+							console.log(that.srcUrl, '地图信息1111')
+							that.$forceUpdate();
+						},
+						fail: function() {
+							that.latitude = 39.909;
+							that.longitude = 116.39742;
+							buriedPoint.latitude = that.latitude;
+							buriedPoint.longitude = that.longitude;
+							let query = '&buriedPoint=' + JSON.stringify(buriedPoint);
+							that.srcUrl = that.srcUrl + '?ApiRootUrl=' + utils.ApiRootUrl + query;
+							uni.showToast({
+								title: "请打开定位"
+							})
+						},
+						complete:function(){
+							that.repeatLoad = false;
+						}
+					})
+				}
+			},
+			openLocation(res){
+				uni.openLocation({
+					latitude: res.latitude,	//维度
+					longitude: res.longitude, //经度
+					name: res.address,	//目的地定位名称
+					scale: 15,	//缩放比例
+					address: res.address	//导航详细地址
+				})
+			},
+			reciveMessage(e){
+				console.log(e)
+			},
+			recivePostMessage(e){ // 地图传递参数
+				// uni.showLoading({
+				// 	mask: true,
+				// 	title: '拼命加载地图数据。。。'
+				// });
+				console.log('地图传递参数', e);
+				let obj = e.detail.data[0];
+				if(e.detail.data[0].selectData){
+					this.alertFleetDetail = e.detail.data[0].selectData;
+					this.$refs.popup.open()
+				}
+				this.showMapLoading = false;
+			}
+		}
+	}
+</script>
+
+<style>
+	.mutual {
+	}
+	.searchHead {
+		padding:90rpx 40rpx 0 40rpx;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.mapLoadingBox {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index:999999;
+	}
+	.searchBox {
+		border-radius: 32rpx;
+		background: rgba(245, 246, 246, 0.9);
+		padding: 0 0 0 26rpx;
+		height: 64rpx;
+		width:432rpx;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+	.searchMsg {
+		font-size:28rpx;
+		color: #777;
+		line-height: 64rpx;
+		font-weight:bold;
+	}
+	.search-img {
+		width: 36rpx;
+		height:36rpx;
+		margin-top: 14rpx;
+		margin-right:18rpx;
+	}
+	.addServiceBtn {
+		background: #FF7D4A;
+		height: 64rpx;
+		width:142rpx;
+		border-radius: 32rpx;
+		margin-left: 40rpx;
+		text-align: center;
+		flex-direction: row;
+		justify-content: flex-start;
+		padding: 0 20rpx;
+	}
+	.addServiceBtnMsg {
+		font-size:28rpx;
+		color: #fff;
+		line-height: 64rpx;
+	}
+	.add-img {
+		width: 30rpx;
+		height: 30rpx;
+		margin-top: 16rpx;
+		margin-right: 10rpx;
+	}
+	
+	
+	.alertContent {
+		background-color: #FFFFFF;
+		margin: 0 40rpx;
+		padding: 0 20rpx;
+		width: 600rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		border-radius: 16rpx;
+	}
+	.pupBottom {
+		height: 80rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.titleFont {
+		font-size: 32rpx;
+		color: #333333;
+		font-weight: 500;
+	}
+	
+	.title {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 28rpx;
+		height: 80rpx;
+	}
+	.contentItem {
+		font-size: 24rpx;
+		font-size: 28rpx;
+		padding: 22rpx 0;
+		width: 450rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid #DDDDDD;
+	}
+	.content-title{
+		color: #777;
+		font-size: 28rpx;
+	}
+	.contentText {
+		font-size: 28rpx;
+	}
+	.contentAddress{
+		width: 300rpx;
+	}
+	.userIcon {
+		width: 28rpx;
+		height: 32rpx;
+	}
+	.addrIcon {
+		width: 28rpx;
+		height: 38rpx;
+	}
+	.plateNoIcon {
+		width: 32rpx;
+		height: 20rpx;
+	}
+	.tips {
+		color: #777777;
+		font-size: 24rpx;
+		
+	}
+</style>

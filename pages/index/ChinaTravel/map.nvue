@@ -1,0 +1,156 @@
+<template>
+	<view class="container">
+		<web-view v-if="showWebView" :webview-styles="webviewStyles" id="myMap" :src="webViewUrl"
+			style="position: fixed; top: 0;left: 0; bottom: 0;right: 0;" @onPostMessage="recivePostMessage">
+		</web-view>
+	</view>
+</template>
+<script>
+	import * as utils from "../../../utils/ship"
+	export default {
+		data() {
+			return {
+				webviewStyles: {
+					progress: false
+				},
+				webViewUrl: "",
+				showWebView: true,
+				isGoBack: true,
+			}
+		},
+		onLoad() {
+			let that = this
+			var userInfo = JSON.parse(uni.getStorageSync("userInfo"));
+			let avatar = userInfo.attrs.avatar ? userInfo.attrs.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png'
+			let userCode = userInfo.attrs.userCode
+			let userName = userInfo.userName
+			if (utils.ApiRootUrl.indexOf('test') > -1) {
+				that.webViewUrl = `https://m-test.hyzgapp.com/ChinaTravelMap/index.html?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=0`
+			} else {
+				that.webViewUrl = `http://m.hyzgapp.com/ChinaTravel/index.html?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=0`
+			}
+			// that.webViewUrl = `https://m-test.hyzgapp.com/?userCode=474208&userName=WUMI8529&avatar=https://cargocn.oss-cn-beijing.aliyuncs.com/8adfa1ed9cd2497e96da078263f67eec.jpg&isShareUrl=0`
+			// that.webViewUrl = `https://m-test.hyzgapp.com/?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=0`
+			
+			// that.webViewUrl = `http://172.16.10.112:8080/#/ChinaTravel?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=0`
+			console.log(that.webViewUrl)
+		},
+		onBackPress() {
+		  let that = this
+		  // 强制更新不允许返回
+		  if (that.isGoBack) {
+			return true
+		  } else {
+			return false
+		  }
+		},
+		methods: {
+			recivePostMessage(e) {
+				let that = this
+				let data = e.detail.data[0]
+				if (data.type == "goBack") {
+					that.showWebView = false
+					that.isGoBack = false
+					uni.navigateBack({
+						delta: 1
+					});
+				} else {
+					that.shareEvent(data.val)
+				}
+			},
+			// 分享到微信好友或者朋友圈
+			shareEvent(type) {
+				var that = this;
+				console.log("分享")
+				var userInfo = JSON.parse(uni.getStorageSync("userInfo"));
+				let avatar = userInfo.attrs.avatar ? userInfo.attrs.avatar : 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/%E9%BB%98%E8%AE%A4%E5%A4%B4%E5%83%8F.png'
+				let userCode = userInfo.attrs.userCode
+				let userName = userInfo.userName
+				var api = '';
+				var shareUrl = ""
+				if (utils.ApiRootUrl.indexOf('test') > -1) {
+					api = 'test'
+					// shareUrl = `http://m.hyzgapp.com/#/ChinaTravel?userCode=${userCode}&userName=${userName}&avatar=${avatar}`
+					shareUrl = `https://m-test.hyzgapp.com/ChinaTravelMap/index.html?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=1`
+					
+				} else {
+					api = 'pord'
+					shareUrl = `http://m.hyzgapp.com/ChinaTravel/index.html?userCode=${userCode}&userName=${userName}&avatar=${avatar}&isShareUrl=1`
+				}
+				uni.share({
+					provider: "weixin",
+					scene: type,
+					type: 0,
+					href: shareUrl ,
+					title: "货运中国 - 点亮中国行",
+					summary: "点亮走过每一处, 点亮物流新生活, 记录2022, 开启物流运输新篇章!",
+					imageUrl: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/share_image.png",
+					success: function(res) {
+						console.log("success:" + JSON.stringify(res));
+					},
+					fail: function(err) {
+						console.log("fail:" + JSON.stringify(err));
+					}
+				});
+			},
+		}
+	}
+</script>
+<style>
+	.container {}
+
+	.header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;	
+		z-index: 99;
+		height: 210rpx;
+		background: #ffffff;
+		padding: 130rpx 40rpx 80rpx 40rpx;
+		box-sizing: border-box;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.earth {
+		width: 362rpx;
+		height: 68rpx;
+		background: rgba(51, 51, 51, 0.59);
+		border-radius: 42px;
+		display: flex;
+		padding: 0 20rpx;
+		box-sizing: border-box;
+		justify-content: space-between;
+		align-items: center;
+
+
+
+
+	}
+
+	.earth image {
+		width: 48rpx;
+		height: 48rpx;
+	}
+
+	.earth view {
+		font-family: PingFangSC-Semibold, PingFang SC;
+		font-weight: 600;
+		color: #FFFFFF;
+		font-size: 26rpx;
+	}
+
+	.rule {
+		font-size: 26rpx;
+		font-family: PingFangSC-Semibold, PingFang SC;
+		font-weight: 600;
+		color: #FFFFFF;
+	}
+
+	.arrow {
+		width: 64rpx;
+		height: 64rpx;
+	}
+</style>

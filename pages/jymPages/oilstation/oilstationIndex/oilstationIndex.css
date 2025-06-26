@@ -1,0 +1,1041 @@
+.topContainer {
+    /* height: 306rpx; */
+    height: 466rpx;
+    width: 100vw;
+    /* position: relative; */
+    position: fixed;
+    /* display: flex;
+    flex-direction: column; */
+    /* background: url("https://cargocnwebimage.oss-cn-beijing.aliyuncs.com/jym/others/oil_logo_bg.png") no-repeat; */
+    background-size: 100% 577rpx;
+    background-position: 0 -60px;
+    z-index: 100;
+    background: #fff;
+}
+.top_box{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background: #fff;
+}
+.swiper {
+    height: 306rpx;
+    width: 100%;
+}
+
+.swiper image {
+    height: 100%;
+    width: 100%;
+}
+
+.topLogo {
+    position: absolute;
+    height: 74rpx;
+    padding: 0rpx 0 0 50rpx;
+    display: flex;
+    align-items: center;
+    top: 70%;
+    left: 3%;
+
+}
+
+.topBg {
+    position: absolute;
+    right: -36rpx;
+    top: 40rpx;
+    transform: rotate(14deg);
+}
+
+.topBg image {
+    width: 300rpx;
+    height: 300rpx;
+}
+
+.topLogo image {
+    /* width: 276rpx;
+    height: 90rpx; */
+    width: 200rpx;
+    height: 50rpx;
+
+}
+
+.top_text {
+    display: flex;
+    height: 40rpx;
+    width: 380rpx;
+    align-items: center;
+    line-height: 44rpx;
+    padding-left: 46rpx;
+    position: absolute;
+    top: 80%;
+    left: 34%;
+}
+
+.top_text image {
+    height: 100%;
+    width: 100%;
+}
+
+.top_text .text {
+    min-width: 124rpx;
+    height: 44rpx;
+    font-size: 29rpx;
+    color: #FFFFFF;
+    text-shadow: 0px 3rpx 6rpx rgba(0, 0, 0, 0.16);
+    font-family: FZShuTi;
+}
+
+.top_text .border {
+    width: 2rpx;
+    height: 26rpx;
+    background-color: #F7F7F7;
+    box-shadow: 0px 3rpx 6rpx rgba(0, 0, 0, 0.16);
+    margin: 0 17rpx;
+}
+
+.topSearchContainer {
+    height: 70rpx;
+    /* width: 100vw; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* margin-top: 73rpx;
+    margin-bottom: 13rpx; */
+    position: absolute;
+    /* top: 20%; */
+    left: 1%;
+}
+
+.inputContainer {
+    height: 70rpx;
+    width: 503rpx;
+    border-radius: 25rpx;
+    background-color: white;
+    font-size: 28rpx;
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+    align-items: center;
+    /*  margin-left: 20rpx; */
+    margin-right: 20rpx;
+    position: relative;
+    z-index: 111;
+}
+
+.inputContainer .inputContainer_icon {
+    position: absolute;
+    top: 22rpx;
+    right: 27rpx;
+}
+
+.weui-search-bar__box {
+    /* position: relative; */
+    position: absolute;
+    padding-left: 8px;
+    /* width: 445rpx; */
+    width: 78%;
+    box-sizing: border-box;
+    z-index: 1;
+    top: 9%;
+    left: 16%;
+    border-radius: 41rpx;
+    opacity: 0.5;
+
+}
+
+.weui-search-bar__box input {
+    height: 70rpx;
+}
+
+.scanContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100rpx;
+    align-items: center;
+    justify-content: center;
+    font-size: 20rpx;
+    margin-left: 24rpx;
+    margin-right: 16rpx;
+    margin-top: 17rpx;
+    color: #469DFC;
+}
+
+.scanImage {
+    height: 48rpx;
+    width: 48rpx;
+}
+
+.couponImage {
+    width: 115rpx;
+    height: 82rpx;
+    position: fixed;
+    right: 0;
+    bottom: 240rpx;
+}
+
+.advs {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 20rpx;
+		margin-bottom: 20rpx;
+		margin-left: 24rpx;
+		width: calc(100vw - 48rpx);
+		height: 140rpx;
+		box-sizing: border-box;
+		border-radius: 10rpx;
+		overflow: hidden;
+		position: relative;
+		
+	}
+.mainBanner {
+	width: 100%;
+	height: 140rpx;
+}
+.advertiesGif {
+	position: absolute;
+	right: 20rpx;
+	top: 20rpx;
+	height: 100rpx;
+	width: 100rpx;
+}
+
+.topView {
+    /* height: 303rpx; */
+    background: #F7F7F7;
+    width: 100%;
+    border-radius: 46rpx 46rpx 0px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    position: absolute;
+    z-index: 111;
+    /* top: 307rpx; */
+    top: 467rpx;
+    left: 0;
+}
+
+.topView .topView_top {
+    /* height: 206rpx; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.topView .topView_top image {
+    width: 98rpx;
+    height: 98rpx;
+}
+
+.topView .topView_top view {
+    font-size: 25rpx;
+    text-align: center;
+    color: #222222;
+}
+
+.topView .topView_top .topView_img {
+    width: 98rpx;
+    height: 98rpx;
+    position: relative;
+}
+
+.topView .topView_top .topView_img image {
+    position: absolute;
+    width: 44rpx;
+    height: 48rpx;
+    top: 25rpx;
+    left: 28rpx;
+}
+
+.topView .topView_btm {
+    height: 97rpx;
+    padding: 0 30rpx;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    border-bottom: 2rpx solid #E2E9F6
+}
+
+.select_box {
+    z-index: 100;
+    margin-top: 90rpx;
+    background: #fff;
+    width: 100%;
+    height: 100vh;
+    background: rgba(110, 110, 110, 0.4);
+    position: relative;
+}
+
+.select {
+    box-sizing: border-box;
+    width: 100%;
+    height: 70rpx;
+    border: 1px solid #efefef;
+    border-radius: 8rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 20rpx;
+}
+
+.select_text {
+    font-size: 30rpx;
+    flex: 1;
+}
+
+.select_img {
+    width: 23rpx;
+    height: 20rpx;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.select_img_rotate {
+    transform: rotate(180deg);
+}
+
+.option_box {
+    position: absolute;
+    top: 0rpx;
+    width: 100%;
+    border: 1px solid #efefef;
+    box-sizing: border-box;
+    height: 0;
+    overflow-y: auto;
+    border-top: 0;
+    background: #F7F7F7;
+    transition: height 0.3s;
+    padding-left: 40rpx;
+    padding-right: 40rpx;
+    z-index: 1000;
+}
+
+.option_box1 {
+    position: absolute;
+    top: 0rpx;
+    width: 100%;
+    border: 1px solid #efefef;
+    box-sizing: border-box;
+    height: 0;
+    overflow-y: auto;
+    border-top: 0;
+    background: #F7F7F7;
+    transition: height 0.3s;
+    z-index: 1000;
+}
+
+.PreferenceType {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.PreferenceType view {
+    width: 25%;
+}
+
+.option_box view {
+    height: 70rpx;
+    margin-top: 5rpx;
+    font-size: 26rpx;
+    /* background: blue; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #666666;
+}
+
+.itemView {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.itemView text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    color: #696969;
+    font-size: 30rpx;
+}
+
+.itemView image {
+    /* margin-top: 20rpx; */
+    margin-left: 10rpx;
+}
+
+.contentView {
+    position: relative;
+    margin-top: 20rpx;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    background: white;
+}
+
+.scrollView {
+    margin-top: 20rpx;
+    position: fixed;
+    width: 100vw;
+    /* height: calc(100vh - 180rpx); */
+    height: 100vh;
+    background: #F7F7F7;
+}
+
+.lineView1 {
+    height: 20rpx;
+    width: 100vw;
+    background: transparent;
+}
+
+.cellView {
+    /* background: #E2E9F6; */
+    display: flex;
+    flex-direction: column;
+    /* margin: 0 25rpx 15rpx 27rpx; */
+    position: relative;
+    /* border-bottom: 2rpx solid #E2E9F6; */
+    justify-content: center;
+    align-items: center;
+    /* padding: 0 0 15rpx; */
+    padding: 10rpx 25rpx 15rpx 32rpx;
+    background-color: #fff;
+    margin-bottom: 20rpx;
+}
+.more-Box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: none;
+    font-size: 30rpx;
+    color: #999;
+    padding-bottom: 10rpx;
+}
+.moreLoading {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 20rpx;
+}
+.cellViewBox{
+    /* padding-top: 420rpx; */
+    padding-top: 580rpx;
+}
+.cellViewBox .cellView:nth-last-child(1) {
+    border: none;
+}
+
+.voucher-identification {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.voucher-identification image {
+    width: 50rpx;
+    height: 50rpx;
+}
+
+.oilInfoView1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* width: 698rpx; */
+    justify-content: space-between;
+}
+
+.oil_gun {
+    position: absolute;
+    top: 71rpx;
+    left: 420rpx;
+    width: 281rpx;
+    height: 137rpx;
+}
+
+.publicStyle {
+    padding-top: 10rpx;
+}
+
+.gear-right {
+    border: 1px solid #C5D7F8;
+    background: #C5D7F8;
+    height: 43rpx;
+	line-height: 43rpx;
+    width: 130rpx;
+    color: #071570;
+    text-align: center;
+    font-size: 26rpx;
+    border-radius: 10rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 10rpx;
+}
+
+.gear-right1 {
+    border: 1px solid #C5D7F8;
+    background: #C5D7F8;
+    height: 43rpx;
+    width: 50rpx;
+    color: #071570;
+    text-align: center;
+    font-size: 26rpx;
+    border-radius: 10rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 10rpx;
+}
+
+.gear-box {
+    display: flex;
+    width: 100%;
+    width: 430rpx;
+    /* justify-content: space-between;
+    width: 300rpx; */
+    /* height: 36rpx; */
+}
+
+.oilInfoView {
+    /* margin-left: 40rpx; */
+    /* margin-top: 20rpx; */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* height: 198rpx; */
+    justify-content: space-between;
+}
+
+.oilInfoView_img {
+    width: 260rpx;
+    height: 198rpx;
+    /* position: relative; */
+}
+
+/* .oilInfoView_img image {
+    width: 260rpx;
+    height: 198rpx;
+    width: 199rpx;
+    height: 121rpx;
+} */
+
+.oilInfoView .oilInfoView_oilName {
+    height: 47rpx;
+    font-size: 38rpx;
+    font-family: PingFang SC;
+    font-weight: 545;
+    line-height: 47rpx;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: calc(100vw - 360rpx);
+}
+
+.oilInfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    /* margin-left: 54rpx; */
+}
+
+.oilInfoView_oilInfo {
+    font-size: 24rpx;
+    padding: 5rpx 10rpx;
+    border: 1px solid #ccc;
+    border-radius: 10rpx;
+}
+
+
+/* .oilInfoView text {
+    font-size: 24rpx;
+    color: #333333;
+    height: 48rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+} */
+
+.oilInfoLine2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 42rpx;
+}
+
+.oilInfoLine2Left {
+    /* display: flex; */
+    width: 345rpx;
+    font-size: 28rpx;
+    color: #777777;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.service_station {
+    width: 199rpx;
+    height: 121rpx;
+    border-radius: 15rpx;
+    border: 1px solid rgb(226, 225, 225);
+}
+
+.oilInfoLine2Right {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 138rpx;
+    height: 54rpx;
+    border: 1px solid #6D9AED;
+    border-radius: 30rpx;
+    color: #F7F7F7;
+    right: 47rpx;
+}
+
+.oilInfoLine2Right text {
+    color: #777777;
+    height: 33rpx;
+    font-size: 24rpx;
+    line-height: 33rpx;
+    margin-left: 11rpx;
+}
+
+.navImage {
+    width: 20rpx;
+    height: 20rpx;
+}
+
+.oilInfoLine3 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 52rpx;
+    justify-content: space-between;
+}
+
+.oilInfoLine3Right {
+    display: flex;
+    padding-left: 30rpx;
+    padding-right: 30rpx;
+    height: 50rpx;
+    border: #469DFC solid 2rpx;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25rpx;
+    color: #469DFC;
+    font-size: 26rpx;
+}
+
+.location-box {
+    /* width: calc(100vw - 360rpx); */
+    /* width: 345rpx; */
+    height: 36rpx;
+    line-height: 36rpx;
+    display: flex;
+    align-items: center;
+}
+
+.location-box image {
+    width: 29rpx;
+    height: 34rpx;
+}
+
+.location-box text {
+    padding-left: 18rpx;
+    font-size: 28rpx;
+    color: #777777;
+}
+
+.oilInfoView label {
+    margin-top: 14rpx;
+    font-size: 24rpx;
+    color: #333333;
+    font-weight: Regular;
+}
+
+.prictView {
+    width: 300rpx;
+    height: 36rpx;
+    line-height: 36rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.prictView .text {
+    min-width: 90rpx;
+    text-align: center;
+    border-radius: 4rpx;
+    color: #333333;
+    font-size: 24rpx;
+    font-family: PingFang SC;
+    font-weight: 530;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+}
+
+.prictView span {
+    text-align: center;
+    background: #F7F7F7;
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #E51F4A;
+}
+
+.prictView span text {
+    font-size: 23rpx;
+}
+
+.scanView {
+    position: fixed;
+    height: 100rpx;
+    width: 100rpx;
+    right: 0rpx;
+    bottom: 150rpx;
+    /* background-color:#67A2FE; */
+    display: flex;
+    flex-direction: row;
+    border-radius: 50rpx;
+}
+
+.scanView image {
+    width: 100%;
+    height: 100%;
+}
+
+
+/* 顶部提示条 */
+
+.page {
+    background-color: var(--weui-BG-2)
+}
+
+.weui-toptips {
+    display: block
+}
+
+swiper {
+    height: calc(100vw - 80rpx);
+    background-color: #fff;
+}
+
+
+/* 弹出框view */
+
+
+/* 弹出框 */
+
+.mask {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000000;
+    opacity: 0.61;
+    z-index: 9999;
+}
+
+.modalDlg {
+    width: 568rpx;
+    height: 722rpx;
+    position: fixed;
+    top: 272rpx;
+    left: 91rpx;
+    z-index: 9999;
+    margin: 0 auto;
+    background: #F7F7F7;
+    border-radius: 18rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modalDlg1 {
+    width: 568rpx;
+    min-height: 400rpx;
+    position: fixed;
+    top: 272rpx;
+    left: 91rpx;
+    z-index: 9999;
+    margin: 0 auto;
+    background: #F7F7F7;
+    border-radius: 18rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modalDlg_close {
+    position: absolute;
+    top: -27rpx;
+    right: -27rpx;
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+}
+
+.modal_top {
+    height: 68rpx;
+    line-height: 68rpx;
+    text-align: center;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+    width: 100%;
+    border-bottom: 1rpx solid #E3E3E3;
+    position: relative;
+}
+
+.modal_top1 {
+    margin-top: 32rpx;
+    height: 42rpx;
+    line-height: 42rpx;
+}
+
+.modal_select {
+    height: 28rpx;
+    line-height: 28rpx;
+    text-align: center;
+    margin: 21rpx 0;
+}
+
+.modal_select text {
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+}
+
+.modalDlg_content {
+    height: 655rpx;
+}
+
+.popupView {
+    width: 100%;
+    height: 130rpx;
+    padding: 0;
+    border-bottom: 1rpx solid #E3E3E3;
+}
+
+.popupView1 {
+    margin-left: 28rpx;
+}
+
+.popupView3 {
+    margin-right: 30rpx;
+}
+
+.groupView_user {
+    display: flex;
+    flex-flow: column;
+}
+
+.modalDlg_content .popupView:nth-last-child(1) {
+    border-bottom: 0
+}
+
+.priceView {
+    margin-top: 20rpx;
+    min-height: 100rpx;
+    padding-bottom: 100rpx;
+    width: 100%;
+    background: #F7F7F7;
+}
+
+.checkboxlabel {
+    width: 100%;
+}
+
+.modal_oil_card {
+    display: flex;
+    width: calc(100% - 130rpx);
+    height: 124rpx;
+    background: #F6ECCF;
+    opacity: 1;
+    border-radius: 11rpx;
+    justify-content: space-between;
+    margin: 0 35rpx;
+    align-items: center;
+    padding: 0 30rpx;
+    margin-bottom: 34rpx;
+}
+
+.modal_oil_card image {
+    width: 112rpx;
+    height: 93rpx;
+}
+
+.modal_oil_card text {
+    font-size: 36rpx;
+    font-family: PingFang SC;
+    font-weight: 500;
+    color: #F2CA5A;
+}
+
+.modal_btm {
+    height: 82rpx;
+    width: 100%;
+    display: flex;
+    margin-top: 14rpx;
+    align-items: center;
+    border-top: 1rpx solid #EAEAEA;
+}
+
+.modal_btm view {
+    width: 50%;
+    text-align: center;
+    line-height: 82rpx;
+    box-sizing: border-box;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #6D9AED;
+}
+
+.modal_btm view:nth-child(1) {
+    border-right: 1rpx solid #EAEAEA;
+    color: #666666;
+}
+
+
+/* 重写 checkbox 样式 */
+
+
+/* 未选中的 背景样式 */
+
+checkbox .wx-checkbox-input {
+    border-radius: 50%;
+    /* 圆角 */
+    width: 46rpx;
+    /* 背景的宽 */
+    height: 46rpx;
+    /* 背景的高 */
+    box-sizing: border-box;
+}
+
+
+/* 选中后的 背景样式 （红色背景 无边框 可根据UI需求自己修改） */
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+    border: 1rpx solid #00ad4f;
+    background: #00ad4f;
+}
+
+
+/* 选中后的 对勾样式 （白色对勾 可根据UI需求自己修改） */
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
+    border-radius: 50%;
+    /* 圆角 */
+    width: 46rpx;
+    /* 选中后对勾大小，不要超过背景的尺寸 */
+    height: 46rpx;
+    /* 选中后对勾大小，不要超过背景的尺寸 */
+    line-height: 46rpx;
+    text-align: center;
+    font-size: 30rpx;
+    /* 对勾大小 30rpx */
+    color: #fff;
+    /* 对勾颜色 白色 */
+    background: transparent;
+    /* 	transform: translate(-50%, -50%) scale(1);
+	-webkit-transform: translate(-50%, -50%) scale(1); */
+}
+
+/*活动*/
+.activity-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.activity {
+    width: 600rpx;
+}
+
+.activity-btn {
+    position: absolute;
+    bottom: 15%;
+    font-size: 22rpx;
+    border-radius: 20rpx;
+    padding: 0 20rpx;
+    color: #B52123;
+    background-color: #F7DC9A;
+    align-items: center;
+}
+
+
+.map-box {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.map-img {
+    width: 50px;
+    height: 50px;
+}
+
+.indicator-class {
+    height: 80rpx;
+}
+
+.picker-box {
+    height: 80rpx;
+    line-height: 80rpx;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+.picker-btn-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 30rpx;
+    left: 0;
+    right: 0;
+}
+
+.picker-btn-child {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25rpx;
+}
+
+.picker-btn {
+    width: 100rpx;
+    padding: 5rpx;
+    text-align: center;
+    border: 1rpx solid #AAAAAA;
+    border-radius: 10rpx;
+    color: #333;
+}
+
+.picker-btn1 {
+    width: 100rpx;
+    padding: 5rpx;
+    text-align: center;
+    border-radius: 10rpx;
+    background-color: #6D9AED;
+    color: #fff;
+}

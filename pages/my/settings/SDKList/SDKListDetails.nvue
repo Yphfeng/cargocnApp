@@ -1,0 +1,29 @@
+<template>
+	<view class="container">
+		<web-view :webview-styles="webviewStyles" id="myMap" :src="webViewUrl"
+			style="position: fixed; top: 0;left: 0; bottom: 0;right: 0;" @onPostMessage="recivePostMessage">
+		</web-view>
+	</view>
+</template>
+<script>
+	export default {
+		data() {
+			return {
+				webviewStyles: {
+					progress: false
+				},
+				webViewUrl: "",
+			}
+		},
+		onLoad(option) {
+			console.log(option)
+			let that = this
+				that.webViewUrl = option.url
+		},
+		methods: {
+		}
+	}
+</script>
+<style>
+	.container {}
+</style>

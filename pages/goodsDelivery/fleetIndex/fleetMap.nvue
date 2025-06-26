@@ -1,0 +1,1528 @@
+<template>
+	<div>
+		<view class="statusBar" :style="{height: statusBarHeight + 'px'}" />
+		<view class="backContent">
+			<view class="backer" @click="back"><image src="../../../static/images/back.png" class="back"></image></view>
+			<view class="title-view"><text class="title-text" v-if="fleetInfo">{{fleetInfo.name}}</text></view>
+			<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/share.png" class="share" @click="generate"></image>
+		</view>
+		<map class="map" id="map" :style="{height: mapHeight + 'rpx'}" :longitude="longitude" :latitude="latitude" :markers="mapList" :scale="scale" @markertap="markertap"></map>
+		<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapRefresh.png" class="refresh" @click="refresh"></image>
+		<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/mapCenter.png" class="mapCenter" @click="mapCenter"></image>
+		
+		<view class="bottomContent">
+		
+			<view class="content">
+				<view class="content-bottom">
+					<view class="contentLeft">
+						<view class="item first">
+							<text class="name">{{selectedMapItem.hideName}}</text>
+							<text class="dateDesc">{{selectedMapItem.dateDesc}}</text>
+							<image class="msgIcon" v-if="fleetInfo.isAdmin" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/phone.png" @click.stop="call(selectedMapItem.mobile)"></image>
+						</view>
+						<view class="item first">
+							<text class="plateNo">{{selectedMapItem.hidePlateNo}}</text>
+							<text class="dateDesc" v-if="selectedMapItem.model">{{selectedMapItem.model}}</text>
+							<text class="address pl-20">{{selectedMapItem.hideAddress}}</text>
+						</view>
+					</view>
+					<view class="btn" @click="openLocation"><text class="text">车辆定位</text></view>
+				</view>
+				<view class="line" />
+				<view class="contentRight">
+					<view class="title-btnWhole">
+						<text class="title">轨迹时间</text>
+						<view class="title-select">
+							<view class="select-time">
+								<view class="select-item" v-for="(item, index) in selectArr" :class="{'select-item-active': item.isSelected, 'select-item-second': index > 0 }" @click="selectTime(index)">
+									<text class="select-item-text" :class="{'select-item-text-active': item.isSelected}">{{item.name}}</text>
+								</view>
+							</view>
+							<view class="select-self">
+								<view class="select-self-item">
+									<picker class="picker" mode="multiSelector" :value="dateTime" @change="changeDateTime"  @columnchange="changeDateTimeColumn" :range="dateTimeArray">
+										<view class='lableBox'>
+											<text class="select-self-item-text" v-if="!params.dateTime">开始时间</text>
+											<text v-else class="select-self-item-has-text">{{params.dateTime}}</text>
+										</view> 
+									</picker>
+									<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png" class="dateSelect"></image>
+								</view>
+								<view class="select-self-item select-self-item-last">
+									<picker class="picker" mode="multiSelector" :value="endTime" @change="changeEndTime"  @columnchange="changeEndTimeColumn" :range="endTimeArray">
+										<view class='lableBox'>
+											<text class="select-self-item-text" v-if="!params.endTime">结束时间</text>
+											<text v-else class="select-self-item-has-text">{{params.endTime}}</text>
+										</view> 
+									</picker>
+									<image src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/dateSelect.png" class="dateSelect"></image>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="btnContent">
+						<view class="boot-item boot-item-first" @click="goAppMap(0)">
+							<text class="boot-item-title">App轨迹</text>
+							<text class="boot-item-sub">(免费)</text>
+						</view>
+						<view class="boot-item boot-item-second" @click="goAppMap(1)">
+							<text class="boot-item-title">北斗轨迹</text>
+							<text class="boot-item-sub">(限时免费)</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+		
+		<view class="popup-box" v-if="isShare" @click="cancelShare">
+			<view class="popup-content">
+				<text class="popup-head">分享到</text>
+				<view class="popup-row">
+					<view class="popup-child" @click="shareEvent('WXSceneSession')">
+						<image class="popup-img" src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/weChat.png"
+							mode=""></image>
+						<text class="popup-child-text">微信好友</text>
+					</view>
+					<view class="popup-child" @click="shareEvent('WXSenceTimeline')">
+						<image class="popup-img"
+							src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/circleFriends.png" mode="">
+						</image>
+						<text class="popup-child-text">朋友圈</text>
+					</view>
+				</view>
+				<view class="cancel-btn" @click="cancelShare"><text class="cancel-btn-text">取消</text></view>
+			</view>
+		</view>
+		<uni-popup ref="chargeAlert" type="center">
+			<view class="hintBox">
+				<view class="alertContent">
+					<text class="hintBox-text">您当前账户余额为0，请充值10元。</text>
+				</view>
+				<view class="bandBtnGroup">
+					<view class="cancelBtn cancel-first" @tap="cancelBand()">
+						<text class="cancelBtn-text">取消</text>
+					</view>
+					<view class="cancelBtn" @tap="goRecharge()">
+						<text class="confirmBtn-text">前往充值</text>
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+	</div>
+</template>
+
+<script>
+	import * as ship from "@/utils/ship";
+	import * as utils from "@/utils/utils";
+	const { dateTimePicker,getMonthDay} = require('@/utils/date.js');
+	
+	var amapFile = require("@/utils/jym-utils/amap-wx.js"); //如：..­/..­/libs/amap-wx.js
+	//如：..­/..­/libs/amap-wx.js
+	var api = require("@/config/api.js");
+	var QQMapWX = require("@/utils/jym-utils/qqmap-wx-jssdk.min.js");
+	var qqmapsdk = new QQMapWX({
+	  key: api.tentCentMapKey
+	});
+	var EARTH_RADIUS = 6378.137; //地球半径
+	//地球半径
+	var willLocation = null; //手动定位的点;
+	//手动定位的点;
+	function rad(d) {
+	  return d * Math.PI / 180.0;
+	}
+	function getDistance(lng1, lat1, lng2, lat2) {
+	  var radLat1 = rad(lat1);
+	  var radLat2 = rad(lat2);
+	  var a = radLat1 - radLat2;
+	  var b = rad(lng1) - rad(lng2);
+	  var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+	  s = s * EARTH_RADIUS;
+	  s = Math.round(s * 10000) / 10000;
+	  return s; //返回数值单位：公里
+	}
+	
+	export default {
+		data() {
+			return {
+				scale: 8,
+				statusBarHeight: 0,
+				mapHeight: 0,
+				latitude: 0,
+				longitude: 0,
+				locationCenter: null,
+				mapList: [],
+				mapAllList: [],
+				totalList: [],
+				isShare: false,
+				selectedMapItem: {},
+				selectArr: [
+					{name: "今天", isSelected: true},
+					{name: "昨天", isSelected: false},
+					{name: "前天", isSelected: false},
+				],
+				dateTime: null,
+				endTime: null,
+				dateTimeArray: null,
+				endTimeArray: null,
+				startYear: 2000,
+				params: {
+					startTime: "",
+					endTime: '',
+				},
+				todaySelected: true,
+				yestodaySelected: false,
+				lastSelected: false,
+				nowDateStr: '',
+				
+				isShow: false,
+				searchVal: '',
+				map_icon: [],
+				offLine_map_icon: [],
+				randomArr: [],
+				pageNum: 1,
+				loading: false,
+			}
+		},
+		onLoad(options) {
+			console.log("地图", options)
+			var that = this;
+			//定时刷新最新的车辆位置
+			uni.$on("driverLocation", () => {
+				var that = this;
+				var fleetId = that.fleetId;
+				var userCode = that.memberItem.userCode;
+				that.setInterVal && clearTimeout(that.setInterVal);
+				that.setInterVal  = setTimeout(() => {
+					that.getServalMapList(fleetId, userCode);
+				}, 300000)
+			})
+			this.mapList = [];
+			var statusBarHeight = uni.getSystemInfoSync().statusBarHeight;
+			var windowHeight = uni.getSystemInfoSync().windowHeight;
+			var mapHeight = windowHeight*2 - statusBarHeight*2 - 66;
+			this.statusBarHeight = statusBarHeight;
+			this.mapHeight = mapHeight;
+			var fleetId = options.fleetId;
+			this.fleetId = fleetId;
+			var info = options.info;
+			this.fleetInfo = JSON.parse(info);
+			//获取轨迹时间
+			var nowDateDay = utils.GetDateStr(0);
+			var yesDateDay = utils.GetDateStr(-1);
+			var beforeDateDay = utils.GetDateStr(-2);
+			this.nowDateDay = nowDateDay;
+			this.yesDateDay = yesDateDay;
+			this.beforeDateDay = beforeDateDay;
+			console.log(nowDateDay, yesDateDay, beforeDateDay, '日期1111');
+			this.initTime();
+			
+			var memberItem  = JSON.parse(options.item);
+			that.memberItem = memberItem;
+			that.latitude = memberItem.latitude;
+			that.longitude = memberItem.longitude;
+			var userCode = memberItem.userCode;
+			setTimeout(() => {
+					that.mapCtx = uni.createMapContext("map");
+			}, 500)
+			uni.getLocation({
+				type: 'gcj02',
+				success: function(res) {
+					console.log(res, '地图', fleetId);
+					that.locationCenter = {
+						latitude: res.latitude,
+						longitude: res.longitude
+					}
+					uni.showLoading({
+						title: '加载中...'
+					})
+					that.getServalMapList(fleetId, userCode);
+				},
+				fail() {
+					uni.showToast({
+						title: '请打开定位',
+						icon: 'none'
+					})
+				}
+			})
+		},
+		watch: {
+			todaySelected(newVal, oldVal) {
+				console.log(newVal, oldVal, '啊啊撒', this.yestodaySelected,this.lastSelected)
+				var yestodaySelected = this.yestodaySelected;
+				var lastSelected = this.lastSelected;
+				if (!newVal) {
+					//清空时间
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}		
+				} else {
+					if (yestodaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			},
+			yestodaySelected(newVal, oldVal) {
+				console.log(newVal, 'asa1111111')
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+				
+				var lastSelected = this.lastSelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';;
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';
+					} else if (lastSelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+				
+			},
+			lastSelected(newVal, oldVal) {
+				var nowDateDay = this.nowDateDay;
+				var nowDateStr = this.nowDateStr;
+				var beforeDateDay = this.beforeDateDay;
+				
+				var yestodaySelected = this.yestodaySelected;
+				var todaySelected = this.todaySelected;
+				if (!newVal) {
+					//清空时间
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.yesDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';;
+					} else if (todaySelected) {
+						this.params.dateTime = this.nowDateDay + ' ' + '00:00';
+						this.params.endTime = this.nowDateDay + ' ' + '23:59';;
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59'
+					} else {
+						this.params.dateTime = '';
+						this.params.endTime = '';
+					}
+				} else {
+					if (todaySelected && yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.this.nowDateDay + ' ' + '23:59';
+					} else if (todaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.this.nowDateDay + ' ' + '23:59';
+					} else if (yestodaySelected) {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.yesDateDay + ' ' + '23:59';
+					} else {
+						this.params.dateTime = this.beforeDateDay + ' ' + '00:00';
+						this.params.endTime = this.beforeDateDay + ' ' + '23:59';
+					}
+				}
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				console.log(dateTime, endTime, 'aaa')
+				if (dateTime) {
+					var obj = this.getPickerArr(dateTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.dateTime = startTime;
+					console.log(obj, 'aaaaa')
+				}
+				if (endTime) {
+					var obj = this.getPickerArr(endTime);
+					var dateTime = obj.dateTime;
+					var startTime = [dateTime[0], dateTime[1], dateTime[2], dateTime[3], dateTime[4]];
+					this.endTime = startTime;
+				}
+			}
+		},
+		onShow() {
+			var that = this;
+			uni.$emit("driverLocation");
+		},
+		onHide() {
+			uni.$off("driverLocation");
+			this.setInterVal && clearTimeout(this.setInterVal);
+		},
+		onUnload() {
+			uni.$off("driverLocation");
+			this.setInterVal && clearTimeout(this.setInterVal);
+		},
+		methods: {
+			//定时刷新当前页面
+			setLocations() {
+				var that = this;
+				
+				//获取地图列表数据
+				uni.getLocation({
+					type: 'gcj02',
+					success: function(res) {
+						that.locationCenter = {
+							latitude: res.latitude,
+							longitude: res.longitude
+						}
+						uni.showLoading({
+							title: '加载中...'
+						})
+						var userCode = that.memberItem.userCode;
+						that.getServalMapList(that.fleetId, userCode);
+					},
+					fail() {
+						uni.showToast({
+							title: '请打开定位',
+							icon: 'none'
+						})
+					}
+				})
+				
+			},
+			back() {
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			//获取单个车辆的位置信息
+			async getServalMapList(fleetId, userCode) {
+				var that = this;
+				var fleetInfo = that.fleetInfo;
+				try{
+					var params = {
+						fleetId,
+						userCode,
+					}
+					console.log(params, '数据111')
+					var res = await ship.newQueryPostRequest("/cd/fleetWithUser/mapList", params);
+					//获取成员详细信息
+					var response = await ship.newQueryPostRequest("/cd/fleetWithUser/list", {
+						fleetId: fleetId,
+						userCode: that.memberItem.userCode,
+						count: false
+									
+					})
+					console.log(res,response, '数据112222222')
+					uni.hideLoading();
+					if (response.retCode == "0000000") {
+						var selectedMapItem = response.rspBody.items[0];
+						if (!selectedMapItem) return;
+						if (selectedMapItem.plateNo) {
+							var hidePlateNo = "";
+							var plateNo = (selectedMapItem.plateNo).split(',')[0];
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								hidePlateNo = plateNo
+							} else {
+								hidePlateNo = plateNo.substr(0, 2) + "***" + plateNo.substr(-1);
+							}
+							selectedMapItem.hidePlateNo = hidePlateNo;
+						}
+						if (selectedMapItem.userName) {
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								selectedMapItem.hideName = selectedMapItem.userName
+							} else {
+								selectedMapItem.hideName = (selectedMapItem.userName).substr(0, 1) + '师傅';
+							}
+							
+						} else {
+							selectedMapItem.hideName = "";
+						}
+						//地址脱敏
+						
+						if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+							if (selectedMapItem.address) {
+								selectedMapItem.hideAddress = selectedMapItem.address
+							} else {
+								var provinceName =  selectedMapItem.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									selectedMapItem.hideAddress = (selectedMapItem.cityName || "") + (selectedMapItem.areaName || "")
+								} else {
+									selectedMapItem.hideAddress = (selectedMapItem.provinceName || "") + (selectedMapItem.cityName || "") + (selectedMapItem.areaName || "")
+								}
+								
+							}
+							
+						} else {
+							var len = (selectedMapItem.address).length;
+							if (len > 0) {
+								selectedMapItem.hideAddress = (selectedMapItem.address).substr(0, 4) + '***'
+							} else {
+								var provinceName =  selectedMapItem.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									var addr = (selectedMapItem.cityName || "") + (selectedMapItem.areaName || "")
+									selectedMapItem.hideAddress = addr.substr(0, 4) + '***'
+								} else {
+									var addr = (selectedMapItem.provinceName || "") + (selectedMapItem.cityName || "") + (selectedMapItem.areaName || "")
+									selectedMapItem.hideAddress = addr.substr(0, 4) + '***'
+								}
+							}
+							
+						}
+						
+						
+						//车型，车长只展示一个;
+						if (selectedMapItem.model) {
+							var model = selectedMapItem.model;
+							selectedMapItem.model = model.split(",")[0]
+						}
+						if (selectedMapItem.locationUpdatedDt) {
+							
+							//判断在线时间处理
+							var dateDesc = utils.findFleetDateDesc(selectedMapItem.locationUpdatedDt);
+							console.log(dateDesc, '在线111111111')
+							selectedMapItem.dateDesc = dateDesc;
+						}
+						that.selectedMapItem = selectedMapItem
+					}
+					if (res.retCode == "0000000") {
+						var mapList = res.rspBody.items;
+						var arr = [];
+						var fleetInfo = this.fleetInfo;
+						var mapListBody = this.mapList;
+						console.log(mapList, 'qwqwqwqwqwqwqwwwqqwqw')
+						mapList.forEach((item, i) => {
+							item.width = 25;
+							item.height = 25;
+							item.id = i;
+						
+							var createDt = item.updatedDt;
+							var createDt = createDt.replace(/-/g,"/")
+							var nowTime = new Date().getTime();
+							
+							var createDtTime = new Date(createDt).getTime();
+							var hour = (nowTime - createDtTime)/(1000*60*60);
+							if (hour > 48) {
+								item.iconPath = "../../../static/images/ship/map/icon_offline.png";
+								
+							} else {
+								if (item.taskStatus == 1) {
+									item.iconPath = "../../../static/images/ship/map/icon_lineing.png";	
+								} else if (item.taskStatus == 2) {
+									item.iconPath = "../../../static/images/ship/map/icon_line.png";	
+								} else {
+									item.iconPath = "../../../static/images/ship/map/icon_lineing.png";	
+								}
+										
+							}
+							if (item.longitude && item.latitude) {
+								arr.push(item);
+							}
+						})
+						var locationCenter = this.locationCenter;
+						var centerArr = [
+							{
+								id: -1,
+								width: 20,
+								height: 20,
+								longitude: locationCenter.longitude,
+								latitude: locationCenter.latitude,
+								iconPath: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/locationCennter.png"
+							}
+						]
+						var mapeList = arr.concat(centerArr);
+						this.mapList = mapeList;
+						// this.selectedMapItem
+						uni.$emit("driverLocation")
+					}
+					uni.hideLoading();
+				}catch(e){
+					console.log(e)
+					uni.hideLoading();
+					//TODO handle the exception
+				}
+			},
+			
+			markertap(e) {
+				console.log(e)
+				var that = this;
+				var markerId = e.detail.markerId;
+				var mapList = that.mapList;
+				if (markerId == -1) return;
+				var findIndex = mapList.findIndex(item => {
+					return item.id == markerId
+				})
+				if (findIndex > -1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+					that.setInterVal && clearTimeout(that.setInterVal);
+					var selectedMapItem = mapList[findIndex];
+					console.log(selectedMapItem, '选择邪恶信息')
+					if (selectedMapItem.userCode) {
+						that.getServalMemnerInfo();
+					}
+				}
+			},
+			async getServalMemnerInfo() {
+				//获取车队成员位置信息
+				try{
+					var fleetInfo = this.fleetInfo;
+					var res = await ship.newQueryPostRequest("/cd/fleetWithUser/list", {
+						fleetId: this.fleetId,
+						userCode: this.selectedMapItem.userCode,
+						count: false
+				
+					})
+					uni.hideLoading();
+					console.log(res, '阿萨');
+					var selectedMapItem = this.selectedMapItem;
+					var obj = new Object();
+					if (res.retCode == "0000000") {
+						var item = res.rspBody.items[0];
+						if (!item) return;
+						if (item.plateNo) {
+							var hidePlateNo = "";
+							var plateNo = (item.plateNo).split(',')[0];
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								hidePlateNo = plateNo
+							} else {
+								hidePlateNo = plateNo.substr(0, 2) + "***" + plateNo.substr(-1);
+							}
+							item.hidePlateNo = hidePlateNo;
+						}
+						if (item.userName) {
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								item.hideName = item.userName
+							} else {
+								item.hideName = (item.userName).substr(0, 1) + '师傅';
+							}
+							
+						} else {
+							item.hideName = "";
+						}
+						//地址脱敏
+						
+						if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+							if (item.address) {
+								item.hideAddress = item.address
+							} else {
+								var provinceName =  item.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									item.hideAddress = (item.cityName || "") + (item.areaName || "")
+								} else {
+									item.hideAddress = (item.provinceName || "") + (item.cityName || "") + (item.areaName || "")
+								}
+								
+							}
+						} else {
+							var len = (item.address).length;
+							if (len > 0) {
+								item.hideAddress = (item.address).substr(0, 4) + '***'
+							} else {
+								var provinceName = item.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									var addr = (item.cityName || "") + (item.areaName || "")
+									item.hideAddress = addr.substr(0, 4) + '***'
+								} else {
+									var addr = (item.provinceName || "") + (item.cityName || "") + (item.areaName || "")
+									item.hideAddress = addr.substr(0, 4) + '***'
+								}
+							}
+						}
+							
+						
+						//车型，车长只展示一个;
+						if (item.model) {
+							var model = item.model;
+							item.model = model.split(",")[0]
+						}
+						if (item.locationUpdatedDt) {
+							
+							//判断在线时间处理
+							var dateDesc = utils.findFleetDateDesc(item.locationUpdatedDt);
+							console.log(dateDesc, '在线111111111')
+							item.dateDesc = dateDesc;
+						}
+						var obj = Object.assign(selectedMapItem, item);
+						this.selectedMapItem = obj;
+						console.log(obj, '对象111')
+						this.$refs.popup.open();
+						
+					}
+				}catch(e){
+					console.log(e);
+					uni.hideLoading();
+					//TODO handle the exception
+				}
+			},
+			async getMemberInfo() {
+				//获取车队成员位置信息
+				try{
+					var that = this;
+					var mapList = that.mapList;
+					var fleetInfo = this.fleetInfo;
+					var res = await ship.newQueryPostRequest("/cd/fleetWithUser/list", {
+						fleetId: this.fleetId,
+						userCode: this.selectedMapItem.userCode,
+						count: false
+
+					})
+					uni.hideLoading();
+					console.log(res, '阿萨');
+					var selectedMapItem = that.selectedMapItem;
+					var obj = new Object();
+					if (res.retCode == "0000000") {
+						var item = res.rspBody.items[0];
+						if (!item) return;
+						var findIndex = mapList.findIndex(atem => {
+							return atem.userCode == item.userCode
+						})
+						console.log(findIndex, 'findIndexfindIndexfindIndexfindIndexfindIndexfindIndexfindIndex')
+						if (findIndex > -1) {
+							mapList[findIndex].latitude = item.latitude;
+							mapList[findIndex].longitude = item.longitude;
+							that.mapList = mapList;
+						}
+						if (item.plateNo) {
+							var hidePlateNo = "";
+							var plateNo = (item.plateNo).split(',')[0];
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								hidePlateNo = plateNo
+							} else {
+								hidePlateNo = plateNo.substr(0, 2) + "***" + plateNo.substr(-1);
+							}
+							item.hidePlateNo = hidePlateNo;
+						}
+						if (item.userName) {
+							if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+								item.hideName = item.userName
+							} else {
+								item.hideName = (item.userName).substr(0, 1) + '师傅';
+							}
+							
+						} else {
+							item.hideName = "";
+						}
+						//地址脱敏
+						if (fleetInfo.isOwner == 1 || fleetInfo.isAdmin == 1) {
+							if (item.address) {
+								item.hideAddress = item.address
+							} else {
+								var provinceName =  item.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									item.hideAddress = (item.cityName || "") + (item.areaName || "")
+								} else {
+									item.hideAddress = (item.provinceName || "") + (item.cityName || "") + (item.areaName || "")
+								}
+								
+							}
+						} else {
+							var len = (item.address).length;
+							if (len > 0) {
+								item.hideAddress = (item.address).substr(0, 4) + '***'
+							} else {
+								var provinceName =  item.provinceName;
+								if (provinceName.indexOf("上海") > -1 || provinceName.indexOf("北京") > -1 || provinceName.indexOf("天津") > -1 || provinceName.indexOf("重庆") > -1) {
+									var addr = (item.cityName || "") + (item.areaName || "")
+									item.hideAddress = addr.substr(0, 4) + '***'
+								} else {
+									var addr = (item.provinceName || "") + (item.cityName || "") + (item.areaName || "")
+									item.hideAddress = addr.substr(0, 4) + '***'
+								}
+							}
+						}
+						
+						
+						//车型，车长只展示一个;
+						if (item.model) {
+							var model = item.model;
+							item.model = model.split(",")[0]
+						}
+						if (item.locationUpdatedDt) {
+							
+							//判断在线时间处理
+							var dateDesc = utils.findFleetDateDesc(item.locationUpdatedDt);
+							console.log(dateDesc, '在线111111111')
+							item.dateDesc = dateDesc;
+						}
+						var obj = Object.assign(selectedMapItem, item);
+						that.selectedMapItem = obj;
+						that.setInterVal && clearTimeout(that.setInterVal);
+						uni.$emit("driverLocation");
+						console.log(obj, '对象111', mapList)
+						
+					}
+					
+				}catch(e){
+					uni.hideLoading();
+					console.log(e, '123456787654321345');
+					//TODO handle the exception
+				}
+			},
+			openLocation() {
+				var selectedMapItem = this.selectedMapItem;
+				uni.openLocation({
+					latitude: selectedMapItem.latitude,
+					longitude: selectedMapItem.longitude,
+					success() {
+						
+					}
+				})
+			},
+			generate() {
+				let that = this;
+				that.isShare = true;
+			},
+			// 取消分享
+			cancelShare() {
+				let that = this;
+				that.isShare = false;
+				that.$forceUpdate();
+			},
+			// 分享到微信好友或者朋友圈
+			shareEvent(type) {
+				var that = this;
+				that.isShare = false;
+				var userInfo = JSON.parse(uni.getStorageSync("userInfo"));
+				var api = '';
+				var shareUrl = ""
+				if(ship.ApiRootUrl.indexOf('test')>-1){
+					api = 'test'
+					shareUrl = "https://m-test.hyzgapp.com/#/fleetMap?fleetId="
+				} else {
+					api = 'pord'
+					shareUrl = "https://m.hyzgapp.com/#/fleetMap?fleetId="
+				}
+				// 微信好友
+				var selectedMapItem = that.selectedMapItem;
+				var fleetInfo = that.fleetInfo;
+				let summary = fleetInfo.name + "车队在线监控地图【复制链接到浏览器打开】  链接";
+				
+				
+				uni.getLocation({
+					geocode: true,
+					success: function(res) {
+						console.log(res, '定位地址');
+						var longitude = (res.longitude).toFixed(6)
+						var latitude = (res.latitude).toFixed(6)
+						if (that.type == "member") {
+							var userCode = that.memberItem.userCode;
+							var shareHref = shareUrl + that.fleetId + "&longitude=" + longitude + "&latitude=" + latitude +  '&api=' + api  + "&userCode=" + userCode;
+						} else {
+							var shareHref = shareUrl + that.fleetId + "&longitude=" + longitude + "&latitude=" + latitude +  '&api=' + api;
+						}
+					
+						uni.share({
+							provider: "weixin",
+							scene: type,
+							type: 0,
+							href: shareHref,
+							// title: that.supplyDetails.startAddr + ' ' + that.supplyDetails.endAddr,
+							title: summary,
+							summary: summary,
+							imageUrl: "https://hyzg-app.oss-cn-beijing.aliyuncs.com/share_image.png",
+							success: function(res) {
+								console.log("success:" + JSON.stringify(res));
+							},
+							fail: function(err) {
+								console.log("fail:" + JSON.stringify(err));
+							}
+						});
+					},
+					fail: function(res) {
+						uni.showToast({
+							title: '请打开定位',
+							icon: 'none'
+						})
+					}
+				})
+			},
+			selectTime(index) {
+				var selectArr = this.selectArr;
+				var isSelected = selectArr[index].isSelected;
+				selectArr[index].isSelected = !isSelected;
+				this.selectArr = selectArr;
+				if (index == 0) {
+					this.todaySelected = !isSelected
+				} else if (index == 1) {
+					this.yestodaySelected = !isSelected
+				} else {
+					this.lastSelected = !isSelected
+				}
+			},
+			async goAppMap(index) {
+				var latitude = this.latitude;
+				var longitude = this.longitude;
+				var dateTime = this.params.dateTime;
+				var endTime = this.params.endTime;
+				var selectedMapItem = this.selectedMapItem;
+				console.log(dateTime, endTime, 'aaaa')
+				if (!dateTime || !endTime) {
+					uni.showToast({
+						title: '请选择轨迹时间',
+						icon: 'none'
+					})
+					return
+				}
+				//最多前三天的数据
+				
+				var willTime = endTime.replace(/-/g, "/");
+				var willTime2 = dateTime.replace(/-/g, "/");
+				var day = utils.getDaysBetween(willTime2, willTime);
+				console.log(day, '日期之差')
+				if (day < 0) {
+					uni.showToast({
+						title: '查询结束时间应大于开始时间',
+						icon: 'none'
+					})
+					return;
+				}
+				if (day > 3) {
+					uni.showToast({
+						title: '最多只能查询三天内的轨迹',
+						icon: 'none'
+					})
+					return;
+				}
+				console.log(selectedMapItem, '飒飒')
+				if (!selectedMapItem.latitude) return;
+				if (index == 1) {
+					//判断是否有多余次数
+					uni.navigateTo({
+						url: './map?index=' + index + '&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+					
+				} else {
+					uni.navigateTo({
+						url: './map?index=' + index + '&dateTime=' + dateTime + '&endTime=' + endTime + '&selectedMapItem=' + JSON.stringify(selectedMapItem)
+					})
+				}
+				
+			},
+			//获取日期的picker显示
+			getPickerArr(date) {
+				// 获取完整的年月日 时分秒，以及默认显示的数组
+				let datenow = new Date();
+				let endYear = datenow.getFullYear();
+				let obj = dateTimePicker(this.startYear, endYear, date);
+				// 精确到分的处理，将数组的秒去掉
+				let lastArray = obj.dateTimeArray.pop();
+				let lastTime = obj.dateTime.pop();
+				return obj
+			},
+			initTime(){
+				
+				var obj = this.getPickerArr();
+				this.dateTimeArray=obj.dateTimeArray;
+				this.endTimeArray = obj.dateTimeArray;
+				var dateTime = obj.dateTime;
+				// this.endTime = obj.dateTime;
+				var startTime = [dateTime[0], dateTime[1], dateTime[2], 0, 0];
+				this.dateTime = startTime;
+				this.endTime = [dateTime[0], dateTime[1], dateTime[2], 23, 59];
+				//获取当前日期
+				
+				this.params.dateTime = this.createTimeStr(this.dateTimeArray,this.dateTime);
+				this.params.endTime= this.createTimeStr(this.endTimeArray,this.endTime);
+				this.nowDateStr = this.createTimeStr(this.endTimeArray,this.endTime);
+				console.log(obj, '是啊实打实1212121', startTime, dateTime)
+				this.$forceUpdate();
+			},
+			changeDateTime(e) {
+				console.log(e)
+				this.dateTime = e.detail.value;
+				this.params.dateTime= this.createTimeStr(this.dateTimeArray,this.dateTime);
+				//ios时间不能用'-'解析成时间戳
+			 },
+			 changeEndTime(e) {
+				 this.endTime = e.detail.value;
+				 this.params.endTime= this.createTimeStr(this.endTimeArray,this.endTime);
+			 },
+			 
+			/*年,月切换时重新更新计算*/
+			changeDateTimeColumn(e) {
+				//let {id} = e.target;
+				let {column,value} = e.detail;
+				if(column==0 || column==1){
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.dateTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.dateTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.dateTime = dateTime;
+					this.dateTimeArray = dateTimeArray;
+				}
+			},
+			changeEndTimeColumn(e) {
+				let {column,value} = e.detail;
+				if(column==0 || column==1){
+					//直接修改数组下标视图不更新,用深拷贝之后替换数组
+					let dateTime = JSON.parse(JSON.stringify(this.endTime));
+					let dateTimeArray = JSON.parse(JSON.stringify(this.endTimeArray));
+					dateTime[column] = value;
+					dateTimeArray[2] = getMonthDay(dateTimeArray[0][dateTime[0]], dateTimeArray[1][dateTime[1]]);
+					this.endTime = dateTime;
+					this.endTimeArray = dateTimeArray;
+				}
+			},
+			
+			createTimeStr(dateTimeArray,dateTime){
+				let timeStr = dateTimeArray[0][dateTime[0]]+'-'+dateTimeArray[1][dateTime[1]]+'-'+dateTimeArray[2][dateTime[2]]+' '+dateTimeArray[3][dateTime[3]]+":"+dateTimeArray[4][dateTime[4]];
+				console.log(timeStr)
+				return timeStr
+			},
+			refresh() {
+				//刷新
+				uni.showLoading({
+					title: '加载中...'
+				})
+				this.setLocations();
+			},
+			mapCenter() {
+				//获取地图列表数据
+				var that = this;
+				uni.getLocation({
+					success: function(res) {
+						console.log(res, '地图');
+						that.mapCtx.moveToLocation({
+							latitude: res.latitude,
+							longitude: res.longitude
+						})
+					},
+					fail() {
+						uni.showToast({
+							title: '请打开定位',
+							icon: 'none'
+						})
+					}
+				})
+			},
+			cancelBand() {
+				this.$refs.chargeAlert.close();
+			},
+			goRecharge() {
+				this.$refs.bandAlert.close();
+				var userInfo = uni.getStorageSync("userInfo");
+				if (!userInfo) {
+					uni.showModal({
+						title: '请登录后操作',
+						confirmText: '去登录',
+						success: function(res) {
+							if (res.confirm) {
+								service.loginSelf(1);
+							}
+						}
+					})
+					return
+				}
+				var identityVerify = JSON.parse(userInfo).attrs.identityVerify;
+				var driverVerify = JSON.parse(userInfo).attrs.driverVerify;
+				var vehicleVerify  = JSON.parse(userInfo).attrs.vehicleVerify;
+				var faceVerify = JSON.parse(userInfo).attrs.faceVerify;
+				if (identityVerify !== 1 || driverVerify!== 1 || vehicleVerify !== 1 || faceVerify != 1 ) {
+					if (identityVerify !== 1 || faceVerify != 1) {
+						uni.navigateTo({
+							url: '/pages/goodsDelivery/userCenter/identifyingUsers/identifyingUsers'
+						})
+					} else if (driverVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/driverVerify/newDriverVerify'
+						})
+					} else if (vehicleVerify !== 1) {
+						uni.navigateTo({
+							url: '../../my/carVerify/newCarVerify'
+						})
+					}
+				}
+			},
+			call(mobile) {
+				if (!mobile) return;
+				uni.makePhoneCall({
+				    phoneNumber: mobile //仅为示例
+				});
+			}
+				
+		}
+	}
+</script>
+
+<style scoped>
+	.pl-20 {
+		padding-left: 20rpx;
+	}
+	.backContent {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		height: 66rpx;
+		width: 750rpx;
+		padding: 0 32rpx;
+	}
+	.backer {
+		width: 66rpx;
+		height: 66rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	.back {
+		width: 22rpx;
+		height: 40rpx;
+	}
+	.share {
+		width: 36rpx;
+		height: 38rpx;
+	}
+	.title-view {
+		width: 300rpx;
+		justify-content: center;
+		align-items: center;
+		
+	}
+	.title-text {
+		lines:1;
+		text-overflow: ellipsis;
+		font-size: 32rpx;
+		color: #333333;
+		font-weight: 600;
+	}
+	.map {
+		width: 750rpx;
+	}
+	.bottomContent {
+		width: 750rpx;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		border-top-left-radius: 40rpx;
+		border-top-right-radius: 40rpx;
+		background-color: #FFFFFF;
+		display: flex;
+		align-items: center;
+		padding: 0 44rpx 30rpx 56rpx;
+		transition-property: height;
+		transition-duration: 0.3s;
+		transition-delay: 0.1s;
+		transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+	}
+	.bottom-title {
+		height: 80rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.bottom-title-text {
+		font-size: 28rpx;
+		color: #333333;
+	}
+	.content {
+		width: 750rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.content-bottom {
+		width: 750rpx;
+		flex: 1;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 32rpx;
+	}
+	.line {
+		width: 686rpx;
+		margin: 0 32rpx;
+		border-top-width: 2rpx;
+		border-top-color: rgba(242, 242, 242, 1);
+		border-style: solid;
+	}
+	.contentLeft {
+		width: 750rpx;
+		padding: 0 32rpx;
+		height: 164rpx;
+		justify-content: center;
+	}
+	.contentRight {
+		flex: 1;
+		width: 750rpx;
+		padding: 28rpx 32rpx 0;
+	}
+	
+	
+	.bottomContent-active {
+		height: 604rpx;
+	}
+	.search-box {
+		width: 750rpx;
+		flex-direction: row;
+		padding: 0 32rpx;
+		justify-content: flex-start;
+		align-items: center;
+		margin-bottom: 20rpx;
+	}
+	.search-box-title {
+		font-size: 24rpx;
+		color: #333333;
+		padding-right: 10rpx;
+	}
+	.search-input {
+		height: 52rpx;
+		font-size: 24rpx;
+		color: #333333;
+		border-radius: 12rpx;
+		flex: 1;
+		padding: 0 16rpx;
+		border: 2rpx solid rgba(217, 217, 217, 1);
+	}
+	.item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		
+	}
+	.first {
+		padding-bottom: 10rpx;
+	}
+	.name {
+		font-size: 32rpx;
+		color: #333333;
+		padding-right: 32rpx;
+		font-weight: 600;
+	}
+	.dateDesc {
+		font-size: 26rpx;
+		color: #777777;
+	}
+	.plateNo {
+		font-size: 26rpx;
+		color: #333333;
+		padding-right: 32rpx;
+	}
+	.address {
+		font-size: 26rpx;
+		color: #777777;
+		width: 400rpx;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	.btn {
+		background-color: #0171F9;
+		border-radius: 16rpx;
+		width: 138rpx;
+		height: 52rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.text {
+		color: #FFFFFF;
+		font-size: 26rpx;
+	}
+	.popup-box {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.6;
+	}
+	
+	.popup-content {
+		position: fixed;
+		bottom: 30rpx;
+		left: 24rpx;
+		right: 24rpx;
+		height: 400rpx;
+		background-color: #fff;
+		z-index: 999;
+		border-radius: 40rpx;
+		padding: 30rpx 40rpx;
+	}
+	
+	.popup-head {
+		color: #333;
+		font-size: 28rpx;
+		font-weight: bold;
+	}
+	
+	.popup-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border-bottom: 2rpx solid #F6F6F6;
+		padding: 30rpx 10rpx;
+	}
+	.popup-child {
+		margin-right: 70rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.popup-child-text {
+		font-size: 22rpx;
+		color: #333;
+	}
+	.popup-img {
+		width: 88rpx;
+		height: 88rpx;
+		margin-bottom: 14rpx;
+	}
+	.cancel-btn {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		height: 90rpx;
+	}
+	.cancel-btn-text {
+		color: #777;
+		font-size: 32rpx;
+	}
+	.refresh {
+		width: 86rpx;
+		height: 86rpx;
+		position: absolute;
+		right: 24rpx;
+		bottom: 650rpx;
+	}	
+	.mapCenter {
+		width: 86rpx;
+		height: 86rpx;
+		position: absolute;
+		right: 24rpx;
+		bottom: 550rpx;
+	}
+	.search-view {
+		width: 120rpx;
+		height: 50rpx;
+		background-color: #0171F9;
+		border-radius: 8rpx;
+		margin-left: 20rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	.search-text {
+		color: #FFFFFF;
+		font-size: 24rpx;
+	}
+	.select-time {
+		flex-direction: row;
+	}
+	.select-item {
+		width: 136rpx;
+		height: 52rpx;
+		border: 2rpx solid #D9D9D9;
+		border-radius: 8rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.select-item-text {
+		color: #D9D9D9;
+		font-size: 28rpx;
+	}
+	.select-item-second {
+		margin-left: 24rpx;
+	}
+	.select-item-active {
+		border: 2rpx solid #0171F9;
+		background-color: #D9EAFF;
+	}
+	.select-item-text-active {
+		color: #0171F9;
+	}
+	.select-self {
+		flex-direction: row;
+		margin-top: 22rpx;
+	}
+	.select-self-item {
+		width: 248rpx;
+		height: 82rpx;
+		border: 2rpx solid #D9D9D9;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		padding: 0 16rpx;
+		border-radius: 8rpx;
+	}
+	.select-self-item-last {
+		margin-left: 32rpx;
+	}
+	.dateSelect {
+		width: 24rpx;
+		height: 20rpx;
+	}
+	.picker {
+		flex: 1;
+	}
+	.select-self-item-text {
+		flex: 1;
+		color: rgba(0, 0, 0, 0.25);
+		font-size: 28rpx;
+	}
+	.select-self-item-has-text {
+		flex: 1;
+		color: #333333;
+		font-size: 28rpx;
+	}
+	.btnContent {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		margin-top: 36rpx;
+	}
+	.boot-item {
+		width: 296rpx;
+		height: 106rpx;
+		justify-content: center;
+		align-items: center;
+		border-radius: 12rpx;
+	}
+	.boot-item-first {
+		background-color: rgba(1, 113, 249, 1);
+		margin-right: 54rpx;
+	}
+	.boot-item-second {
+		background-color: rgba(255, 119, 0, 1);
+	}
+	.boot-item-title {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+	.boot-item-sub {
+		color: #FFFFFF;
+		font-size: 24rpx;
+	}
+	.title-btnWhole {
+		flex-direction: row;
+	}
+	.title {
+		color: #333333;
+		font-size: 32rpx;
+		font-weight: 600;
+		margin-right: 22rpx;
+	}
+	.hintBox {
+		background: #FFFFFF;
+		border-radius: 12rpx;
+		margin: 0 32rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 560rpx;
+		height: 320rpx;
+	}
+	
+	.alertContent {
+		padding: 38rpx 50rpx 0;
+		flex: 1;
+	}
+	.hintBox-text {
+		display: flex;
+		flex-wrap: wrap;
+		font-size: 34rpx;
+		color: #333333;
+	}
+		
+	.bandBtnGroup {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		width: 560rpx;
+		border-top-color: #F3F3F3;
+		border-top-width: 2rpx;
+	}
+	.cancelBtn {
+		flex: 1;
+		height: 88rpx;
+		font-size: 32rpx;
+		font-weight: 500;
+		color: rgba(255, 255, 255, 1);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.cancel-first {
+		border-right-color: #F3F3F3;
+		border-right-width: 2rpx;
+	}
+	.cancelBtn-text {
+		font-size: 32rpx;
+		color: #777777;
+		font-weight: 500;
+	}
+	.confirmBtn-text {
+		font-size: 32rpx;
+		color: #0171F9;
+		font-weight: 500;
+	}
+	.msgIcon {
+		margin-left: 32rpx;
+		height: 28rpx;
+		width: 28rpx;
+	}
+	
+</style>

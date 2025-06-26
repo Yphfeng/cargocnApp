@@ -1,0 +1,2 @@
+export const baseUrl = 'http://www.hyzgapp.com/api';
+export const token = 'eyJhbGciOiJIUzI1NiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWKi5NUrJSMjQ3NjQ3NzQwtDBX0lEqLU4t8kxRsjI0MNBRyslPz8wLqSxIVbKyMAHyUysKgDJmRgZmhsYGBoa1ACyBGs9DAAAA.MhtluVKHwsVTodF487CBM9Aqor2mqHmoTZZe300Ehzg'

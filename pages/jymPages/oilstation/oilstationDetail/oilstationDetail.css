@@ -1,0 +1,914 @@
+.container {
+    height: 100vh;
+    background: #F7F7F7;
+}
+
+
+/* 弹出框 */
+
+.mask {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000000;
+    opacity: 0.61;
+}
+
+.modalDlg {
+    width: 568rpx;
+    height: 722rpx;
+    position: fixed;
+    top: 272rpx;
+    left: 91rpx;
+    z-index: 9999;
+    margin: 0 auto;
+    background: #F7F7F7;
+    border-radius: 18rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modalDlg1 {
+    width: 568rpx;
+    min-height: 400rpx;
+    position: fixed;
+    top: 272rpx;
+    left: 91rpx;
+    z-index: 9999;
+    margin: 0 auto;
+    background: #F7F7F7;
+    border-radius: 18rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.oilInfoView {
+    width: 693rpx;
+    min-height: 353rpx;
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1));
+    border: 1rpx solid #90B1F0;
+    border-radius: 14rpx;
+    margin-top: -95rpx;
+    /* padding-top: 58rpx; */
+    margin-left: 24rpx;
+    /* padding-left:67rpx ; */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.oilInfoView_box {
+    width: 630rpx;
+    padding: 20rpx 0;
+    z-index: 1111;
+}
+
+.oilInfoView rich-text {
+    margin-left: 30rpx;
+    font-size: 32rpx;
+    margin-right: 30rpx;
+}
+
+.oilInfoView_name {
+    width: 188rpx;
+    min-height: 66rpx;
+    font-size: 47rpx;
+    font-family: PingFang SC;
+    font-weight: 500;
+    line-height: 66rpx;
+    color: #222;
+}
+
+.oilInfoView_Img {
+    width: 213rpx;
+    height: 257rpx;
+    position: absolute;
+    top: 59rpx;
+    left: 443rpx;
+}
+
+.statusView {
+    margin-top: 16rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 40rpx;
+}
+
+.statusView image {
+    height: 30rpx;
+    width: 30rpx;
+}
+
+.statusView rich-text {
+    margin-left: 12rpx;
+    font-size: 28rpx;
+    color: #469DFC;
+    font-weight: 400;
+}
+
+.statusView span {
+    font-size: 28rpx;
+    color: #4B4B4B;
+    font-weight: 400;
+}
+
+.oilInfoView_Address {
+    min-width: 516rpx;
+    height: 28rpx;
+    font-size: 24rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 28rpx;
+    color: #4B4B4B;
+    margin-top: 36rpx;
+}
+
+.oilInfoView_Distance {
+    min-width: 182rpx;
+    height: 29rpx;
+    font-size: 22rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 29rpx;
+    color: #469DFC;
+    margin-top: 24rpx;
+    display: flex;
+    align-items: center;
+}
+
+.oilInfoView_Distance1 {
+    min-width: 182rpx;
+    font-size: 22rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 29rpx;
+    color: #469DFC;
+    margin-top: 24rpx;
+    display: flex;
+    align-items: center;
+}
+
+.oilInfoView_Distance image {
+    width: 24rpx;
+    height: 28rpx;
+    margin-right: 10rpx;
+}
+
+.midView {
+    /*  margin-top: 20rpx; */
+    height: 346rpx;
+    background: white;
+    width: 100vw;
+}
+
+.midView view {
+    /*  margin: 20rpx 30rpx 20rpx 30rpx;
+  height: 300rpx; */
+    height: 346rpx;
+    background: white;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.midView image {
+    height: 100%;
+    width: 100%;
+}
+
+
+/* 拼团 */
+
+.groupView {
+    width: 693rpx;
+    min-height: 130rpx;
+    background: #F1F3F7;
+    opacity: 1;
+    border-radius: 14rpx;
+    margin-top: 15rpx;
+    margin-left: 24rpx;
+}
+
+.groupView_Top {
+    height: 50rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.groupView_Top view {
+    height: 30rpx;
+    font-size: 22rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 30rpx;
+    color: #4B4B4B;
+}
+
+.groupView_Top1 {
+    margin-left: 23rpx;
+}
+
+.groupView_Top2 {
+    font-size: 18rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #4B4B4B;
+    margin-right: 23rpx;
+}
+
+.groupView_Top image {
+    width: 9rpx;
+    height: 15rpx;
+    margin-left: 18rpx;
+}
+
+.groupView_content {
+    height: 80rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 21rpx;
+    font-size: 22rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #4B4B4B;
+}
+
+.groupView_content1 {
+    display: flex;
+    align-items: center;
+}
+
+.groupView_content1 image {
+    width: 55rpx;
+    height: 55rpx;
+    background: rgba(0, 0, 0, 0);
+    border-radius: 50%;
+    opacity: 1;
+    margin-right: 20rpx;
+}
+
+.groupView_oil {
+    min-width: 72rpx;
+    height: 28rpx;
+    font-size: 22rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 28rpx;
+    color: #6D9AED;
+    opacity: 1;
+}
+
+.groupView_content2 {
+    display: flex;
+    align-items: center;
+}
+
+.groupView_content2 text {
+    color: #2EA6AC;
+}
+
+.groupView_content3 {
+    margin-left: 60rpx;
+    width: 103rpx;
+    height: 45rpx;
+    line-height: 45rpx;
+    text-align: center;
+    background: #8AD0D5;
+    opacity: 1;
+    border-radius: 8rpx;
+    font-size: 24rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #F7F7F7;
+}
+
+
+/* 弹出框view */
+
+.modalDlg_close {
+    position: absolute;
+    top: -27rpx;
+    right: -27rpx;
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+}
+
+.modal_top {
+    height: 68rpx;
+    line-height: 68rpx;
+    text-align: center;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+    width: 100%;
+    border-bottom: 1rpx solid #E3E3E3;
+    position: relative;
+}
+
+.modal_top1 {
+    margin-top: 32rpx;
+    height: 42rpx;
+    line-height: 42rpx;
+}
+
+.modal_select {
+    height: 28rpx;
+    line-height: 28rpx;
+    text-align: center;
+    margin: 21rpx 0;
+}
+
+.modal_select text {
+    font-size: 20rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+}
+
+.modal_oil_tips {
+    /* height: 28rpx; */
+    /* height: 40%; */
+    /* line-height: calc(100% - 82rpx); */
+    text-align: center;
+    margin: 65rpx 20rpx;
+}
+
+.modal_oil_tips text {
+    font-size: 23rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #666666;
+
+}
+
+.modalDlg_content {
+    height: 655rpx;
+}
+
+.popupView {
+    width: 100%;
+    height: 130rpx;
+    padding: 0;
+    border-bottom: 1rpx solid #E3E3E3;
+}
+
+.popupView1 {
+    margin-left: 28rpx;
+}
+
+.popupView3 {
+    margin-right: 30rpx;
+}
+
+.groupView_user {
+    display: flex;
+    flex-flow: column;
+}
+
+.modalDlg_content .popupView:nth-last-child(1) {
+    border-bottom: 0
+}
+
+.priceView {
+    margin-top: 20rpx;
+    min-height: 100rpx;
+    padding-bottom: 100rpx;
+    width: 100%;
+    background: #F7F7F7;
+}
+
+.checkboxlabel {
+    width: 100%;
+}
+
+.modal_oil_card {
+    display: flex;
+    width: calc(100% - 130rpx);
+    height: 124rpx;
+    background: #F6ECCF;
+    opacity: 1;
+    border-radius: 11rpx;
+    justify-content: space-between;
+    margin: 0 35rpx;
+    align-items: center;
+    padding: 0 30rpx;
+    margin-bottom: 34rpx;
+}
+
+.modal_oil_card image {
+    width: 112rpx;
+    height: 93rpx;
+}
+
+.modal_oil_card text {
+    font-size: 36rpx;
+    font-family: PingFang SC;
+    font-weight: 500;
+    color: #F2CA5A;
+}
+
+.modal_btm {
+    height: 82rpx;
+    width: 100%;
+    display: flex;
+    margin-top: 14rpx;
+    align-items: center;
+    border-top: 1rpx solid #EAEAEA;
+}
+
+.modal_btm view {
+    width: 50%;
+    text-align: center;
+    line-height: 82rpx;
+    box-sizing: border-box;
+    font-size: 30rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #6D9AED;
+}
+
+.modal_btm view:nth-child(1) {
+    border-right: 1rpx solid #EAEAEA;
+    color: #4B4B4B;
+}
+
+.title {
+    margin-top: 30rpx;
+    margin-left: 45rpx;
+    margin-bottom: 41rpx;
+    padding-bottom: 5rpx;
+    width: 120rpx;
+    height: 30rpx;
+    font-size: 30rpx;
+    font-weight: 400;
+    line-height: 34rpx;
+    color: #4B4B4B;
+}
+
+.title1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 48rpx 0 45rpx;
+    color: #4B4B4B;
+}
+
+.title1 view {
+    margin-bottom: 41rpx;
+    padding-bottom: 5rpx;
+    width: 120rpx;
+    height: 30rpx;
+    font-size: 30rpx;
+    font-family: .AppleSystemUIFont;
+    font-weight: 400;
+    color: #4B4B4B;
+}
+
+.title1 view:nth-child(1) {
+    width: 170rpx;
+    margin-left: 4rpx;
+}
+
+.price {
+    margin-top: 5rpx;
+    margin-left: 45rpx;
+    margin-right: 48rpx;
+    margin-bottom: 40rpx;
+    height: 50rpx;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    /* background: red; */
+}
+
+.price rich-text {
+    min-width: 105rpx;
+    height: 32rpx;
+    font-size: 23rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 32rpx;
+    color: #D93F31;
+}
+
+.price rich-text text {
+    color: #4B4B4B;
+}
+
+.price view {
+    width: 150rpx;
+    height: 60rpx;
+    text-align: center;
+    align-items: center;
+    background: #F1F3F7;
+    border: 1rpx solid #90B1F0;
+    border-radius: 8rpx;
+    line-height: 60rpx;
+    font-size: 23rpx;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: #6D9AED;
+}
+
+.getluck {
+    position: absolute;
+    right: 58rpx;
+    bottom: 27rpx;
+    width: 146rpx;
+    height: 50rpx;
+    border: 2rpx solid #6D9AED;
+    opacity: 1;
+    border-radius: 35rpx;
+    font-size: 27rpx;
+    font-family: PingFang SC;
+    text-align: center;
+    font-weight: 400;
+    line-height: 50rpx;
+    color: #6D9AED;
+    z-index: 9998;
+}
+
+button {
+    /*消除button的默认样式*/
+    /*这种写法是对所有的button标签同时生效*/
+    margin: 0px;
+    padding: 0px;
+    /*自定义边框*/
+    border: 0px;
+    /*消除默认点击蓝色边框效果*/
+    outline: none;
+    font-size: 27rpx;
+}
+
+.bottomBtnContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100vw;
+    position: fixed;
+    bottom: 0;
+    font-size: 27rpx;
+    background: #F7F7F7;
+}
+
+.btnLeftContainer {
+    display: flex;
+    flex: 3;
+    flex-direction: row;
+    align-items: center;
+    height: 80rpx;
+    padding: 0 40rpx;
+    color: white;
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    margin-bottom: 20rpx;
+    background: #6D9AED;
+    border-radius: 45rpx;
+}
+
+.btnLeftContainer1 {
+    margin-right: 30rpx;
+}
+
+.btnLeftContainer image {
+    width: 42rpx;
+    height: 42rpx;
+    margin-right: 10rpx;
+}
+
+.btnLeftContainer text {
+    flex: 2;
+    text-align: center;
+}
+
+.btnRightContainer {
+    display: flex;
+    flex: 2;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 30rpx;
+    height: 80rpx;
+    justify-content: center;
+    color: white;
+    margin-right: 30rpx;
+    margin-bottom: 20rpx;
+    background: #469DFC;
+    border-radius: 45rpx;
+}
+
+.btnRightContainer {
+    display: flex;
+    flex: 2;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 30rpx;
+    height: 80rpx;
+    justify-content: center;
+    color: white;
+    margin-right: 30rpx;
+    margin-bottom: 20rpx;
+    background: #469DFC;
+    border-radius: 45rpx;
+}
+
+.addOilBtn {
+    background: #469DFC;
+    border-radius: 45rpx;
+    color: white;
+    font-size: 36rpx;
+    font-weight: Medium;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    line-height: 90rpx;
+}
+
+.addOilBtn image {
+    margin-top: 24rpx;
+    width: 42rpx;
+    height: 42rpx;
+    margin-right: 10rpx;
+}
+
+.fuelListView {
+    width: 100%;
+    min-height: 90rpx;
+}
+
+.statusView .locking {
+    color: #ff0000;
+}
+
+
+/* 重写 checkbox 样式 */
+
+
+/* 未选中的 背景样式 */
+
+checkbox .wx-checkbox-input {
+    border-radius: 50%;
+    /* 圆角 */
+    width: 46rpx;
+    /* 背景的宽 */
+    height: 46rpx;
+    /* 背景的高 */
+    box-sizing: border-box;
+}
+
+
+/* 选中后的 背景样式 （红色背景 无边框 可根据UI需求自己修改） */
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+    border: 1rpx solid #00ad4f;
+    background: #00ad4f;
+}
+
+
+/* 选中后的 对勾样式 （白色对勾 可根据UI需求自己修改） */
+
+checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
+    border-radius: 50%;
+    /* 圆角 */
+    width: 46rpx;
+    /* 选中后对勾大小，不要超过背景的尺寸 */
+    height: 46rpx;
+    /* 选中后对勾大小，不要超过背景的尺寸 */
+    line-height: 46rpx;
+    text-align: center;
+    font-size: 30rpx;
+    /* 对勾大小 30rpx */
+    color: #fff;
+    /* 对勾颜色 白色 */
+    background: transparent;
+    /* 	transform: translate(-50%, -50%) scale(1);
+	-webkit-transform: translate(-50%, -50%) scale(1); */
+}
+
+/* 万金油弹框样式 */
+.black-box {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #000;
+    opacity: 0.4;
+}
+
+.bounced-content {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.content-box {
+    background-color: #fff;
+    width: 600rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20rpx 0;
+    position: relative;
+}
+
+.content-img {
+    width: 400rpx;
+    height: 400rpx;
+    margin: 10rpx 0;
+}
+
+.content-name {
+    font-size: 35rpx;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin: 0 30rpx;
+}
+
+.content-prompt {
+    color: #F19E38;
+    font-size: 25rpx;
+    margin-top: 10rpx;
+}
+
+.cancel-box {
+    position: absolute;
+    top: 10rpx;
+    right: 10rpx;
+    width: 30rpx;
+    height: 30rpx;
+}
+
+.refresh-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refresh-img {
+    width: 50rpx;
+    height: 50rpx;
+    margin-bottom: 10rpx;
+}
+
+.contetn-reset {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.reset-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.cover-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    opacity: 0.9;
+}
+
+.refresh-text {
+    color: #f73d15;
+}
+
+.ok-btn {
+    background-color: #6D9AED;
+    width: 300rpx;
+    color: #fff;
+    padding: 10rpx 0;
+    border-radius: 30rpx;
+    text-align: center;
+    margin-top: 50rpx;
+    font-size: 27rpx;
+}
+
+.content-child {
+    padding-bottom: 15rpx;
+}
+
+.price-content {
+    width: 450rpx;
+    border-top: 1rpx dashed #AAA;
+    box-sizing: border-box;
+    padding: 0 50rpx;
+}
+
+.price-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10rpx;
+    font-size: 25rpx;
+    color: #999;
+}
+
+.price-type {
+    color: #F19F3A;
+    font-size: 25rpx;
+    padding-top: 10rpx;
+}
+
+.price-num {
+    color: #EA3323;
+    font-size: 35rpx;
+    font-weight: 700;
+}
+
+.operation-box {
+    width: 450rpx;
+    display: flex;
+    align-items: center;
+    margin-top: 50rpx;
+}
+
+.operation-child {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel-btn {
+    background-color: #fff;
+    width: 90%;
+    border-radius: 30rpx;
+    text-align: center;
+    padding: 10rpx 0;
+    border: 1rpx solid #AAA;
+    font-size: 27rpx;
+}
+
+.pay-btn {
+    background-color: #6D9AED;
+    width: 90%;
+    border-radius: 30rpx;
+    color: #fff;
+    text-align: center;
+    padding: 10rpx 0;
+    font-size: 27rpx;
+}
+
+.gear-right {
+    border: 1px solid #469DFC;
+    color: #469DFC;
+    font-size: 24rpx;
+    border-radius: 10rpx;
+    margin-right: 10rpx;
+    padding: 10rpx 30rpx;
+    margin-bottom: 10rpx;
+}
+
+.wrap-box {
+    flex-wrap: wrap;
+}
+
+.voucher-identification {
+    z-index: 999;
+    position: absolute;
+    top: -1px;
+    left: -1px;
+}
+
+.voucher-identification image {
+    width: 70rpx;
+    height: 70rpx;
+}

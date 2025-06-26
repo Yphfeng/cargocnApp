@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta id="viewport" name="viewport" content="width=device-width,viewport-fit=cover,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>webview</title>
+		<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.2/vue.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0 !important;
+				font-family: PingFang SC-Regular, PingFang SC;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none; 
+				/* overflow: hidden; */
+			}
+			.label-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.road-box{
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				overflow-x: auto;
+				padding: 10px 0;
+				z-index: 999;
+				background-color: #fff;
+			}
+			.label-box::-webkit-scrollbar {
+                display: none;
+            }
+			.label-child{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.label-text{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.label-text1{
+				margin: 0 15px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			.road-text{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 16px;
+				color: #9E9FA1;
+				font-weight: 700;
+			}
+			.road-text1{
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: #333;
+				font-size: 19px;
+				font-weight: 700;
+			}
+			[v-cloak]{
+			    display: none;
+			}
+			.status-box{
+				position: absolute;
+				top: 70px; 
+				right: 10px; 
+				z-index: 99;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+			.status-img{
+				width: 48px;
+				height: 26px;
+			}
+			.tabs {
+				position: absolute;
+				top: 95px;
+				left: 18px;
+				width: calc(100vw - 36px);
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-icon1.png);
+				background-size: cover;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				background-position: 100%;
+			}
+			.tabs.active {
+				background-image: url(https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/carSourceMap-icon2.png);
+			}
+			.tab-item {
+				flex: 1;
+				height: 39px;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				font-size: 16px;
+				color: #333333;
+			}
+			.tab-item.active {
+				font-weight: 600;
+			}
+
+			.date {
+				font-size: 12px;
+				color: #666666;
+				margin-left: 6px;
+			}
+			.addr {
+				font-size: 14px;
+				color: #333333;
+				line-height: 22px;
+				margin-bottom: 14px;
+			}
+			.car-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				font-size: 18px;
+				color: #333333;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.car-type {
+				margin-right: 15px;
+			}
+			.car-mobile {
+				width: 22px;
+				height: 22px;
+			}
+			.car-news {
+				width: 24px;
+				height: 24px;
+			}
+			.contact-info {
+				display: flex;
+				flex-direction: row;
+				
+			}
+			.car-icon-item {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				line-height: 12px;
+				color: #000000;
+				font-size: 10px;
+			}
+			.car-icon-item:last-child {
+				margin-left: 22px;
+			}
+			.back {
+				position: absolute;
+				left: 18px;
+				top: 59px;
+				width: 28px;
+				height: 28px;
+			}
+			.marker-info {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				z-index: 9999;
+				width: 100%;
+				background-color: #FFFFFF;
+				border-radius: 12px 12px 0 0;
+				display: flex;
+				flex-direction: column;
+				height: 223px;
+				justify-content: flex-start;
+				align-items: flex-start;
+			}
+			.track_img {
+				position: fixed;
+				right: 11px;
+				bottom: 189px;
+				width: 30px;
+				height: 30px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.track_icon {
+				width: 20px;
+				height: 20px;
+			}
+			.title {
+				margin: 17px 21px 8px;
+				color: #333333;
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 22px;
+			}
+			.user-info {
+				display: flex;
+				flex-direction: row;
+				justify-content:flex-start;
+				align-items: center;
+				color: #333333;
+				font-size: 18px;
+				line-height: 22px;
+				margin: 0 21px;
+			}
+			.name:first-child {
+				margin-right: 40px;
+			}
+			.marker-date {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				padding: 25px 21px;
+				width: 100%;
+				box-sizing: border-box;
+			}
+			.selectWhole {
+				border: 1px solid #DFDFDF;
+				border-radius: 4px;
+				flex: 1;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items:  center;
+				height: 30px;
+				font-size: 14px;
+				color: #333333;
+				padding: 0 7px;
+				box-sizing: border-box;
+			}
+			.selectWholeFirst {
+				margin-right: 10px;
+			}
+			.clearIcon {
+				width: 17px;
+				height: 17px;
+			}
+			.marker-btn {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+			}
+			.btn-item {
+				width: 124px;
+				height: 38px;
+				border-radius: 4px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border: 1px solid #2B72F0;
+				background-color: #FFFFFF;
+				color: #2B72F0;
+				font-weight: 400;
+				
+				font-size: 14px;
+			}
+			.btn-default {
+				margin-right: 45px;
+			}
+			.btn-item.btn-active {
+				background-color: #2B72F0;
+				color: #FFFFFF;
+				font-weight: 600;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<div id="container" style="width: 100vw; height: 100vh; position: relative;">
+		</div>
+		<div id="app" v-cloak>
+			
+			<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/car-source-map-back.png" class="back" @click="back">
+			
+			<div class="marker-info" v-if="params">
+				<div class="track_img" @click="refreshEvent">
+					<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_refresh_icon.png" class="track_icon" />
+				</div>
+				<div class="title">运单号：{{params.taskId}}</div>
+				<div class="user-info">
+					<div class="name">
+						<span>司机：</span>{{showName(params.driverName)}}</div>
+					<div class="name">
+						<span>车牌号：</span>{{showPlateNo(params.plateNo)}}</div>
+				</div>
+				<div class="marker-date">
+					<div class="selectWhole selectWholeFirst">
+						
+						<div>{{dateFormat(params.createdDtStart)}}</div>
+						
+						<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_date_icon.png" class="clearIcon" />
+					</div>
+					<div class="selectWhole">
+				
+						<div>{{dateFormat(params.createdDtEnd)}}</div>
+						
+						<img src="https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_date_icon.png" class="clearIcon" />
+					</div>
+				</div>
+				<div class="marker-btn">
+					<div class="btn-item btn-default" :class="{'btn-active': active == 0}" @click="mapSearch(0)">App轨迹（免费）</div>
+					<div class="btn-item" :class="{'btn-active': active == 1}" @click="mapSearch(1)">北斗轨迹（收费）</div>
+				</div>
+				
+			</div>
+			
+	
+		</div>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<script type="text/javascript">
+		        window._AMapSecurityConfig = {
+		            securityJsCode:'8b03bea8180ec5d6635efe8ecacfe2a0',
+		        }
+		</script>
+		<script type="text/javascript"
+			src="https://webapi.amap.com/maps?v=1.4.15&key=5b9b2e858cdd6686a2c60b1420666a32&plugin=AMap.Marker,AMap.Scale,AMap.Driving,AMap.GraspRoad">
+		</script>
+	<!-- 	<script type="text/javascript" 
+			src="https://webapi.amap.com/maps?v=1.4.15&key=011f8982630e524b678d2e7b591cfd3e&plugin=AMap.Driving">
+		</script> -->
+		<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+		<script type="text/javascript">
+			function getQuery(name) {
+				// 正则：[找寻'&' + 'url参数名字' = '值' + '&']（'&'可以不存在）
+				let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				let r = window.location.search.substr(1).match(reg);
+				if (r != null) {
+					// 对参数值进行解码
+					return decodeURIComponent(r[2]);
+				}
+				return null;
+			};
+			var routeLine;
+			var massMarks;
+			var style;
+			var bigImg;
+			var clearPoint = 0;
+			var selectData = {};
+			var clearSelect = 0;
+			var vm = new Vue({
+				el: "#app",
+				data() {
+					return {
+						active: 0,
+						memberInfo: {},
+						mapIndex: 0,
+						isClicking: false,
+						isCommonHelp: false,
+						dataContent: '111111',
+						maps: [],
+						labelArr: [],
+						newLabelArr: [],
+						newLabelId: '',
+						mapType: '',
+						screen: '',
+		
+						Authorization: "",
+						ApiRootUrl: "",
+						RegisterApiRootUrl: "",
+						params: null,
+					}
+				},
+				created() {
+
+				},
+				mounted() {
+					var that = this;
+					this.params = {
+						taskId: getQuery("taskId"),
+						driverName: getQuery("driverName"),
+						plateNo: getQuery("plateNo"),
+						driverPhone: getQuery("driverPhone"),
+						createdDtStart: getQuery("createdDtStart"),
+						createdDtEnd: getQuery("createdDtEnd"),
+						status: getQuery("status"),
+						userCode: getQuery("userCode"),
+					};
+					this.Authorization = getQuery("Authorization");
+					this.ApiRootUrl = getQuery("ApiRootUrl");
+					this.RegisterApiRootUrl = getQuery("RegisterApiRootUrl");
+					this.getList();
+				},
+				methods: {
+					mapSearch(index) {
+						this.active = index;
+						this.refreshEvent();
+					},
+				
+					showName(driverName) {
+						if (!driverName) return "匿名用户";
+						return driverName.slice(0, 1) + '*'
+						
+					},
+					showPlateNo(plateNo) {
+						return plateNo.substr(0, 3) + '***' +  plateNo.substr(-1) 
+					},
+					
+					refreshEvent() {
+						//获取数据
+						var that = this;
+						var mapMarkers = this.mapMarkers;
+						mapkeys.clearMap(mapMarkers);
+						if (routeLine) {
+							mapkeys.remove(routeLine);
+						}
+						
+						this.mapMarkers = [];
+						var webData = {
+							type: 'startLoad'
+						}
+						uni.postMessage({
+							data: webData,
+						});
+						if (this.active == 0) {
+							this.getList();
+						} else {
+							//判断是否有免费次数
+							var obj = new Object();
+							$.ajax({
+								url: that.ApiRootUrl + "/calc/web/datacenter/tr/zj/query",
+								data: JSON.stringify(obj),
+								dataType: "json",
+								contentType: 'application/json',
+								type: "POST",
+								beforeSend: function(xhr) {
+									xhr.setRequestHeader('Authorization', that.Authorization);
+								},
+								success: function(res) {
+									console.log(res, '是否有免费次数')
+									if (res.retCode == "0000000") {
+										if (res.rspBody > 0) {
+											that.getBeiDouList();
+										} else {
+											var webData = {
+												type: 'loadError',
+												message: "暂无免费次数",
+											}
+											uni.postMessage({
+												data: webData,
+											});
+										}
+									} else {
+										var webData = {
+											type: 'loadError',
+											message: res.retDesc,
+										}
+										uni.postMessage({
+											data: webData,
+										});
+									}
+								},
+								fail: function(err) {
+									
+								}
+							})
+						
+						}
+						
+					},
+					getList() {
+						//查App轨迹
+						let that = this;
+						
+						var params = {
+							userCode: that.params.userCode,
+							createdDtStart: that.params.createdDtStart,
+							createdDtEnd: that.params.createdDtEnd,
+						}
+						$.ajax({
+							url: that.RegisterApiRootUrl + "/cd/user/location/trajectory",
+							data: JSON.stringify(params),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', that.Authorization);
+							},
+							success: function(res) {
+								var obj = new Object();
+								console.log(res, '数据')
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+								
+								if (res.retCode == "0000000") {
+									var rsp = res.rspBody;
+									if (rsp.length< 1) {
+										var webData = {
+											type: 'loadError',
+											message: "暂无数据",
+										}
+										uni.postMessage({
+											data: webData,
+										});
+										return;
+									};
+									//规划驾车路线
+									that.getDrivingPoints(rsp);
+									
+								} else {
+									var webData = {
+										type: 'loadError',
+										message: res.retDesc,
+									}
+									uni.postMessage({
+										data: webData,
+									});
+								}
+							},
+							fail: function() {
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+							}
+						})	
+					},
+					getBeiDouList() {
+						//查北斗轨迹
+						let that = this;
+						
+						var params = {
+							plateNo: that.params.plateNo,
+							trackTimeBegin: that.params.createdDtStart,
+							trackTimeEnd: that.params.createdDtEnd,
+							taskId: that.params.taskId,
+							driverName: that.params.driverName,
+							driverPhone: that.params.driverPhone
+						}
+						$.ajax({
+							url: that.ApiRootUrl + "/calc/web/datacenter/findTrack",
+							data: JSON.stringify(params),
+							dataType: "json",
+							contentType: 'application/json',
+							type: "POST",
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader('Authorization', that.Authorization);
+							},
+							success: function(res) {
+								var obj = new Object();
+								console.log(res, '数据')
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+								
+								if (res.retCode == "0000000") {
+									var zjNumber = res.rspBody.zjNumber;
+									if (zjNumber == -1) {
+										var webData = {
+											type: 'loadError',
+											message: "暂无查询次数",
+										}
+										uni.postMessage({
+											data: webData,
+										});
+										return;
+									} else {
+										var items = res.rspBody.tkList;
+										var mapArr = [];
+										if (items.length > 0) {
+											items.forEach(atem => {
+												mapArr.push({
+													longitude: atem.longitude,
+													latitude: atem.latitude,
+												})
+											})
+										}
+										if (items.length < 2) {
+											var webData = {
+												type: 'loadError',
+												message: "暂无数据",
+											}
+											uni.postMessage({
+												data: webData,
+											});
+											return;
+										} else if (items.length == 2) {
+											//有两个点，规划轨迹
+											that.findNoMap(mapArr);
+										} else {
+											that.drawMap(mapArr);
+										}
+									}
+								} else {
+									var webData = {
+										type: 'loadError',
+										message: res.retDesc,
+									}
+									uni.postMessage({
+										data: webData,
+									});
+								}
+							},
+							fail: function() {
+								var webData = {
+									type: 'loadComplete'
+								}
+								uni.postMessage({
+									data: webData,
+								});
+							}
+						})	
+					},
+					getDrivingPoints(rsp) {
+						//驾车路线规划
+						var that = this;
+						if (rsp.length == 2) {
+							//如果只有起点和终点模拟轨迹
+							that.findNoMap(rsp);
+						} else if (rsp.length < 2) {
+							//暂无轨迹
+							var webData = {
+								type: 'loadError',
+								message: res.retDesc,
+							}
+							uni.postMessage({
+								data: "暂无数据",
+							});
+							
+						} else {
+							that.drawMap(rsp);
+						}
+						
+					},
+					//日期格式化
+					dateFormat(time){
+						if (!time) return;
+						time = time.replace(/-/g, '/');
+						var date = new Date(time);
+					    let ret;
+						var fmt = "YYYY-mm-dd HH:MM";
+					    const opt = {
+					        "Y+": date.getFullYear().toString(),        // 年
+					        "m+": (date.getMonth() + 1).toString(),     // 月
+					        "d+": date.getDate().toString(),            // 日
+					        "H+": date.getHours().toString(),           // 时
+					        "M+": date.getMinutes().toString(),         // 分
+					        "S+": date.getSeconds().toString()          // 秒
+					        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+					    };
+					    for (let k in opt) {
+					        ret = new RegExp("(" + k + ")").exec(fmt);
+					        if (ret) {
+					            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+					        };
+					    };
+					    return fmt;
+					},
+					
+					findNoMap(rsp) {
+						//有真实轨迹
+						var startLocation = rsp[0];
+						var endLocation = rsp[1];
+						console.log(startLocation, endLocation, 'aa')
+						driving.search(new AMap.LngLat(startLocation.longitude, startLocation.latitude), new AMap.LngLat(endLocation.longitude, endLocation.latitude), function(status, result) {
+						        // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+						        if (status === 'complete') {
+						           console.log(result, '驾车路线')
+								   
+								    that.drawRoute(result.routes[0])
+						        } else {
+						            console.log('获取驾车数据失败：' + result)
+									var webData = {
+										type: 'loadError',
+										message: "获取路线失败，请重试",
+									}
+									uni.postMessage({
+										data: webData,
+									});
+						        }
+						    });
+					},
+					transFormPath(route) {
+						route.splice(0, 1);
+						route.splice(route.length - 1, 1);
+						var path = []
+										
+						for (var i = 0, l = route.length; i < l; i++) {
+							if (route[i].longitude && route[i].latitude) {
+								path.push(new AMap.LngLat(route[i].longitude, route[i].latitude))
+							}
+							
+						}
+										
+						return path
+					},
+					drawMap(route) {
+						//真实轨迹规划路线
+						//过滤第一个和最后一个
+						var that = this;
+						var startLocation = {
+							longitude: route[0].longitude,
+							latitude: route[0].latitude,
+						}
+						var endLocation = {
+							longitude: route[route.length - 1].longitude,
+							latitude: route[route.length - 1].latitude,
+						}
+						//计算途经点
+						var paths = this.transFormPath(route);
+						driving.search(new AMap.LngLat(startLocation.longitude, startLocation.latitude), new AMap.LngLat(endLocation.longitude, endLocation.latitude), {waypoints: paths}, function(status, result) {
+						        // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+						        if (status === 'complete') {
+						           console.log(result, '驾车路线')
+								   
+								    that.drawRoute(result.routes[0])
+						        } else {
+									var webData = {
+										type: 'loadError',
+										message: res.retDesc,
+									}
+									uni.postMessage({
+										data: "暂无数据",
+									});
+						        }
+						    });
+					},
+					drawRoute(route) {
+						var path = this.parseRouteToPath(route);
+						var optPath = [];
+						optPath.push(path[0]);
+						console.log(path.length, '点的数量');
+						var path_ing = path.slice(1, path.length - 1);
+						if (path_ing.length > 50) {
+							var nu = parseInt(path_ing.length / 50)
+							for (var i = 1; i < 50; i++) {
+								optPath.push(path_ing[i*nu])
+							}
+						} else {
+							var nu = path_ing.length;
+							for (var i = 0; i < nu; i++) {
+								optPath.push(path_ing[i])
+							}
+						}
+						optPath.push(path[path.length - 1]);
+						console.log(optPath, 'asas');
+						
+						var markers = [], startMarker = new Object(), endMarker = new Object(), marker = new Object();
+						optPath.forEach((item, index) => {
+							if (index == 0) {
+								startMarker = new AMap.Marker({
+									position: optPath[0],
+									icon: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_start.png',
+									size: new AMap.Size(46, 56),
+									zoom: 13,
+									offset: new AMap.Pixel(-15, -28), // 设置点标记偏移量
+									map: mapkeys
+								})
+								markers.push(startMarker);
+								
+							} else if (index == optPath.length - 1) {
+								endMarker = new AMap.Marker({
+									position: optPath[optPath.length - 1],
+									icon: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_end.png',
+									size: new AMap.Size(46, 56),
+									zoom: 13,
+									offset: new AMap.Pixel(-15, -28), // 设置点标记偏移量
+									map: mapkeys
+								})
+								markers.push(endMarker)
+								
+							} else {
+								marker = new AMap.Marker({
+									position: item,
+									icon: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/ship/track_ing.png',
+									size: new AMap.Size(46, 56),
+									zoom: 10,
+									offset: new AMap.Pixel(-15, -28), // 设置点标记偏移量
+									map: mapkeys
+								})
+								markers.push(endMarker)
+						
+							}
+						})
+						routeLine = new AMap.Polyline({
+							path: path,
+							isOutline: true,
+							outlineColor: '#ffeeee',
+							borderWeight: 2,
+							strokeWeight: 3,
+							strokeOpacity: 1,
+							strokeColor: '#EA5454',
+							lineJoin: 'round'
+						})
+						//画markers
+						// this.mapMarkers = markers;
+						mapkeys.add(markers);
+						mapkeys.add(routeLine);
+				
+						//调整视野达到最佳显示区域
+						mapkeys.setFitView([startMarker, endMarker, routeLine])
+					},
+					parseRouteToPath(route) {
+						var path = []
+						for (var i = 0, l = route.steps.length; i < l; i++) {
+							var step = route.steps[i]
+				
+							for (var j = 0, n = step.path.length; j < n; j++) {
+							  path.push(step.path[j])
+							}
+						}
+						const arr2 = path.reduce((tempArr, item) => {
+						    if (tempArr.findIndex((ele) => (ele.lat == item.lat && ele.lng == item.lng)) === -1) {
+						         tempArr.push(item)
+						    }
+							return tempArr
+						}, [])
+						return arr2
+					},
+					
+					back() {
+						//返回上一页
+						var webData = {
+							type: 'back'
+						}
+						console.log(webData);
+						uni.postMessage({
+							data: webData,
+						});
+					}
+				}
+			})
+			
+			var centerLon = getQuery("longitude");
+			var centerLat = getQuery("latitude");
+			var centerNum = [centerLon, centerLat];
+			// var centerNum = [121.318163, 31.202984];
+			// vm.dataContent = window.location;
+			console.log(window.location);
+			// var zoomLevel = 10;
+			var zoomLevel = 16;
+			var countNum = 0;
+			var firstNum = 1;
+			var mapkeys = new AMap.Map("container", {
+				resizeEnable: false,
+				rejectMapMask: true,
+				viewMode: '2D',
+				center: centerNum,
+				zoom: zoomLevel,
+				animateEnable: false,
+				isHotspot: false,
+				jogEnable: false,
+				showBuildingBlock: false,
+				buildingAnimation: false,
+				showIndoorMap: false,
+			});
+			//初始化驾车路线规划
+			var driving = new AMap.Driving({
+				ferry: 1, 
+				policy: AMap.DrivingPolicy.LEAST_TIME
+			}); 
+			mapkeys.addControl(new AMap.Scale());
+			new AMap.Marker({
+				map: mapkeys,
+				zIndex: 9999,
+				position: [centerLon, centerLat],
+				icon: new AMap.Icon({            
+					image: 'https://hyzg-app.oss-cn-beijing.aliyuncs.com/appImgs/locationMy.png',
+					size: new AMap.Size(25, 25),  //图标大小
+					imageSize: new AMap.Size(25,25),
+					// imageOffset: new AMap.Pixel(0, 0)
+				}),
+				offset: new AMap.Pixel(-10,-10),  
+			});
+	
+			// 禁用双击放大
+			var lastTouchEnd = 0;
+			document.documentElement.addEventListener('touchend', function (event) {
+			    var now = Date.now();
+			    if (now - lastTouchEnd <= 300) {
+			        event.preventDefault();
+			    }
+			    lastTouchEnd = now;
+			}, {
+			    passive: false
+			});
+		</script>
+	</body>
+</html>

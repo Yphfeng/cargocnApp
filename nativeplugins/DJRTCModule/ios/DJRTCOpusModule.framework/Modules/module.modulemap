@@ -1,0 +1,6 @@
+framework module DJRTCOpusModule {
+  umbrella header "DJRTCOpusModule-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,265 @@
+<template>
+	<view class="">
+		<view :class="[show?'opacity':'opacity1']" @click="cloneEvent"></view>
+		<view id="popup1" :class="[show?'popup-box':'popup-box1']" :style="'height:' + this.screenArr.length==0?'80rpx':'380rpx'">
+			<view class="top">
+				<!-- <view class="screen-child" @click="selectTap">
+					<text class="screen-font">全部分类</text>
+					<image mode="widthFix" class="screen-img" src="/static/images/dropDown.png"></image>
+				</view> -->
+				<view class="screen-child" @click="selectTap">
+					<text class="screen-font">{{distanceLimit}}km</text>
+					<image mode="widthFix" class="screen-img" src="/static/images/dropDown.png"></image>
+				</view>
+				<view class="screen-child2">
+					
+				</view>
+			</view>
+			<view v-if="show">
+				<text :class="[index!=screenArr.length-1?'popup-child2':'popup-child1', item.isSelect?'condition-child1':'condition-child']" v-for="(item, index) in screenArr" @click="selectEvent(index)">{{item.name}}km</text>
+				<!-- <picker-view class="picker-view" indicator-style="height: 80rpx" :value="value" @change="bindChange">
+					<picker-view-column>
+					  <text class="item" v-for="(item, index) in screenArr" :key="index">{{item.name}}</text>
+					</picker-view-column>
+					<picker-view-column>
+					  <text class="item" v-for="(item, index) in screenArr" :key="index">{{item.name}}</text>
+					</picker-view-column>
+				</picker-view>
+				<view class="picker-btn">
+					<view class="picker-child">
+						<text class="praise-box-text1">取消</text>
+					</view>
+					<view class="picker-child">
+						<text class="praise-box-text">确定</text>
+					</view>
+				</view> -->
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				imageUl: '',
+				videoUrl:'',
+				show: false,
+				screenArr: [
+					{name: '30'},
+					{name: '50'},
+					{name: '100', isSelect: true},
+					{name: '150'},
+					{name: '200'},
+				],
+				topHeight: 0,
+				distanceLimit: 100, //距离筛选条件
+			}
+		},
+		created() {
+			const vm = this;
+			var subNVue = uni.getSubNVueById('popup1');
+			console.log(vm.topHeight);
+			subNVue.setStyle({
+				"position": "absolute",
+				"width": "100%",
+				"top": '130px',
+				"height": "100%",
+				"background": "transparent"
+			})
+		},
+		methods: {
+			bindChange(e) {
+				console.log(e.detail.value)
+			},
+			selectEvent(index){
+				console.log('kkkkkkkkkkk')
+				var that = this;
+				that.screenArr.map((val, idx)=>{
+					if(index != idx){
+						val.isSelect = false;
+					} else{
+						val.isSelect = true;
+						that.distanceLimit = val.name;
+					}
+				})
+				uni.$emit('page-popup1', that.distanceLimit);
+				this.cloneEvent();
+			},
+			selectTap(){
+				this.show = true;
+				var subNVue = uni.getSubNVueById('popup1')
+				console.log(this.show)
+				subNVue.setStyle({
+					"position": "absolute",
+					"width": "100%",
+					"top": '130px',
+					"height": "100%",
+					"background": "transparent"
+				})
+				uni.$emit('page-index', 1);
+			},
+			cloneEvent(){
+				var that = this;
+				this.show = false;
+				var subNVue = uni.getSubNVueById('popup1')
+				subNVue.setStyle({
+				    "position": "absolute",
+				    "width": "100%",
+				    "top": '130px',
+				    "height": "8%",
+				    "background": "transparent"
+				})
+				uni.$emit('page-index', 0);
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.top{
+		width: 750rpx;
+		height: 50rpx;
+		align-items: center;
+		justify-content: center;
+		padding: 0 20rpx;
+		flex-direction: row;
+	}
+	.screen-child{
+		flex: 1;
+		flex-direction: row;
+		align-items: center;
+	}
+	.screen-child1{
+		flex: 1;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.screen-child2{
+		flex: 1;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+	}
+	.screen-img{
+		width: 20rpx;
+		margin-right: 10rpx;
+	}
+	.screen-font{
+		color: #333;
+		font-size: 28rpx;
+	}
+	.popup-box{
+		position: fixed;
+		width: 750rpx;
+		text-align: center;
+		background-color: #fff;
+		border-bottom-left-radius: 30rpx;
+		border-bottom-right-radius: 30rpx;
+		padding: 20rpx 0;
+	}
+	.popup-box1{
+		position: fixed;
+		width: 750rpx;
+		text-align: center;
+		background-color: #fff;
+		padding: 20rpx 0;
+	}
+	.popup-child1{
+		padding: 20rpx;
+		color: #333;
+		font-size: 30rpx;
+		border-top: 1rpx;
+		border-top-color: #f3f3f3;
+	}
+	.popup-child2{
+		border-top: 1rpx;
+		border-top-color: #f3f3f3;
+		border-bottom: 1rpx;
+		border-bottom-color: #f3f3f3;
+		padding: 20rpx;
+		color: #333;
+		font-size: 30rpx;
+	}
+	.condition-child{
+		padding: 20rpx;
+		border-top: 1rpx solid #f3f3f3;
+		border-bottom: 1rpx solid #f3f3f3;
+	}
+	.condition-child1{
+		padding: 20rpx;
+		border-top: 1rpx solid #f3f3f3;
+		border-bottom: 1rpx solid #f3f3f3;
+		color: #0077FF;
+	}
+	.opacity{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.4;
+		width: 750rpx;
+		z-index: 99
+	}
+	.opacity1{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		width: 750rpx;
+		opacity: 0;
+		z-index: 99
+	}
+	.picker-view {
+		width: 750rpx;
+		height: 200rpx;
+		margin-top: 20rpx;
+	}
+	.indicator{
+		height: 80rpx;
+	}
+	.item {
+		height: 80rpx;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		flex-direction: row;
+		font-size: 30rpx;
+		line-height: 80rpx;  
+	}
+	.picker-btn{
+		flex-direction: row;
+		align-items: center;
+		margin-top: 50rpx;
+		margin-bottom: 20rpx;
+	}
+	.picker-child{
+		flex: 1;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.praise-box-text{
+		background-color: #3375F6;
+		width: 100rpx;
+		color: #fff;
+		font-size: 30rpx;
+		padding: 10rpx;
+		text-align: center;
+		border-radius: 10rpx;
+	}
+	.praise-box-text1{
+		width: 100rpx;
+		color: #333;
+		font-size: 30rpx;
+		padding: 10rpx;
+		text-align: center;
+		border-radius: 10rpx;
+		border: 1rpx solid #999;
+	}
+</style>

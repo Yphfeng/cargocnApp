@@ -1,0 +1,20 @@
+{
+    "name": "TransportModule",
+    "id": "TransportModule",
+    "version": "2.0.0",
+    "description": "sdk",
+    "_dp_type":"nativeplugin",
+    "_dp_nativeplugin":{
+        "android": {
+			"hooksClass": "com.wnq.transport.Transport_AppProxy",
+            "plugins": [
+                {
+                    "type": "module",
+                    "name": "TransportModule",
+                    "class": "com.wnq.transport.TransportModule"
+                }
+            ],
+			"integrateType": "aar"
+        }
+    }
+}
