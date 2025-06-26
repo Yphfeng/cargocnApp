@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/loginLogo" alt="logo" width="50px" height="50px" />
+<img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/loginLogo.jpg" alt="logo" width="50px" height="50px" />
 
 <h1>货先生</h1>
 
