@@ -15,4 +15,13 @@
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/my.jpg" alt="我的" width="100px" height="250px" />
 <img src="https://github.com/Yphfeng/cargocnApp/blob/main/images/shipMy.jpg" alt="货主我的" width="100px" height="250px" />
 
+## ✨ 实现功能
+
+- 🌈 司机找货、物流运输、车辆加油
+- 📦 货主找车、发布货源、接单提醒
+- 🛡 油气交易、车辆服务、卡友互助
+- ⚙️ 短导运输、运力采购、路况天气
+
+
+
 
