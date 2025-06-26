@@ -6,3 +6,6 @@
 
 连接千万物流人的数字化运力App
 
+[首页]: https://github.com/Yphfeng/cargocnApp/blob/main/images/main.jpg
+
+
